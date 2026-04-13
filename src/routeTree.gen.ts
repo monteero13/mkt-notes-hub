@@ -9,8 +9,50 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PlanificadorRouteImport } from './routes/planificador'
+import { Route as ObjetivosRouteImport } from './routes/objetivos'
+import { Route as IdeasRouteImport } from './routes/ideas'
+import { Route as EquipoRouteImport } from './routes/equipo'
+import { Route as ContenidoRouteImport } from './routes/contenido'
+import { Route as CampanasRouteImport } from './routes/campanas'
+import { Route as BibliotecaRouteImport } from './routes/biblioteca'
 import { Route as IndexRouteImport } from './routes/index'
 
+const PlanificadorRoute = PlanificadorRouteImport.update({
+  id: '/planificador',
+  path: '/planificador',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ObjetivosRoute = ObjetivosRouteImport.update({
+  id: '/objetivos',
+  path: '/objetivos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IdeasRoute = IdeasRouteImport.update({
+  id: '/ideas',
+  path: '/ideas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EquipoRoute = EquipoRouteImport.update({
+  id: '/equipo',
+  path: '/equipo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContenidoRoute = ContenidoRouteImport.update({
+  id: '/contenido',
+  path: '/contenido',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CampanasRoute = CampanasRouteImport.update({
+  id: '/campanas',
+  path: '/campanas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BibliotecaRoute = BibliotecaRouteImport.update({
+  id: '/biblioteca',
+  path: '/biblioteca',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +61,130 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/biblioteca': typeof BibliotecaRoute
+  '/campanas': typeof CampanasRoute
+  '/contenido': typeof ContenidoRoute
+  '/equipo': typeof EquipoRoute
+  '/ideas': typeof IdeasRoute
+  '/objetivos': typeof ObjetivosRoute
+  '/planificador': typeof PlanificadorRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/biblioteca': typeof BibliotecaRoute
+  '/campanas': typeof CampanasRoute
+  '/contenido': typeof ContenidoRoute
+  '/equipo': typeof EquipoRoute
+  '/ideas': typeof IdeasRoute
+  '/objetivos': typeof ObjetivosRoute
+  '/planificador': typeof PlanificadorRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/biblioteca': typeof BibliotecaRoute
+  '/campanas': typeof CampanasRoute
+  '/contenido': typeof ContenidoRoute
+  '/equipo': typeof EquipoRoute
+  '/ideas': typeof IdeasRoute
+  '/objetivos': typeof ObjetivosRoute
+  '/planificador': typeof PlanificadorRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/biblioteca'
+    | '/campanas'
+    | '/contenido'
+    | '/equipo'
+    | '/ideas'
+    | '/objetivos'
+    | '/planificador'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/biblioteca'
+    | '/campanas'
+    | '/contenido'
+    | '/equipo'
+    | '/ideas'
+    | '/objetivos'
+    | '/planificador'
+  id:
+    | '__root__'
+    | '/'
+    | '/biblioteca'
+    | '/campanas'
+    | '/contenido'
+    | '/equipo'
+    | '/ideas'
+    | '/objetivos'
+    | '/planificador'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BibliotecaRoute: typeof BibliotecaRoute
+  CampanasRoute: typeof CampanasRoute
+  ContenidoRoute: typeof ContenidoRoute
+  EquipoRoute: typeof EquipoRoute
+  IdeasRoute: typeof IdeasRoute
+  ObjetivosRoute: typeof ObjetivosRoute
+  PlanificadorRoute: typeof PlanificadorRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/planificador': {
+      id: '/planificador'
+      path: '/planificador'
+      fullPath: '/planificador'
+      preLoaderRoute: typeof PlanificadorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/objetivos': {
+      id: '/objetivos'
+      path: '/objetivos'
+      fullPath: '/objetivos'
+      preLoaderRoute: typeof ObjetivosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ideas': {
+      id: '/ideas'
+      path: '/ideas'
+      fullPath: '/ideas'
+      preLoaderRoute: typeof IdeasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/equipo': {
+      id: '/equipo'
+      path: '/equipo'
+      fullPath: '/equipo'
+      preLoaderRoute: typeof EquipoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contenido': {
+      id: '/contenido'
+      path: '/contenido'
+      fullPath: '/contenido'
+      preLoaderRoute: typeof ContenidoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/campanas': {
+      id: '/campanas'
+      path: '/campanas'
+      fullPath: '/campanas'
+      preLoaderRoute: typeof CampanasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/biblioteca': {
+      id: '/biblioteca'
+      path: '/biblioteca'
+      fullPath: '/biblioteca'
+      preLoaderRoute: typeof BibliotecaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,6 +197,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BibliotecaRoute: BibliotecaRoute,
+  CampanasRoute: CampanasRoute,
+  ContenidoRoute: ContenidoRoute,
+  EquipoRoute: EquipoRoute,
+  IdeasRoute: IdeasRoute,
+  ObjetivosRoute: ObjetivosRoute,
+  PlanificadorRoute: PlanificadorRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
