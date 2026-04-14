@@ -1,15 +1,18 @@
 {
   "buildCommand": "npm run build",
   "installCommand": "bun install",
-  "framework": null,
+  "framework": "vite",
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
       "source": "/(.*)",
-      "destination": "/dist/server/index.js"
+      "destination": "/index.html"
     }
   ],
   "env": {
-    "NODE_VERSION": "20",
     "BUN_VERSION": "1.0.0"
   }
 }
