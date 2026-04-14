@@ -12,7 +12,9 @@
       "pro": "Pro",
       "premium_access": "Acceso Premium",
       "premium_desc": "Desbloquea campañas ilimitadas y análisis avanzado por solo 5€/mes.",
-      "upgrade_now": "Actualizar Ahora"
+      "upgrade_now": "Actualizar Ahora",
+      "light_mode": "Modo Claro",
+      "dark_mode": "Modo Oscuro"
     },
     "tutorial": {
       "next": "Siguiente",

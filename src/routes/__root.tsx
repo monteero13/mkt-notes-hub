@@ -46,7 +46,9 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
     ],
     links: [
-      { rel: "icon", type: "image/svg+xml", href: "/logo.svg" },
+      { rel: "icon", type: "image/svg+xml", href: "/favicon.svg?v=1" },
+      { rel: "shortcut icon", href: "/favicon.svg?v=1" },
+      { rel: "apple-touch-icon", href: "/favicon.svg?v=1" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },

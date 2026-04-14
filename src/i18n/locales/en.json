@@ -12,7 +12,9 @@
       "pro": "Pro",
       "premium_access": "Premium Access",
       "premium_desc": "Unlock unlimited campaigns and advanced analytics for just 5€/month.",
-      "upgrade_now": "Upgrade Now"
+      "upgrade_now": "Upgrade Now",
+      "light_mode": "Light Mode",
+      "dark_mode": "Dark Mode"
     },
     "tutorial": {
       "next": "Next",

@@ -1,6 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { Step } from 'react-joyride';
 import { STATUS } from 'react-joyride';
 
 const Joyride: any = lazy(() =>
@@ -13,13 +12,34 @@ export function OnboardingTutorial() {
   const { t } = useTranslation();
   const [run, setRun] = useState(false);
   const [isMounted, setIsMounted] = useState(false); // ✅ evita SSR
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
+    
+    // Check initial theme
+    setIsDarkMode(document.documentElement.classList.contains('dark'));
+
+    // Observe theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          setIsDarkMode(document.documentElement.classList.contains('dark'));
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
     const hasSeenTutorial = localStorage.getItem('mkt_notes_tutorial_completed');
     if (!hasSeenTutorial) {
       setRun(true);
     }
+
+    return () => observer.disconnect();
   }, []);
 
   const handleJoyrideCallback = (data: any) => {
@@ -31,23 +51,25 @@ export function OnboardingTutorial() {
     }
   };
 
-  const steps: Step[] = [
+  const steps: any[] = [
     {
       target: 'body',
       placement: 'center',
+      disableBeacon: true,
       content: (
-        <div className="text-left font-sans">
-          <h3 className="text-lg font-bold mb-2">{t('tutorial.step1_title')}</h3>
-          <p className="text-sm text-muted-foreground">{t('tutorial.step1_content')}</p>
+        <div className="text-left">
+          <h3 className="text-2xl font-heading font-bold mb-4 text-primary tracking-tight">{t('tutorial.step1_title')}</h3>
+          <p className="text-base font-body text-foreground/80 leading-relaxed">{t('tutorial.step1_content')}</p>
         </div>
       ),
     },
     {
       target: '.tour-item-dashboard',
+      disableBeacon: true,
       content: (
-        <div className="text-left font-sans">
-          <h3 className="text-lg font-bold mb-2">{t('tutorial.step_dashboard_title')}</h3>
-          <p className="text-sm text-muted-foreground">{t('tutorial.step_dashboard_content')}</p>
+        <div className="text-left font-body">
+          <h3 className="text-xl font-heading font-bold mb-3 text-primary">{t('tutorial.step_dashboard_title')}</h3>
+          <p className="text-sm text-foreground/80 leading-relaxed">{t('tutorial.step_dashboard_content')}</p>
         </div>
       ),
       placement: 'right',
@@ -55,85 +77,91 @@ export function OnboardingTutorial() {
     {
       target: '.tour-item-planificador',
       content: (
-        <div className="text-left font-sans">
-          <h3 className="text-lg font-bold mb-2">{t('tutorial.step_planificador_title')}</h3>
-          <p className="text-sm text-muted-foreground">{t('tutorial.step_planificador_content')}</p>
+        <div className="text-left font-body">
+          <h3 className="text-xl font-heading font-bold mb-3 text-primary">{t('tutorial.step_planificador_title')}</h3>
+          <p className="text-sm text-foreground/80 leading-relaxed">{t('tutorial.step_planificador_content')}</p>
         </div>
       ),
       placement: 'right',
     },
     {
       target: '.tour-item-contenido',
+      disableBeacon: true,
       content: (
-        <div className="text-left font-sans">
-          <h3 className="text-lg font-bold mb-2">{t('tutorial.step_contenido_title')}</h3>
-          <p className="text-sm text-muted-foreground">{t('tutorial.step_contenido_content')}</p>
+        <div className="text-left font-body">
+          <h3 className="text-xl font-heading font-bold mb-3 text-primary">{t('tutorial.step_contenido_title')}</h3>
+          <p className="text-sm text-foreground/80 leading-relaxed">{t('tutorial.step_contenido_content')}</p>
         </div>
       ),
       placement: 'right',
     },
     {
       target: '.tour-item-campanas',
+      disableBeacon: true,
       content: (
-        <div className="text-left font-sans">
-          <h3 className="text-lg font-bold mb-2">{t('tutorial.step_campanas_title')}</h3>
-          <p className="text-sm text-muted-foreground">{t('tutorial.step_campanas_content')}</p>
+        <div className="text-left font-body">
+          <h3 className="text-xl font-heading font-bold mb-3 text-primary">{t('tutorial.step_campanas_title')}</h3>
+          <p className="text-sm text-foreground/80 leading-relaxed">{t('tutorial.step_campanas_content')}</p>
         </div>
       ),
       placement: 'right',
     },
     {
       target: '.tour-item-objetivos',
+      disableBeacon: true,
       content: (
-        <div className="text-left font-sans">
-          <h3 className="text-lg font-bold mb-2">{t('tutorial.step_objetivos_title')}</h3>
-          <p className="text-sm text-muted-foreground">{t('tutorial.step_objetivos_content')}</p>
+        <div className="text-left font-body">
+          <h3 className="text-xl font-heading font-bold mb-3 text-primary">{t('tutorial.step_objetivos_title')}</h3>
+          <p className="text-sm text-foreground/80 leading-relaxed">{t('tutorial.step_objetivos_content')}</p>
         </div>
       ),
       placement: 'right',
     },
     {
       target: '.tour-item-ideas',
+      disableBeacon: true,
       content: (
-        <div className="text-left font-sans">
-          <h3 className="text-lg font-bold mb-2">{t('tutorial.step_ideas_title')}</h3>
-          <p className="text-sm text-muted-foreground">{t('tutorial.step_ideas_content')}</p>
+        <div className="text-left font-body">
+          <h3 className="text-xl font-heading font-bold mb-3 text-primary">{t('tutorial.step_ideas_title')}</h3>
+          <p className="text-sm text-foreground/80 leading-relaxed">{t('tutorial.step_ideas_content')}</p>
         </div>
       ),
       placement: 'right',
     },
     {
       target: '.tour-item-biblioteca',
+      disableBeacon: true,
       content: (
-        <div className="text-left font-sans">
-          <h3 className="text-lg font-bold mb-2">{t('tutorial.step_biblioteca_title')}</h3>
-          <p className="text-sm text-muted-foreground">{t('tutorial.step_biblioteca_content')}</p>
+        <div className="text-left font-body">
+          <h3 className="text-xl font-heading font-bold mb-3 text-primary">{t('tutorial.step_biblioteca_title')}</h3>
+          <p className="text-sm text-foreground/80 leading-relaxed">{t('tutorial.step_biblioteca_content')}</p>
         </div>
       ),
       placement: 'right',
     },
     {
       target: '.tour-item-equipo',
+      disableBeacon: true,
       content: (
-        <div className="text-left font-sans">
-          <h3 className="text-lg font-bold mb-2">{t('tutorial.step_equipo_title')}</h3>
-          <p className="text-sm text-muted-foreground">{t('tutorial.step_equipo_content')}</p>
+        <div className="text-left font-body">
+          <h3 className="text-xl font-heading font-bold mb-3 text-primary">{t('tutorial.step_equipo_title')}</h3>
+          <p className="text-sm text-foreground/80 leading-relaxed">{t('tutorial.step_equipo_content')}</p>
         </div>
       ),
       placement: 'right',
     },
     {
       target: '.tour-upgrade-card',
+      disableBeacon: true,
       content: (
-        <div className="text-left font-sans">
-          <h3 className="text-lg font-bold mb-2">{t('tutorial.step3_title')}</h3>
-          <p className="text-sm text-muted-foreground">{t('tutorial.step3_content')}</p>
+        <div className="text-left font-body">
+          <h3 className="text-xl font-heading font-bold mb-3 text-primary">{t('tutorial.step3_title')}</h3>
+          <p className="text-sm text-foreground/80 leading-relaxed">{t('tutorial.step3_content')}</p>
         </div>
       ),
       placement: 'right',
     }
   ];
-
 
   if (!isMounted) return null;
 
@@ -147,6 +175,8 @@ export function OnboardingTutorial() {
         scrollToFirstStep
         showProgress
         showSkipButton
+        disableBeacons
+        disableOverlayClose
         steps={steps}
         locale={{
           last: t('tutorial.last'),
@@ -156,66 +186,75 @@ export function OnboardingTutorial() {
         }}
         styles={{
           options: {
-            arrowColor: 'rgba(255, 255, 255, 0.8)',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            overlayColor: 'rgba(0, 0, 0, 0.4)',
-            primaryColor: 'oklch(0.588 0.158 252)',
-            textColor: 'oklch(0.15 0.02 260)',
+            arrowColor: isDarkMode ? 'rgba(30, 41, 59, 1)' : 'rgba(255, 255, 255, 1)',
+            backgroundColor: isDarkMode ? 'rgba(30, 41, 59, 1)' : 'rgba(255, 255, 255, 1)',
+            overlayColor: isDarkMode ? 'rgba(0, 0, 0, 0.85)' : 'rgba(0, 0, 0, 0.7)',
+            primaryColor: 'var(--primary)',
+            textColor: isDarkMode ? 'rgba(255, 255, 255, 1)' : 'var(--foreground)',
             zIndex: 1000,
           },
           tooltip: {
-            borderRadius: '20px',
-            backdropFilter: 'blur(20px)',
-            backgroundColor: 'rgba(255, 255, 255, 0.85)',
-            border: '1px solid rgba(255, 255, 255, 0.3)',
-            boxShadow: '0 20px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)',
-            padding: '24px',
-            fontFamily: '"Manrope", sans-serif',
+            borderRadius: '24px',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            backgroundColor: isDarkMode ? 'rgba(15, 23, 42, 0.98)' : 'rgba(255, 255, 255, 0.98)',
+            border: isDarkMode ? '1px solid rgba(255, 255, 255, 0.15)' : '1px solid rgba(0, 0, 0, 0.1)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            padding: '40px', // Aumentado para que la X no se salga
           },
           tooltipContainer: {
             textAlign: 'left',
           },
           tooltipTitle: {
-            fontFamily: '"Sora", sans-serif',
-            fontSize: '18px',
-            fontWeight: 700,
-            marginBottom: '12px',
-            color: 'oklch(0.588 0.158 252)',
+            fontFamily: 'var(--font-heading)',
+            fontSize: '22px',
+            fontWeight: 800,
+            marginBottom: '16px',
+            color: 'var(--primary)',
+            letterSpacing: '-0.02em',
           },
           tooltipContent: {
+            fontFamily: 'var(--font-body)',
             padding: '0',
-            fontSize: '14px',
-            lineHeight: 1.6,
-            color: 'oklch(0.15 0.02 260)',
-            opacity: 0.9,
+            fontSize: '15px',
+            lineHeight: 1.7,
+            color: isDarkMode ? 'rgba(255, 255, 255, 0.8)' : 'var(--foreground)',
+            opacity: 0.8,
           },
           buttonNext: {
-            backgroundColor: 'oklch(0.588 0.158 252)',
-            borderRadius: '12px',
+            backgroundColor: 'var(--primary)',
+            borderRadius: '14px',
             color: '#fff',
-            fontSize: '14px',
+            fontSize: '15px',
             fontWeight: 700,
-            padding: '10px 20px',
-            fontFamily: '"Sora", sans-serif',
-            boxShadow: '0 4px 12px rgba(94, 129, 244, 0.3)',
-            transition: 'all 0.2s ease',
+            padding: '12px 24px',
+            fontFamily: 'var(--font-heading)',
+            boxShadow: '0 10px 15px -3px rgba(94, 129, 244, 0.4)',
+            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           },
           buttonBack: {
-            color: 'oklch(0.55 0.03 255)',
-            marginRight: '12px',
+            color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'var(--muted-foreground)',
+            marginRight: '16px',
             fontSize: '14px',
             fontWeight: 600,
-            fontFamily: '"Sora", sans-serif',
+            fontFamily: 'var(--font-heading)',
           },
           buttonSkip: {
-            color: 'oklch(0.55 0.03 255)',
+            color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'var(--muted-foreground)',
             fontSize: '13px',
             fontWeight: 500,
-            fontFamily: '"Sora", sans-serif',
+            fontFamily: 'var(--font-heading)',
+          },
+          buttonClose: {
+            top: '16px',
+            right: '16px',
+            color: isDarkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(0, 0, 0, 0.3)',
+            transition: 'all 0.2s',
           },
           spotlight: {
-            borderRadius: '16px',
-            boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.4), 0 0 15px rgba(94, 129, 244, 0.4)',
+            borderRadius: '20px',
+            boxShadow: isDarkMode 
+              ? '0 0 0 9999px rgba(0, 0, 0, 0.85), 0 0 40px var(--primary)' 
+              : '0 0 0 9999px rgba(0, 0, 0, 0.6), 0 0 25px var(--primary)',
           },
         }}
       />

@@ -12,9 +12,11 @@ import {
   ChevronRight,
   Sparkles,
   Crown,
-  Globe
+  Globe,
+  Sun,
+  Moon
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { DeveloperSignature } from "./DeveloperSignature";
 import { Button } from "./ui/button";
@@ -36,6 +38,30 @@ export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
   const { t, i18n } = useTranslation();
+
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('mkt-theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+      setIsDark(true);
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newIsDark = !isDark;
+    setIsDark(newIsDark);
+    if (newIsDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('mkt-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('mkt-theme', 'light');
+    }
+  };
 
   const toggleLanguage = () => {
     const nextLang = i18n.language === 'es' ? 'en' : 'es';
@@ -59,12 +85,21 @@ export function AppSidebar() {
       </button>
 
       {/* Logo */}
-      <div className="flex h-20 items-center justify-between px-6">
+      <div className={cn("flex h-20 items-center px-6", collapsed ? "justify-center px-0" : "justify-between")}>
         <div className="flex items-center gap-3">
-          <div className="relative group">
-            <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-primary to-primary/50 opacity-25 blur transition duration-300 group-hover:opacity-40" />
-            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-xl overflow-hidden">
-              <img src="/logo.png" alt="mkt.notes" className="h-7 w-7 object-contain" />
+          <div className="relative">
+            <div className={cn(
+              "relative flex shrink-0 items-center justify-center transition-all duration-300",
+              collapsed ? "h-11 w-11 mx-auto" : "h-14 w-14"
+            )}>
+              <img 
+                src={isDark ? "/dark_logo.png" : "/logo.png"} 
+                alt="mkt.notes" 
+                className={cn(
+                  "h-full w-full object-contain transition-all duration-500",
+                  !isDark && "mix-blend-multiply"
+                )}
+              />
             </div>
           </div>
           {!collapsed && (
@@ -116,8 +151,26 @@ export function AppSidebar() {
         })}
       </nav>
 
-      {/* Language Toggle */}
-      <div className={cn("px-4 py-4 transition-all", collapsed ? "flex justify-center" : "")}>
+      {/* Theme & Language Toggles */}
+      <div className={cn("px-4 py-4 space-y-2 transition-all", collapsed ? "flex flex-col items-center gap-2" : "")}>
+        <button
+          onClick={toggleTheme}
+          className={cn(
+            "flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-2 px-3 transition-all hover:bg-white/10 hover:border-white/20",
+            collapsed ? "p-2 px-2" : "w-full"
+          )}
+          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+        >
+          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
+            {isDark ? <Sun className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
+          </div>
+          {!collapsed && (
+            <span className="text-xs font-semibold text-foreground/80">
+              {isDark ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
+            </span>
+          )}
+        </button>
+
         <button
           onClick={toggleLanguage}
           className={cn(
