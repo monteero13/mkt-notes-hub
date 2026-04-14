@@ -15,7 +15,7 @@ export function createSupabaseServerClient() {
 
   return createServerClient(
     process.env.VITE_SUPABASE_URL!,
-    process.env.VITE_SUPABASE_ANON_KEY!,
+    process.env.VITE_SUPABASE_KEY!,
     {
       cookies: {
         getAll() {
@@ -30,6 +30,24 @@ export function createSupabaseServerClient() {
             // Placeholder: Cookie setting in server functions is handled via specific patterns
           })
         },
+      },
+    }
+  )
+}
+
+/**
+ * Creates a Supabase client with admin privileges (using service_role key).
+ * This bypasses RLS and should ONLY be used in secure server contexts
+ * like webhooks or background jobs.
+ */
+export function createSupabaseAdminClient() {
+  return createServerClient(
+    process.env.VITE_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() { return [] },
+        setAll() { },
       },
     }
   )

@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { getRequest } from '@tanstack/react-start/server'
 import Stripe from 'stripe'
-import { createSupabaseServerClient } from '@/lib/supabase.server'
+import { createSupabaseAdminClient } from '@/lib/supabase.server'
 
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY) : null
 
@@ -31,7 +31,7 @@ export const stripeWebhookHandler = createServerFn({ method: 'POST' })
       return new Response(`Webhook Error: ${err.message}`, { status: 400 })
     }
 
-    const supabase = createSupabaseServerClient()
+    const supabase = createSupabaseAdminClient()
 
     // Handle the event
     switch (event.type) {
