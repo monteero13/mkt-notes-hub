@@ -1,7 +1,6 @@
 {
+  "version": 2,
   "framework": "vite",
-  "buildCommand": "npm run build",
-  "installCommand": "bun install",
   "rewrites": [
     {
       "source": "/(.*)",
