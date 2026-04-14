@@ -1,24 +1,31 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
+import { I18nextProvider } from "react-i18next";
+import i18n from "../i18n/config";
+import { OnboardingTutorial } from "../components/OnboardingTutorial";
 
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
+  const { t } = useTranslation();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-heading text-7xl font-bold text-foreground">404</h1>
+        <h1 className="font-heading text-7xl font-bold text-foreground">
+          {t('common.not_found_title')}
+        </h1>
         <h2 className="mt-4 font-heading text-xl font-semibold text-foreground">
-          Página no encontrada
+          {t('common.not_found_subtitle')}
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          La página que buscas no existe o ha sido movida.
+          {t('common.not_found_desc')}
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Volver al inicio
+            {t('common.back_to_home')}
           </Link>
         </div>
       </div>
@@ -39,6 +46,7 @@ export const Route = createRootRoute({
       { property: "og:type", content: "website" },
     ],
     links: [
+      { rel: "icon", type: "image/svg+xml", href: "/logo.svg" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -65,5 +73,10 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function RootComponent() {
-  return <Outlet />;
+  return (
+    <I18nextProvider i18n={i18n}>
+      <OnboardingTutorial />
+      <Outlet />
+    </I18nextProvider>
+  );
 }

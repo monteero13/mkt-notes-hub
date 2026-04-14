@@ -9,8 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PlanificadorRouteImport } from './routes/planificador'
 import { Route as ObjetivosRouteImport } from './routes/objetivos'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IdeasRouteImport } from './routes/ideas'
 import { Route as EquipoRouteImport } from './routes/equipo'
 import { Route as ContenidoRouteImport } from './routes/contenido'
@@ -18,6 +20,11 @@ import { Route as CampanasRouteImport } from './routes/campanas'
 import { Route as BibliotecaRouteImport } from './routes/biblioteca'
 import { Route as IndexRouteImport } from './routes/index'
 
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlanificadorRoute = PlanificadorRouteImport.update({
   id: '/planificador',
   path: '/planificador',
@@ -26,6 +33,11 @@ const PlanificadorRoute = PlanificadorRouteImport.update({
 const ObjetivosRoute = ObjetivosRouteImport.update({
   id: '/objetivos',
   path: '/objetivos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IdeasRoute = IdeasRouteImport.update({
@@ -66,8 +78,10 @@ export interface FileRoutesByFullPath {
   '/contenido': typeof ContenidoRoute
   '/equipo': typeof EquipoRoute
   '/ideas': typeof IdeasRoute
+  '/login': typeof LoginRoute
   '/objetivos': typeof ObjetivosRoute
   '/planificador': typeof PlanificadorRoute
+  '/pricing': typeof PricingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -76,8 +90,10 @@ export interface FileRoutesByTo {
   '/contenido': typeof ContenidoRoute
   '/equipo': typeof EquipoRoute
   '/ideas': typeof IdeasRoute
+  '/login': typeof LoginRoute
   '/objetivos': typeof ObjetivosRoute
   '/planificador': typeof PlanificadorRoute
+  '/pricing': typeof PricingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -87,8 +103,10 @@ export interface FileRoutesById {
   '/contenido': typeof ContenidoRoute
   '/equipo': typeof EquipoRoute
   '/ideas': typeof IdeasRoute
+  '/login': typeof LoginRoute
   '/objetivos': typeof ObjetivosRoute
   '/planificador': typeof PlanificadorRoute
+  '/pricing': typeof PricingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -99,8 +117,10 @@ export interface FileRouteTypes {
     | '/contenido'
     | '/equipo'
     | '/ideas'
+    | '/login'
     | '/objetivos'
     | '/planificador'
+    | '/pricing'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -109,8 +129,10 @@ export interface FileRouteTypes {
     | '/contenido'
     | '/equipo'
     | '/ideas'
+    | '/login'
     | '/objetivos'
     | '/planificador'
+    | '/pricing'
   id:
     | '__root__'
     | '/'
@@ -119,8 +141,10 @@ export interface FileRouteTypes {
     | '/contenido'
     | '/equipo'
     | '/ideas'
+    | '/login'
     | '/objetivos'
     | '/planificador'
+    | '/pricing'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -130,12 +154,21 @@ export interface RootRouteChildren {
   ContenidoRoute: typeof ContenidoRoute
   EquipoRoute: typeof EquipoRoute
   IdeasRoute: typeof IdeasRoute
+  LoginRoute: typeof LoginRoute
   ObjetivosRoute: typeof ObjetivosRoute
   PlanificadorRoute: typeof PlanificadorRoute
+  PricingRoute: typeof PricingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/planificador': {
       id: '/planificador'
       path: '/planificador'
@@ -148,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/objetivos'
       fullPath: '/objetivos'
       preLoaderRoute: typeof ObjetivosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ideas': {
@@ -202,8 +242,10 @@ const rootRouteChildren: RootRouteChildren = {
   ContenidoRoute: ContenidoRoute,
   EquipoRoute: EquipoRoute,
   IdeasRoute: IdeasRoute,
+  LoginRoute: LoginRoute,
   ObjetivosRoute: ObjetivosRoute,
   PlanificadorRoute: PlanificadorRoute,
+  PricingRoute: PricingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
