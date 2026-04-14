@@ -1,21 +1,21 @@
+// app.config.ts
 import { defineConfig } from "@tanstack/start-config";
 import tsConfigPaths from "vite-tsconfig-paths";
 import tailwindcss from "@tailwindcss/vite";
-
-export default await defineConfig({
-  server: {
-    preset: "vercel",
-  },
+var app_config_default = await defineConfig({
   vite: {
     plugins: [
       tsConfigPaths(),
-      tailwindcss() as any,
+      tailwindcss()
     ],
     ssr: {
-      noExternal: ["react-joyride"],
+      noExternal: ["react-joyride"]
     },
     optimizeDeps: {
-      include: ["react-joyride"],
-    },
-  },
+      include: ["react-joyride"]
+    }
+  }
 });
+export {
+  app_config_default as default
+};
