@@ -1,0 +1,16 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/stripe/webhook/route": "/api/stripe/webhook",
+  "/auth/callback/route": "/auth/callback",
+  "/biblioteca/page": "/biblioteca",
+  "/campanas/page": "/campanas",
+  "/contenido/page": "/contenido",
+  "/equipo/page": "/equipo",
+  "/ideas/page": "/ideas",
+  "/login/page": "/login",
+  "/objetivos/page": "/objetivos",
+  "/page": "/",
+  "/planificador/page": "/planificador",
+  "/pricing/page": "/pricing"
+}
