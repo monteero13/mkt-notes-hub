@@ -1,29 +1,34 @@
 import Stripe from 'stripe'
 import { createServerFn } from '@tanstack/react-start'
+import { createSupabaseServerClient, getUserSession } from './supabase.server'
 
 // Instantiate Stripe only if the secret key is provided
-const stripe = process.env.STRIPE_SECRET_KEY 
+const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-02-24-preview' as any,
-    })
+    apiVersion: '2025-02-24-preview' as any,
+  })
   : null
 
 /**
  * Server function to create a Stripe Checkout Session.
  */
 export const createCheckoutSession = createServerFn({ method: 'POST' })
-  .validator((priceId: string) => priceId)
+  .inputValidator((priceId: string) => priceId)
   .handler(async ({ data: priceId }) => {
     if (!stripe) {
       throw new Error('Stripe is not configured on the server')
     }
 
-    // In a real app, you'd get the user from Supabase here
-    // const user = await getUser() 
-    
+    // Get the user from Supabase
+    const user = await getUserSession()
+    if (!user) {
+      throw new Error('Authentication required')
+    }
+
+    const host = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
+
     try {
       const session = await stripe.checkout.sessions.create({
-        payment_method_types: ['card'],
         line_items: [
           {
             price: priceId,
@@ -31,12 +36,12 @@ export const createCheckoutSession = createServerFn({ method: 'POST' })
           },
         ],
         mode: 'subscription',
-        success_url: `${process.env.VERCEL_URL || 'http://localhost:3000'}/?success=true`,
-        cancel_url: `${process.env.VERCEL_URL || 'http://localhost:3000'}/pricing?canceled=true`,
-        // customer_email: user.email,
+        success_url: `${host}/?success=true`,
+        cancel_url: `${host}/pricing?canceled=true`,
+        customer_email: user.user.email,
         subscription_data: {
           metadata: {
-            // userId: user.id
+            userId: user.user.id
           }
         }
       })
@@ -53,7 +58,8 @@ export const createCheckoutSession = createServerFn({ method: 'POST' })
  * In production, this would query your Supabase 'profiles' table.
  */
 export async function isUserPro(userId: string): Promise<boolean> {
-  // Mock logic: 
-  // return await supabase.from('profiles').select('is_pro').eq('id', userId).single()
-  return false 
+  const supabase = createSupabaseServerClient()
+  const { data, error } = await supabase.from('profiles').select('is_pro').eq('id', userId).single()
+  if (error || !data) return false
+  return !!data.is_pro
 }
