@@ -1,6 +1,10 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
-import { STATUS } from 'react-joyride';
+// Avoid static import to allow proper lazy loading of the Joyride component
+const STATUS = {
+  FINISHED: 'finished',
+  SKIPPED: 'skipped',
+};
 
 const Joyride: any = lazy(() =>
   import('react-joyride').then((mod) => ({
