@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { I18nProvider } from "@/components/I18nProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { OnboardingTutorial } from "@/components/OnboardingTutorial";
 
 export const metadata: Metadata = {
@@ -49,10 +50,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="antialiased">
-        <I18nProvider>
-          <OnboardingTutorial />
-          {children}
-        </I18nProvider>
+        <ThemeProvider>
+          <I18nProvider>
+            <OnboardingTutorial />
+            {children}
+          </I18nProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
