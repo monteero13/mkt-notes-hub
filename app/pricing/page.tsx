@@ -1,14 +1,32 @@
 'use client';
 
-import { Check, Sparkles, Zap, Shield, Crown } from 'lucide-react'
+import { useState } from 'react'
+import { Check, Sparkles, Zap, Shield, Crown, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { useTranslation } from 'react-i18next'
 import Link from 'next/link'
+import { createCheckoutSession } from '@/lib/stripe'
+import { toast } from 'sonner'
 
 export default function PricingPage() {
   const { t, i18n } = useTranslation();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setIsLoading(true);
+    try {
+      const priceId = process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID;
+      if (!priceId) {
+        throw new Error('Stripe Price ID is not configured');
+      }
+      await createCheckoutSession(priceId);
+    } catch (error: any) {
+      toast.error(error.message || 'Error al procesar el pago');
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background py-20 px-4">
@@ -84,8 +102,16 @@ export default function PricingPage() {
             <FeatureItem text={t('pricing.features.multi_device')} isPro />
           </CardContent>
           <CardFooter>
-            <Button className="w-full h-11 bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30">
-              <Sparkles className="h-4 w-4 mr-2" />
+            <Button 
+              className="w-full h-11 bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
+              onClick={handleCheckout}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4 mr-2" />
+              )}
               {t('pricing.get_pro')}
             </Button>
           </CardFooter>
@@ -114,3 +140,4 @@ function FeatureItem({ text, isPro = false }: { text: string; isPro?: boolean })
     </div>
   )
 }
+

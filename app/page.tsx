@@ -1,34 +1,79 @@
 'use client';
 
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
-import { Target, BarChart3, FileText, CheckCircle2, Clock, TrendingUp } from "lucide-react";
+import { Target, BarChart3, FileText, CheckCircle2, Clock, TrendingUp, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { createClient } from "@/lib/supabase/client";
 
 export default function DashboardPage() {
   const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [campaigns, setCampaigns] = useState<any[]>([]);
+  const supabase = createClient();
 
-  const tasks = [
+  useEffect(() => {
+    async function fetchData() {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+
+      if (user) {
+        // Fetch tasks
+        const { data: tasksData } = await supabase
+          .from('tasks')
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        // Fetch campaigns
+        const { data: campaignsData } = await supabase
+          .from('campaigns')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        setTasks(tasksData || []);
+        setCampaigns(campaignsData || []);
+      }
+      setLoading(false);
+    }
+
+    fetchData();
+  }, [supabase]);
+
+  const weekDays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+
+  // Example data if DB is empty to show "Caso Real" layout
+  const displayTasks = tasks.length > 0 ? tasks : [
     { title: "Revisar copy para campaña de Instagram", priority: t('common.high'), status: t('common.in_progress') },
     { title: "Diseñar creatividades para TikTok", priority: t('common.medium'), status: t('common.pending') },
     { title: "Enviar reporte mensual al cliente", priority: t('common.high'), status: t('common.pending') },
     { title: "Programar posts de la semana", priority: t('common.low'), status: t('common.in_progress') },
   ];
 
-  const campaigns = [
+  const displayCampaigns = campaigns.length > 0 ? campaigns : [
     { name: "Lanzamiento Q2", channel: "Multi-canal", status: t('common.active'), progress: 65 },
     { name: "Black Friday Early", channel: "Instagram", status: t('common.planning'), progress: 20 },
     { name: "Newsletter Mayo", channel: "Email", status: t('common.active'), progress: 80 },
   ];
 
-  const weekDays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+  if (loading) {
+    return (
+      <DashboardLayout>
+        <div className="flex h-[80vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6 p-4 sm:p-6 lg:p-8">
         <PageHeader
-          title={t('dashboard.title')}
+          title={user ? `${t('dashboard.title')}, ${user.email?.split('@')[0]}` : t('dashboard.title')}
           description={t('dashboard.desc')}
         />
 
@@ -36,7 +81,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             title={t('dashboard.active_campaigns')}
-            value="4"
+            value={displayCampaigns.filter(c => c.status === t('common.active')).length.toString()}
             icon={BarChart3}
             trend={{ value: "+2 este mes", positive: true }}
           />
@@ -55,7 +100,7 @@ export default function DashboardPage() {
           />
           <StatCard
             title={t('dashboard.pending_tasks')}
-            value="8"
+            value={displayTasks.filter(t => t.status !== 'completed').length.toString()}
             icon={CheckCircle2}
             trend={{ value: "3 urgentes", positive: false }}
           />
@@ -69,10 +114,10 @@ export default function DashboardPage() {
               <span className="text-xs text-muted-foreground">{t('common.today')}</span>
             </div>
             <div className="space-y-3">
-              {tasks.map((task, i) => (
+              {displayTasks.map((task, i) => (
                 <div key={i} className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50">
                   <div className={`h-2 w-2 rounded-full shrink-0 ${
-                    task.priority === t('common.high') ? "bg-destructive" : task.priority === t('common.medium') ? "bg-warning" : "bg-success"
+                    task.priority === 'high' || task.priority === t('common.high') ? "bg-destructive" : task.priority === 'medium' || task.priority === t('common.medium') ? "bg-warning" : "bg-success"
                   }`} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-card-foreground truncate">{task.title}</p>
@@ -124,7 +169,7 @@ export default function DashboardPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="space-y-4">
-            {campaigns.map((c, i) => (
+            {displayCampaigns.map((c, i) => (
               <div key={i} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-card-foreground">{c.name}</p>
@@ -144,3 +189,4 @@ export default function DashboardPage() {
     </DashboardLayout>
   );
 }
+

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Calendar,
@@ -17,7 +17,9 @@ import {
   Crown,
   Globe,
   Sun,
-  Moon
+  Moon,
+  LogOut,
+  User
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,6 +27,17 @@ import { DeveloperSignature } from "./DeveloperSignature";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { toast } from "sonner";
 
 const navItems = [
   { id: "dashboard", to: "/", icon: LayoutDashboard },
@@ -39,14 +52,17 @@ const navItems = [
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const [mounted, setMounted] = useState(false); // <-- Nuevo estado
+  const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const { t, i18n } = useTranslation();
+  const supabase = createClient();
 
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
-    setMounted(true); // <-- Marcar que estamos en el cliente
+    setMounted(true);
 
     const savedTheme = localStorage.getItem('mkt-theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -55,7 +71,20 @@ export function AppSidebar() {
       setIsDark(true);
       document.documentElement.classList.add('dark');
     }
-  }, []);
+
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    }
+    getUser();
+  }, [supabase]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+    toast.success('Sesión cerrada correctamente');
+  };
 
   const toggleTheme = () => {
     const newIsDark = !isDark;
@@ -74,9 +103,7 @@ export function AppSidebar() {
     i18n.changeLanguage(nextLang);
   };
 
-  // No renderizar contenido dependiente del cliente hasta que esté montado
   if (!mounted) {
-    // Renderiza una versión simplificada o skeleton
     return (
       <aside
         className={cn(
@@ -107,7 +134,6 @@ export function AppSidebar() {
         collapsed ? "w-16" : "w-64"
       )}
     >
-      {/* Collapse toggle floating on the right edge */}
       <button
         onClick={() => setCollapsed(!collapsed)}
         className="absolute -right-3 top-6 z-40 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background shadow-md text-muted-foreground hover:text-foreground transition-all hover:scale-110"
@@ -160,7 +186,7 @@ export function AppSidebar() {
                 `tour-item-${item.id}`,
                 "group relative flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300",
                 isActive
-                  ? "bg-primary/10 text-primary shadow-[0_0_20px_rgba(94,129,244,0.1)]"
+                   ? "bg-primary/10 text-primary shadow-[0_0_20px_rgba(94,129,244,0.1)]"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-accent-foreground",
                 collapsed ? "justify-center" : ""
               )}
@@ -182,78 +208,106 @@ export function AppSidebar() {
         })}
       </nav>
 
-      {/* Theme & Language Toggles */}
-      <div className={cn("px-4 py-4 space-y-2 transition-all", collapsed ? "flex flex-col items-center gap-2" : "")}>
-        <button
-          onClick={toggleTheme}
-          className={cn(
-            "flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-2 px-3 transition-all hover:bg-white/10 hover:border-white/20",
-            collapsed ? "p-2 px-2" : "w-full"
-          )}
-          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-        >
-          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
-            {isDark ? <Sun className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
-          </div>
-          {!collapsed && (
-            <span className="text-xs font-semibold text-foreground/80">
-              {isDark ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
-            </span>
-          )}
-        </button>
+      {/* User & Settings */}
+      <div className="mt-auto p-3 space-y-2 border-t border-border/40">
+        {/* User Profile */}
+        {user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className={cn(
+                "flex items-center gap-3 w-full p-2 rounded-xl hover:bg-sidebar-accent transition-all duration-300 group",
+                collapsed ? "justify-center" : ""
+              )}>
+                <Avatar className="h-8 w-8 border border-border/50 group-hover:border-primary/50 transition-all">
+                  <AvatarImage src={user.user_metadata?.avatar_url} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                    {user.email?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                {!collapsed && (
+                  <div className="flex flex-col items-start min-w-0">
+                    <span className="text-xs font-bold text-foreground truncate w-full">
+                      {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground truncate w-full">
+                      {t('common.active_session')}
+                    </span>
+                  </div>
+                )}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 mb-2 bg-card/95 backdrop-blur-xl border-border/50">
+              <DropdownMenuLabel className="font-heading text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 py-2">
+                Mi Cuenta
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator className="bg-border/40" />
+              <DropdownMenuItem className="focus:bg-primary/10 focus:text-primary transition-colors cursor-pointer py-2 px-3">
+                <User className="mr-2 h-4 w-4" />
+                <span className="text-xs font-semibold">Perfil</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-border/40" />
+              <DropdownMenuItem 
+                onClick={handleSignOut}
+                className="focus:bg-destructive/10 focus:text-destructive transition-colors cursor-pointer py-2 px-3 text-destructive"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span className="text-xs font-bold">Cerrar sesión</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <Link href="/login" className="block w-full">
+            <Button variant="ghost" className="w-full justify-start gap-3 h-10 px-2 hover:bg-primary/10 hover:text-primary">
+              <LogOut className="h-4 w-4 rotate-180" />
+              {!collapsed && <span className="text-xs font-bold">Entrar</span>}
+            </Button>
+          </Link>
+        )}
 
-        <button
-          onClick={toggleLanguage}
-          className={cn(
-            "flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-2 px-3 transition-all hover:bg-white/10 hover:border-white/20",
-            collapsed ? "p-2 px-2" : "w-full"
-          )}
-          title="Toggle Language"
-        >
-          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full overflow-hidden shadow-sm ring-1 ring-white/20">
-            {i18n.language === 'es' ? (
-              <img src="https://flagcdn.com/w40/es.png" alt="ES" className="h-full w-full object-cover" />
-            ) : (
-              <img src="https://flagcdn.com/w40/gb.png" alt="EN" className="h-full w-full object-cover" />
+        {/* Toggles */}
+        <div className={cn("flex flex-col gap-2", collapsed ? "items-center" : "")}>
+           <button
+            onClick={toggleTheme}
+             className={cn(
+              "flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-2 px-3 transition-all hover:bg-white/10 hover:border-white/20",
+              collapsed ? "p-2 px-2" : "w-full"
             )}
-          </div>
-          {!collapsed && (
-            <div className="flex flex-1 items-center justify-between">
+          >
+            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
+              {isDark ? <Sun className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
+            </div>
+            {!collapsed && (
               <span className="text-xs font-semibold text-foreground/80">
-                {i18n.language === 'es' ? 'Español' : 'English'}
+                {isDark ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
               </span>
-              <Globe className="h-3 w-3 text-muted-foreground opacity-50" />
-            </div>
-          )}
-        </button>
-      </div>
+            )}
+          </button>
 
-      {/* Upgrade Card */}
-      {!collapsed && (
-        <div className="tour-upgrade-card px-4 py-3">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-primary/80 p-4 text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 group">
-            <div className="relative z-10">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="p-1 rounded-md bg-white/20">
-                  <Crown className="h-4 w-4" />
-                </div>
-                <span className="text-xs font-bold uppercase tracking-wider">{t('sidebar.premium_access')}</span>
-              </div>
-              <p className="text-[11px] leading-relaxed opacity-90 mb-3">
-                {t('sidebar.premium_desc')}
-              </p>
-              <Link href="/pricing" className="block">
-                <Button size="sm" variant="secondary" className="w-full text-xs font-bold h-8 bg-white text-primary hover:bg-white/90 transition-transform group-hover:scale-[1.02]">
-                  <Sparkles className="h-3 w-3 mr-2" />
-                  {t('sidebar.upgrade_now')}
-                </Button>
-              </Link>
+          <button
+            onClick={toggleLanguage}
+            className={cn(
+              "flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-2 px-3 transition-all hover:bg-white/10 hover:border-white/20",
+              collapsed ? "p-2 px-2" : "w-full"
+            )}
+          >
+            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full overflow-hidden shadow-sm ring-1 ring-white/20">
+              {i18n.language === 'es' ? (
+                <img src="https://flagcdn.com/w40/es.png" alt="ES" className="h-full w-full object-cover" />
+              ) : (
+                <img src="https://flagcdn.com/w40/gb.png" alt="EN" className="h-full w-full object-cover" />
+              )}
             </div>
-            <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-white/10 blur-2xl group-hover:bg-white/20 transition-all duration-500" />
-            <div className="absolute -bottom-4 -left-4 h-20 w-20 rounded-full bg-black/10 blur-xl group-hover:bg-black/20 transition-all duration-500" />
-          </div>
+            {!collapsed && (
+              <div className="flex flex-1 items-center justify-between">
+                <span className="text-xs font-semibold text-foreground/80">
+                  {i18n.language === 'es' ? 'Español' : 'English'}
+                </span>
+                <Globe className="h-3 w-3 text-muted-foreground opacity-50" />
+              </div>
+            )}
+          </button>
         </div>
-      )}
+      </div>
 
       {/* Signature */}
       <DeveloperSignature collapsed={collapsed} />
@@ -261,9 +315,8 @@ export function AppSidebar() {
   );
 }
 
-/* Mobile bottom nav */
 export function MobileNav() {
-  const [mounted, setMounted] = useState(false); // <-- También para MobileNav
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const { t } = useTranslation();
 
@@ -274,7 +327,7 @@ export function MobileNav() {
   }, []);
 
   if (!mounted) {
-    return <div className="fixed inset-x-0 bottom-0 z-30 h-16 md:hidden" />; // Placeholder
+    return <div className="fixed inset-x-0 bottom-0 z-30 h-16 md:hidden" />;
   }
 
   return (
