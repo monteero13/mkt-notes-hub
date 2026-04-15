@@ -59,6 +59,7 @@ export function AppSidebar() {
   const { t, i18n } = useTranslation();
   const supabase = createClient();
 
+  const [isPro, setIsPro] = useState(false);
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
@@ -72,11 +73,23 @@ export function AppSidebar() {
       document.documentElement.classList.add('dark');
     }
 
-    async function getUser() {
+    async function fetchData() {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('is_pro')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setIsPro(profile.is_pro);
+        }
+      }
     }
-    getUser();
+    fetchData();
   }, [supabase]);
 
   const handleSignOut = async () => {

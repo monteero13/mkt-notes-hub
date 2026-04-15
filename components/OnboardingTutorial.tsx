@@ -2,6 +2,7 @@
 
 import { useState, useEffect, lazy, Suspense, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
+import { usePathname } from 'next/navigation';
 
 // Importamos solo lo necesario
 import { STATUS } from 'react-joyride';
@@ -28,6 +29,7 @@ const Joyride = lazy(() =>
 
 export function OnboardingTutorial() {
   const { t } = useTranslation();
+  const pathname = usePathname();
   const [run, setRun] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -47,14 +49,22 @@ export function OnboardingTutorial() {
       attributeFilter: ['class'],
     });
 
+    // Solo corre en el dashboard
+    if (pathname !== '/dashboard') {
+      setRun(false);
+      return;
+    }
+
     const hasSeenTutorial = localStorage.getItem('mkt_notes_tutorial_completed');
-    if (!hasSeenTutorial) {
-      const timer = setTimeout(() => setRun(true), 1000); // Un poco más de delay para Tailwind v4
+    const isFirstLogin = new URLSearchParams(window.location.search).get('firstLogin') === 'true';
+
+    if (!hasSeenTutorial || isFirstLogin) {
+      const timer = setTimeout(() => setRun(true), 1500); 
       return () => clearTimeout(timer);
     }
 
     return () => observer.disconnect();
-  }, []);
+  }, [pathname]);
 
   const handleJoyrideCallback = (data: JoyrideCallbackData) => {
     const { status } = data;
@@ -176,7 +186,7 @@ export function OnboardingTutorial() {
     }
   ];
 
-  if (!isMounted) return null;
+  if (!isMounted || pathname !== '/dashboard') return null;
 
   return (
     <Suspense fallback={null}>
