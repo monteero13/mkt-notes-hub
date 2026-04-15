@@ -34,3 +34,5 @@ dist-ssr
 .env
 # Vercel
 .vercel
+
+.next/

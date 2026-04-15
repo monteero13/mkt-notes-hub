@@ -39,15 +39,18 @@ const navItems = [
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const [mounted, setMounted] = useState(false); // <-- Nuevo estado
   const pathname = usePathname();
   const { t, i18n } = useTranslation();
 
   const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
+    setMounted(true); // <-- Marcar que estamos en el cliente
+
     const savedTheme = localStorage.getItem('mkt-theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
+
     if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
       setIsDark(true);
       document.documentElement.classList.add('dark');
@@ -70,6 +73,31 @@ export function AppSidebar() {
     const nextLang = i18n.language === 'es' ? 'en' : 'es';
     i18n.changeLanguage(nextLang);
   };
+
+  // No renderizar contenido dependiente del cliente hasta que esté montado
+  if (!mounted) {
+    // Renderiza una versión simplificada o skeleton
+    return (
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-30 hidden md:flex flex-col transition-all duration-300",
+          "bg-sidebar/95 backdrop-blur-xl border-r border-border/50 shadow-2xl",
+          collapsed ? "w-16" : "w-64"
+        )}
+      >
+        <div className={cn("flex h-20 items-center px-6", collapsed ? "justify-center px-0" : "justify-between")}>
+          <div className="flex items-center gap-3">
+            <div className={cn(
+              "relative flex shrink-0 items-center justify-center transition-all duration-300",
+              collapsed ? "h-11 w-11 mx-auto" : "h-14 w-14"
+            )}>
+              <div className="h-full w-full bg-muted rounded-lg animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside
@@ -95,9 +123,9 @@ export function AppSidebar() {
               "relative flex shrink-0 items-center justify-center transition-all duration-300",
               collapsed ? "h-11 w-11 mx-auto" : "h-14 w-14"
             )}>
-              <img 
-                src={isDark ? "/dark_logo.png" : "/logo.png"} 
-                alt="mkt.notes" 
+              <img
+                src={isDark ? "/dark_logo.png" : "/logo.png"}
+                alt="mkt.notes"
                 className={cn(
                   "h-full w-full object-contain transition-all duration-500",
                   !isDark && "mix-blend-multiply"
@@ -235,10 +263,19 @@ export function AppSidebar() {
 
 /* Mobile bottom nav */
 export function MobileNav() {
+  const [mounted, setMounted] = useState(false); // <-- También para MobileNav
   const pathname = usePathname();
   const { t } = useTranslation();
 
   const mobileItems = navItems.slice(0, 5);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <div className="fixed inset-x-0 bottom-0 z-30 h-16 md:hidden" />; // Placeholder
+  }
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-border/50 bg-background/80 backdrop-blur-xl py-3 md:hidden">

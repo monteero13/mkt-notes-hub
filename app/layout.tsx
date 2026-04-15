@@ -24,6 +24,18 @@ export const viewport: Viewport = {
   themeColor: "#ffffff",
 };
 
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  const originalError = console.error;
+  console.error = (...args) => {
+    const msg = args[0]?.toString() || '';
+    if (msg.includes('React does not recognize the') &&
+      (msg.includes('borderRadius') || msg.includes('boxShadow'))) {
+      return;
+    }
+    originalError(...args);
+  };
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
