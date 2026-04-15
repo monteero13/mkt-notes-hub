@@ -91,21 +91,30 @@ function LoginContent() {
 
         if (user && avatarFile) {
           // Upload Avatar
-          const fileExt = avatarFile.name.split('.').pop()
-          const fileName = `${user.id}/avatar.${fileExt}`
-          const { error: uploadError } = await supabase.storage
-            .from('avatars')
-            .upload(fileName, avatarFile, { upsert: true })
-
-          if (!uploadError) {
-            const { data: { publicUrl } } = supabase.storage
+          try {
+            const fileExt = avatarFile.name.split('.').pop()
+            const fileName = `${user.id}/avatar.${fileExt}`
+            const { error: uploadError } = await supabase.storage
               .from('avatars')
-              .getPublicUrl(fileName)
+              .upload(fileName, avatarFile, { upsert: true })
 
-            // Update user metadata with avatar URL
-            await supabase.auth.updateUser({
-              data: { avatar_url: publicUrl }
-            })
+            if (!uploadError) {
+              const { data: { publicUrl } } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(fileName)
+
+              // Update user metadata with avatar URL
+              await supabase.auth.updateUser({
+                data: { avatar_url: publicUrl }
+              })
+            } else {
+              console.error('Avatar upload error:', uploadError)
+              // No lanzamos el error aquí porque la cuenta ya se creó.
+              // El usuario podrá subir su foto después desde el dashboard.
+              toast.info('Tu cuenta se creó, pero la foto se subirá al confirmar tu email.')
+            }
+          } catch (storageError) {
+            console.error('Storage error:', storageError)
           }
         }
 
@@ -242,23 +251,47 @@ function LoginContent() {
                 <>
                   <div className="flex flex-col items-center gap-4 mb-2">
                     <div className="relative group">
-                      <Avatar className="h-20 w-20 border-2 border-border transition-all group-hover:border-primary/50">
+                      <Avatar className="h-20 w-20 border-2 border-border transition-all group-hover:border-primary/50 shadow-inner">
                         <AvatarImage src={avatarPreview || undefined} className="object-cover" />
                         <AvatarFallback className="bg-muted">
                           <User className="h-10 w-10 text-muted-foreground" />
                         </AvatarFallback>
                       </Avatar>
-                      <Button type="button" size="icon" variant="secondary" className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full shadow-lg border border-border" onClick={() => fileInputRef.current?.click()}>
+                      
+                      {/* Trigger nativo con Label para máxima fiabilidad en escritorio */}
+                      <label 
+                        htmlFor="avatar-upload" 
+                        className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full shadow-lg border border-border bg-secondary flex items-center justify-center cursor-pointer hover:bg-primary hover:text-white transition-all transform hover:scale-110 active:scale-95 z-10"
+                        title="Seleccionar foto"
+                      >
                         <Camera className="h-4 w-4" />
-                      </Button>
+                        <input 
+                          id="avatar-upload"
+                          type="file" 
+                          ref={fileInputRef} 
+                          className="hidden" 
+                          accept="image/*" 
+                          onChange={handleFileChange} 
+                        />
+                      </label>
+
                       {avatarFile && (
-                        <Button type="button" size="icon" variant="destructive" className="absolute -top-1 -right-1 h-6 w-6 rounded-full shadow-lg" onClick={removeAvatar}>
+                        <Button 
+                          type="button" 
+                          size="icon" 
+                          variant="destructive" 
+                          className="absolute -top-1 -right-1 h-6 w-6 rounded-full shadow-lg z-10" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            removeAvatar();
+                          }}
+                        >
                           <X className="h-3 w-3" />
                         </Button>
                       )}
                     </div>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Foto de perfil (opcional)</p>
-                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Nombre completo</Label>
