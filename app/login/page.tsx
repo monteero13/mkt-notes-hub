@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
@@ -8,16 +8,43 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Github, Mail, KeyRound, Loader2, ArrowRight } from 'lucide-react'
+import { Github, Mail, KeyRound, Loader2, ArrowRight, User, Camera, X } from 'lucide-react'
 import { toast } from 'sonner'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [isLogin, setIsLogin] = useState(true)
   const router = useRouter()
   const supabase = createClient()
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        toast.error('La imagen es demasiado grande. Máximo 2MB.')
+        return
+      }
+      setAvatarFile(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeAvatar = () => {
+    setAvatarFile(null)
+    setAvatarPreview(null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,14 +56,40 @@ export default function LoginPage() {
         if (error) throw error
         toast.success('¡Bienvenido de nuevo!')
       } else {
-        const { error } = await supabase.auth.signUp({ 
+        // Sign Up
+        const { data: { user }, error: signUpError } = await supabase.auth.signUp({ 
           email, 
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
+            data: {
+              full_name: fullName,
+            }
           }
         })
-        if (error) throw error
+        
+        if (signUpError) throw signUpError
+        
+        if (user && avatarFile) {
+          // Upload Avatar
+          const fileExt = avatarFile.name.split('.').pop()
+          const fileName = `${user.id}/avatar.${fileExt}`
+          const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(fileName, avatarFile, { upsert: true })
+          
+          if (!uploadError) {
+            const { data: { publicUrl } } = supabase.storage
+              .from('avatars')
+              .getPublicUrl(fileName)
+            
+            // Update user metadata with avatar URL
+            await supabase.auth.updateUser({
+              data: { avatar_url: publicUrl }
+            })
+          }
+        }
+
         toast.success('Cuenta creada. Revisa tu email para confirmar.')
       }
       router.push('/')
@@ -125,6 +178,66 @@ export default function LoginPage() {
               </div>
             </div>
             <form onSubmit={handleAuth} className="space-y-4">
+              {!isLogin && (
+                <>
+                  <div className="flex flex-col items-center gap-4 mb-2">
+                    <div className="relative group">
+                      <Avatar className="h-20 w-20 border-2 border-border transition-all group-hover:border-primary/50">
+                        <AvatarImage src={avatarPreview || undefined} className="object-cover" />
+                        <AvatarFallback className="bg-muted">
+                          <User className="h-10 w-10 text-muted-foreground" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="secondary"
+                        className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full shadow-lg border border-border"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Camera className="h-4 w-4" />
+                      </Button>
+                      {avatarFile && (
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="destructive"
+                          className="absolute -top-1 -right-1 h-6 w-6 rounded-full shadow-lg"
+                          onClick={removeAvatar}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">
+                      {avatarFile ? 'Foto seleccionada' : 'Foto de perfil (opcional)'}
+                    </p>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Nombre completo</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="fullName"
+                        type="text"
+                        placeholder="Juan Pérez"
+                        className="pl-10 h-11"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        required={!isLogin}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -143,9 +256,11 @@ export default function LoginPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Contraseña</Label>
-                  <button type="button" className="text-xs text-primary hover:underline">
-                    ¿Olvidaste tu contraseña?
-                  </button>
+                  {isLogin && (
+                    <button type="button" className="text-xs text-primary hover:underline">
+                      ¿Olvidaste tu contraseña?
+                    </button>
+                  )}
                 </div>
                 <div className="relative">
                   <KeyRound className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
