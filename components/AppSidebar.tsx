@@ -22,6 +22,7 @@ import {
   User
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { DeveloperSignature } from "./DeveloperSignature";
 import { Button } from "./ui/button";
@@ -52,6 +53,7 @@ const navItems = [
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<any>(null);
   const pathname = usePathname();
@@ -60,18 +62,9 @@ export function AppSidebar() {
   const supabase = createClient();
 
   const [isPro, setIsPro] = useState(false);
-  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-
-    const savedTheme = localStorage.getItem('mkt-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
-    }
 
     async function fetchData() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -100,15 +93,7 @@ export function AppSidebar() {
   };
 
   const toggleTheme = () => {
-    const newIsDark = !isDark;
-    setIsDark(newIsDark);
-    if (newIsDark) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('mkt-theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('mkt-theme', 'light');
-    }
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   const toggleLanguage = () => {
@@ -163,11 +148,11 @@ export function AppSidebar() {
               collapsed ? "h-11 w-11 mx-auto" : "h-14 w-14"
             )}>
               <img
-                src={isDark ? "/dark_logo.png" : "/logo.png"}
+                src={theme === 'dark' ? "/dark_logo.png" : "/logo.png"}
                 alt="mkt.notes"
                 className={cn(
                   "h-full w-full object-contain transition-all duration-500",
-                  !isDark && "mix-blend-multiply"
+                  theme !== 'dark' && "mix-blend-multiply"
                 )}
               />
             </div>
@@ -287,11 +272,11 @@ export function AppSidebar() {
             )}
           >
             <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
-              {isDark ? <Sun className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
+              {theme === 'dark' ? <Sun className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
             </div>
             {!collapsed && (
               <span className="text-xs font-semibold text-foreground/80">
-                {isDark ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
+                {theme === 'dark' ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
               </span>
             )}
           </button>

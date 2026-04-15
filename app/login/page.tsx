@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Github, Mail, KeyRound, Loader2, ArrowRight, User, Camera, X, Wand2, ArrowLeft, CheckCircle2, Info } from 'lucide-react'
+import { Apple, Mail, KeyRound, Loader2, ArrowRight, User, Camera, X, Wand2, ArrowLeft, CheckCircle2, Info } from 'lucide-react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
@@ -128,7 +128,7 @@ function LoginContent() {
     }
   }
 
-  const handleOAuth = async (provider: 'github' | 'google') => {
+  const handleOAuth = async (provider: 'apple' | 'google') => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -205,9 +205,9 @@ function LoginContent() {
             {(mode === 'login' || mode === 'signup') && (
               <>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" className="h-11 transition-all hover:bg-slate-900 hover:text-white" onClick={() => handleOAuth('github')}>
-                    <Github className="mr-2 h-4 w-4" />
-                    GitHub
+                  <Button variant="outline" className="h-11 transition-all hover:bg-slate-900 dark:hover:bg-white hover:text-white dark:hover:text-slate-900 border-border/50 shadow-sm" onClick={() => handleOAuth('apple')}>
+                    <Apple className="mr-2 h-4 w-4" />
+                    Apple
                   </Button>
                   <Button variant="outline" className="h-11 transition-all hover:bg-red-50 hover:text-red-600 hover:border-red-200" onClick={() => handleOAuth('google')}>
                     <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -223,7 +223,7 @@ function LoginContent() {
                   <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                   <p className="text-[10px] leading-relaxed text-muted-foreground">
                     <span className="font-bold text-primary block mb-0.5">Nota para el equipo:</span>
-                    Si ves un error {"'provider is not enabled'"}, asegúrate de habilitar Google/GitHub en el panel de <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="underline hover:text-primary">Supabase Auth</a>.
+                    Si ves un error {"'provider is not enabled'"}, asegúrate de habilitar Google/Apple en el panel de <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="underline hover:text-primary">Supabase Auth</a>.
                   </p>
                 </div>
                 <div className="relative">
