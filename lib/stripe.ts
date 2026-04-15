@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 // Instantiate Stripe only if the secret key is provided
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2025-02-24-preview' as any,
+    apiVersion: '2026-03-25.dahlia' as any,
   })
   : null;
 
@@ -50,7 +50,7 @@ export async function createCheckoutSession(priceId: string) {
     if (session.url) {
       redirect(session.url);
     }
-    
+
     return { sessionId: session.id };
   } catch (error: any) {
     console.error('Stripe Error:', error);
