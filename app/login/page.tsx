@@ -22,17 +22,24 @@ function LoginContent() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [mode, setMode] = useState<AuthMode>('login')
+  const [mode, setModeState] = useState<AuthMode>('login')
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
 
+  // Sincronizar estado inicial con URL
   useEffect(() => {
     const modeParam = searchParams.get('mode') as AuthMode
     if (modeParam && ['login', 'signup', 'forgot-password', 'magic-link'].includes(modeParam)) {
-      setMode(modeParam)
+      setModeState(modeParam)
     }
   }, [searchParams])
+
+  // Función para cambiar modo y actualizar URL
+  const setMode = (newMode: AuthMode) => {
+    setModeState(newMode)
+    router.replace(`/login?mode=${newMode}`, { scroll: false })
+  }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -177,16 +184,16 @@ function LoginContent() {
             {mode === 'magic-link' && 'Entra sin contraseña'}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            {mode === 'login' && (
+             {mode === 'login' && (
               <>
                 ¿Aún no tienes cuenta?
-                <button onClick={() => setMode('signup')} className="ml-1 font-semibold text-primary hover:underline">Regístrate aquí</button>
+                <button type="button" onClick={() => setMode('signup')} className="ml-2 font-bold text-primary hover:underline">Regístrate aquí</button>
               </>
             )}
             {(mode === 'signup' || mode === 'forgot-password' || mode === 'magic-link') && (
               <>
                 ¿Prefieres otra opción?
-                <button onClick={() => setMode('login')} className="ml-1 font-semibold text-primary hover:underline">Volver al login</button>
+                <button type="button" onClick={() => setMode('login')} className="ml-2 font-bold text-primary hover:underline">Volver al login</button>
               </>
             )}
           </p>
@@ -218,13 +225,6 @@ function LoginContent() {
                     </svg>
                     Google
                   </Button>
-                </div>
-                <div className="mt-4 p-3 rounded-xl bg-primary/5 border border-primary/10 flex items-start gap-3">
-                  <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                  <p className="text-[10px] leading-relaxed text-muted-foreground">
-                    <span className="font-bold text-primary block mb-0.5">Nota para el equipo:</span>
-                    Si ves un error {"'provider is not enabled'"}, asegúrate de habilitar Google/Apple en el panel de <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="underline hover:text-primary">Supabase Auth</a>.
-                  </p>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -310,8 +310,8 @@ function LoginContent() {
               </Button>
 
               {mode === 'login' && (
-                <Button type="button" variant="ghost" className="w-full h-10 text-xs font-semibold hover:bg-primary/5 hover:text-primary" onClick={() => setMode('magic-link')}>
-                  <Wand2 className="mr-2 h-3.5 w-3.5" />
+                <Button type="button" variant="ghost" className="w-full h-12 text-xs font-bold hover:bg-primary/5 hover:text-primary rounded-xl border border-dashed border-border/60" onClick={() => setMode('magic-link')}>
+                  <Wand2 className="mr-2 h-4 w-4 text-primary" />
                   Entrar con un link mágico (sin contraseña)
                 </Button>
               )}
