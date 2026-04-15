@@ -1,20 +1,20 @@
 'use client';
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Github, Mail, KeyRound, Loader2, ArrowRight, User, Camera, X, Wand2, ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { Github, Mail, KeyRound, Loader2, ArrowRight, User, Camera, X, Wand2, ArrowLeft, CheckCircle2, Info } from 'lucide-react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 type AuthMode = 'login' | 'signup' | 'forgot-password' | 'magic-link' | 'verification-sent';
 
-export default function LoginPage() {
+function LoginContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,7 +24,15 @@ export default function LoginPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [mode, setMode] = useState<AuthMode>('login')
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
+
+  useEffect(() => {
+    const modeParam = searchParams.get('mode') as AuthMode
+    if (modeParam && ['login', 'signup', 'forgot-password', 'magic-link'].includes(modeParam)) {
+      setMode(modeParam)
+    }
+  }, [searchParams])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -61,8 +69,8 @@ export default function LoginPage() {
         router.refresh()
       } else if (mode === 'signup') {
         // Sign Up
-        const { data: { user }, error: signUpError } = await supabase.auth.signUp({ 
-          email, 
+        const { data: { user }, error: signUpError } = await supabase.auth.signUp({
+          email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
@@ -71,9 +79,9 @@ export default function LoginPage() {
             }
           }
         })
-        
+
         if (signUpError) throw signUpError
-        
+
         if (user && avatarFile) {
           // Upload Avatar
           const fileExt = avatarFile.name.split('.').pop()
@@ -81,12 +89,12 @@ export default function LoginPage() {
           const { error: uploadError } = await supabase.storage
             .from('avatars')
             .upload(fileName, avatarFile, { upsert: true })
-          
+
           if (!uploadError) {
             const { data: { publicUrl } } = supabase.storage
               .from('avatars')
               .getPublicUrl(fileName)
-            
+
             // Update user metadata with avatar URL
             await supabase.auth.updateUser({
               data: { avatar_url: publicUrl }
@@ -134,7 +142,7 @@ export default function LoginPage() {
     }
   }
 
-  if (mode === 'verification-sent') {
+  if (mode === ('verification-sent' as any)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
         <Card className="w-full max-w-md border-border/50 bg-card/50 backdrop-blur-xl shadow-xl text-center p-8">
@@ -143,7 +151,7 @@ export default function LoginPage() {
           </div>
           <CardTitle className="text-2xl font-bold mb-2">¡Revisa tu bandeja de entrada!</CardTitle>
           <CardDescription className="text-base mb-8">
-            Hemos enviado un enlace de confirmación a <span className="font-bold text-foreground">{email}</span>. 
+            Hemos enviado un enlace de confirmación a <span className="font-bold text-foreground">{email}</span>.
             Haz clic en el enlace para continuar.
           </CardDescription>
           <Button variant="outline" className="w-full" onClick={() => setMode('login')}>
@@ -210,6 +218,13 @@ export default function LoginPage() {
                     </svg>
                     Google
                   </Button>
+                </div>
+                <div className="mt-4 p-3 rounded-xl bg-primary/5 border border-primary/10 flex items-start gap-3">
+                  <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <p className="text-[10px] leading-relaxed text-muted-foreground">
+                    <span className="font-bold text-primary block mb-0.5">Nota para el equipo:</span>
+                    Si ves un error {"'provider is not enabled'"}, asegúrate de habilitar Google/GitHub en el panel de <a href="https://supabase.com/dashboard" target="_blank" rel="noreferrer" className="underline hover:text-primary">Supabase Auth</a>.
+                  </p>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -310,5 +325,13 @@ export default function LoginPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <LoginContent />
+    </Suspense>
   )
 }

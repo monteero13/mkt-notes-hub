@@ -21,10 +21,14 @@ export default function PricingPage() {
       if (!priceId) {
         throw new Error('Stripe Price ID is not configured');
       }
+      // Note: createCheckoutSession will redirect on success
       await createCheckoutSession(priceId);
     } catch (error: any) {
-      toast.error(error.message || 'Error al procesar el pago');
-      setIsLoading(false);
+      // If redirect happens, this might still catch but Next.js handle redirects by throwing a special error
+      if (error.message !== 'NEXT_REDIRECT') {
+        toast.error(error.message || 'Error al procesar el pago');
+        setIsLoading(false);
+      }
     }
   };
 
@@ -78,7 +82,7 @@ export default function PricingPage() {
         {/* Pro Plan */}
         <Card className="relative border-primary bg-card shadow-2xl shadow-primary/10 transition-all hover:scale-[1.02] overflow-hidden">
           <div className="absolute top-0 right-0">
-            <div className="bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-widest py-1 px-10 rotate-45 translate-x-[30%] translate-y-[50%]">
+            <div className="bg-primary text-primary-foreground text-[10px] font-bold uppercase tracking-widest py-1 px-10 rotate-45 translate-x-[30%] translate-y-[50%] shadow-lg">
               {t('pricing.recommended')}
             </div>
           </div>
@@ -102,7 +106,7 @@ export default function PricingPage() {
             <FeatureItem text={t('pricing.features.multi_device')} isPro />
           </CardContent>
           <CardFooter>
-            <Button 
+            <Button
               className="w-full h-11 bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
               onClick={handleCheckout}
               disabled={isLoading}
