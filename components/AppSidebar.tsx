@@ -40,7 +40,8 @@ const navItems = [
   { id: "dashboard", to: "/dashboard", icon: LayoutDashboard },
   { id: "planificador", to: "/planificador", icon: Calendar },
   { id: "contenido", to: "/contenido", icon: FileText },
-  { id: "campanas", to: "/campanas", icon: BarChart3, isPro: true },
+  { id: "campanas", to: "/campanas", icon: BarChart3 },
+  { id: "analisis", to: "/analisis", icon: Globe, isPro: true },
   { id: "objetivos", to: "/objetivos", icon: Target },
   { id: "ideas", to: "/ideas", icon: Lightbulb },
   { id: "biblioteca", to: "/biblioteca", icon: BookOpen },
@@ -117,15 +118,22 @@ export function AppSidebar() {
               key={item.to}
               href={item.to}
               className={cn(
-                "group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200",
+                "group flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200",
                 `tour-item-${item.id}`,
                 isActive
                    ? "bg-primary/10 text-primary"
                   : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/30"
               )}
             >
-              <item.icon className={cn("shrink-0 h-5 w-5", isActive ? "text-primary" : "group-hover:text-sidebar-foreground")} />
-              <span>{t(`sidebar.${item.id}`)}</span>
+              <div className="flex items-center gap-3">
+                <item.icon className={cn("shrink-0 h-5 w-5", isActive ? "text-primary" : "group-hover:text-sidebar-foreground")} />
+                <span>{t(`sidebar.${item.id}`)}</span>
+              </div>
+              {item.isPro && (
+                <div className="px-1.5 py-0.5 rounded-[4px] bg-primary/20 text-[8px] font-black tracking-widest text-primary uppercase ml-2">
+                  PRO
+                </div>
+              )}
             </Link>
           );
         })}

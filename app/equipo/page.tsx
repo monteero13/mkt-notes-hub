@@ -27,10 +27,16 @@ import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { useTranslation } from 'react-i18next'
 
+import { useAuth } from '@/hooks/use-auth'
+import { useRouter } from 'next/navigation'
+
 export default function EquipoPage() {
   const { t } = useTranslation();
   const { data: team, isLoading, refetch, error: teamQueryError } = useTeam()
+  const { profile } = useAuth()
+  const router = useRouter()
   const [newTeamName, setNewTeamName] = useState('')
+  const [joinCode, setJoinCode] = useState('')
   const [isCreating, setIsCreating] = useState(false)
   const [isEditingName, setIsEditingName] = useState(false)
   const [editName, setEditName] = useState('')
@@ -79,6 +85,12 @@ export default function EquipoPage() {
     } finally {
       setIsCreating(false)
     }
+  }
+
+  const handleJoinTeam = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!joinCode.trim()) return
+    router.push(`/join/${joinCode.trim()}`)
   }
 
   const handleUpdateName = async () => {
@@ -134,7 +146,7 @@ export default function EquipoPage() {
 
   return (
     <DashboardLayout>
-      <div className="p-8 space-y-8 relative">
+      <div className="p-8 space-y-8 relative min-h-[calc(100vh-12rem)]">
         {isLoading && (
           <div className="absolute inset-0 bg-background/20 backdrop-blur-sm z-50 flex items-center justify-center min-h-[70vh]">
             <Loader2 className="h-8 w-8 animate-spin text-primary opacity-50" />
@@ -173,24 +185,58 @@ export default function EquipoPage() {
             )}
         </div>
 
-        {!team && !isLoading ? (
+        {!profile?.is_pro ? (
           <div className="py-20 text-center border-2 border-dashed border-border rounded-xl bg-card/50 flex flex-col items-center">
-            <div className="h-16 w-16 bg-blue-600/10 rounded-full flex items-center justify-center mb-6">
-                <Users className="h-8 w-8 text-blue-600" />
+            <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
+                <Crown className="h-8 w-8 text-primary" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">{t('equipo.create_title')}</h2>
-            <p className="text-muted-foreground mb-8 text-sm max-w-sm">{t('equipo.create_desc')}</p>
-            <form onSubmit={handleCreateTeam} className="flex gap-3 w-full max-w-md px-4">
-                <Input 
-                    placeholder={t('equipo.name_placeholder')} 
-                    value={newTeamName}
-                    onChange={(e) => setNewTeamName(e.target.value)}
-                    className="flex-1"
-                />
-                <Button type="submit" disabled={isCreating} className="bg-blue-600 hover:bg-blue-700 font-bold">
-                    {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : t('equipo.create_btn')}
-                </Button>
-            </form>
+            <h2 className="text-2xl font-bold mb-2">Función PRO Exclusiva</h2>
+            <p className="text-muted-foreground mb-8 text-sm max-w-sm">
+              El trabajo en equipo y la colaboración están reservados para usuarios PRO. Actualiza tu plan para invitar colaboradores o unirte a otros equipos.
+            </p>
+            <Button className="bg-primary text-primary-foreground font-bold hover:scale-105 transition-transform" onClick={() => window.location.href = 'mailto:albamuli05@gmail.com'}>
+              Actualizar a PRO
+            </Button>
+          </div>
+        ) : !team && !isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="py-12 text-center border-2 border-dashed border-border rounded-xl bg-card/50 flex flex-col items-center">
+              <div className="h-12 w-12 bg-blue-600/10 rounded-full flex items-center justify-center mb-4">
+                  <Users className="h-6 w-6 text-blue-600" />
+              </div>
+              <h2 className="text-xl font-bold mb-2">{t('equipo.create_title')}</h2>
+              <p className="text-muted-foreground mb-6 text-sm max-w-sm">{t('equipo.create_desc')}</p>
+              <form onSubmit={handleCreateTeam} className="flex flex-col gap-3 w-full max-w-xs px-4">
+                  <Input 
+                      placeholder={t('equipo.name_placeholder')} 
+                      value={newTeamName}
+                      onChange={(e) => setNewTeamName(e.target.value)}
+                      className="w-full text-center"
+                  />
+                  <Button type="submit" disabled={isCreating} className="bg-blue-600 hover:bg-blue-700 font-bold w-full">
+                      {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : t('equipo.create_btn')}
+                  </Button>
+              </form>
+            </div>
+
+            <div className="py-12 text-center border-2 border-dashed border-border rounded-xl bg-card/50 flex flex-col items-center">
+              <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                  <UserPlus className="h-6 w-6 text-primary" />
+              </div>
+              <h2 className="text-xl font-bold mb-2">Unirse a un Equipo</h2>
+              <p className="text-muted-foreground mb-6 text-sm max-w-sm">Introduce el código de invitación proporcionado por el administrador del equipo.</p>
+              <form onSubmit={handleJoinTeam} className="flex flex-col gap-3 w-full max-w-xs px-4">
+                  <Input 
+                      placeholder="Código (ej. 524e93)" 
+                      value={joinCode}
+                      onChange={(e) => setJoinCode(e.target.value)}
+                      className="w-full text-center font-mono"
+                  />
+                  <Button type="submit" variant="outline" className="font-bold w-full">
+                      Unirse
+                  </Button>
+              </form>
+            </div>
           </div>
         ) : team && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

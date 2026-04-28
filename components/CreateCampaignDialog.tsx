@@ -11,6 +11,9 @@ import { Plus, Loader2 } from 'lucide-react'
 import { useTeam } from '@/hooks/use-team'
 import { useTranslation } from 'react-i18next'
 
+import { useAuth } from '@/hooks/use-auth'
+import { useDashboardData } from '@/hooks/use-dashboard-data'
+
 export function CreateCampaignDialog({ children }: { children?: React.ReactNode }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -18,12 +21,16 @@ export function CreateCampaignDialog({ children }: { children?: React.ReactNode 
   const [name, setName] = useState('')
   const [channel, setChannel] = useState('')
   const { data: team } = useTeam()
+  const { profile } = useAuth()
+  const { campaigns } = useDashboardData()
   const queryClient = useQueryClient()
   const supabase = createClient()
 
+  const isLimitReached = !profile?.is_pro && campaigns.length >= 1;
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name.trim()) return
+    if (!name.trim() || isLimitReached) return
 
     setIsSubmitting(true)
     try {
@@ -71,34 +78,55 @@ export function CreateCampaignDialog({ children }: { children?: React.ReactNode 
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] rounded-[1.5rem] border-2">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight">{t('dialogs.campaign.title')}</DialogTitle>
-          <DialogDescription className="text-muted-foreground/80">{t('dialogs.campaign.desc')}</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleCreate} className="space-y-6 py-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.campaign.label_name')}</label>
-            <Input 
-              placeholder={t('dialogs.campaign.placeholder_name')} 
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="h-12 rounded-xl focus:ring-primary/20"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.campaign.label_channel')}</label>
-            <Input 
-              placeholder={t('dialogs.campaign.placeholder_channel')} 
-              value={channel}
-              onChange={(e) => setChannel(e.target.value)}
-              className="h-12 rounded-xl focus:ring-primary/20"
-            />
-          </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95">
-            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('dialogs.campaign.submit')}
-          </Button>
-        </form>
+        {isLimitReached ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight text-primary">Límite Alcanzado</DialogTitle>
+              <DialogDescription className="text-muted-foreground/80">
+                El plan gratuito permite gestionar 1 sola campaña. Desbloquea campañas ilimitadas y trabajo en equipo con el plan PRO.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-6 flex justify-center">
+               <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
+                  <div className="text-3xl">🚀</div>
+               </div>
+            </div>
+            <Button className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95 bg-primary text-white" onClick={() => setOpen(false)}>
+               Actualizar a PRO
+            </Button>
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight">{t('dialogs.campaign.title')}</DialogTitle>
+              <DialogDescription className="text-muted-foreground/80">{t('dialogs.campaign.desc')}</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleCreate} className="space-y-6 py-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.campaign.label_name')}</label>
+                <Input 
+                  placeholder={t('dialogs.campaign.placeholder_name')} 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="h-12 rounded-xl focus:ring-primary/20"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.campaign.label_channel')}</label>
+                <Input 
+                  placeholder={t('dialogs.campaign.placeholder_channel')} 
+                  value={channel}
+                  onChange={(e) => setChannel(e.target.value)}
+                  className="h-12 rounded-xl focus:ring-primary/20"
+                />
+              </div>
+              <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95">
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('dialogs.campaign.submit')}
+              </Button>
+            </form>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )

@@ -39,24 +39,18 @@ export const OnboardingTutorial = memo(function OnboardingTutorial() {
 
     if (pathname === '/dashboard') {
       const hasSeenTutorial = localStorage.getItem('mkt_notes_tutorial_completed');
-      const isFirstLogin = searchParams?.get('firstLogin') === 'true';
       
-      // Solo correr si NO ha visto el tutorial Y es explícitamente el primer login (vía URL param)
-      if (!hasSeenTutorial && isFirstLogin) {
+      if (!hasSeenTutorial) {
         const timer = setTimeout(() => setRun(true), 1500);
         return () => clearTimeout(timer);
       } else {
-        // Si no es el primer login o ya lo vio, marcamos como completado para evitar que salga en el futuro
-        if (!hasSeenTutorial) {
-            localStorage.setItem('mkt_notes_tutorial_completed', 'true');
-        }
         setRun(false);
       }
     } else {
       setRun(false);
     }
     return () => observer.disconnect();
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   const handleJoyrideCallback = (data: JoyrideCallbackData) => {
     const { status } = data;
@@ -65,15 +59,6 @@ export const OnboardingTutorial = memo(function OnboardingTutorial() {
     if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status as any)) {
       setRun(false);
       localStorage.setItem('mkt_notes_tutorial_completed', 'true');
-      
-      // Clean up URL to remove firstLogin parameter
-      if (typeof window !== 'undefined') {
-        const url = new URL(window.location.href);
-        if (url.searchParams.has('firstLogin')) {
-          url.searchParams.delete('firstLogin');
-          window.history.replaceState({}, '', url.toString());
-        }
-      }
     }
   };
 

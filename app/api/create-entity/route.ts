@@ -25,6 +25,27 @@ export async function POST(req: Request) {
 
     console.log(`>>> [API Service] Creando ${type} para usuario ${userId}`);
 
+    // Validación de plan gratuito para campañas
+    if (type === 'campaign') {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('is_pro')
+        .eq('id', userId)
+        .single()
+
+      if (!profile?.is_pro) {
+        const { count, error: countError } = await supabaseAdmin
+          .from('campaigns')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', userId)
+
+        if (count && count >= 1) {
+          console.log(`>>> [API Service] Límite de campaña alcanzado para usuario gratuito: ${userId}`);
+          return NextResponse.json({ error: 'Límite alcanzado. Actualiza a PRO para crear más campañas.' }, { status: 403 })
+        }
+      }
+    }
+
     const { data: created, error } = await supabaseAdmin
       .from(table)
       .insert(insertData)

@@ -17,6 +17,18 @@ export async function POST(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
+    // Verificar si es PRO
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_pro')
+      .eq('id', userId)
+      .single()
+
+    if (!profile?.is_pro) {
+      console.error('>>> [API] Error: Usuario no es PRO');
+      return NextResponse.json({ error: 'La creación de equipos es una función PRO' }, { status: 403 })
+    }
+
     // 1. Crear el Equipo
     console.log('>>> [API] Insertando en tabla teams...');
     const { data: team, error: teamError } = await supabase

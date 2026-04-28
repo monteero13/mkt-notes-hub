@@ -47,6 +47,15 @@ export default function JoinTeamPage() {
         return
       }
 
+      // Check if PRO
+      const { data: profile } = await supabase.from('profiles').select('is_pro').eq('id', user.id).single()
+      if (!profile?.is_pro) {
+        toast.error('Debes ser un usuario PRO para unirte a un equipo.')
+        setIsJoining(false)
+        return
+      }
+
+
       const { error } = await supabase
         .from('team_members')
         .insert({
