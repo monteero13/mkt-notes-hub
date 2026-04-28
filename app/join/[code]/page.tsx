@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
+import { useTranslation } from 'react-i18next'
 
 export default function JoinTeamPage() {
+  const { t } = useTranslation()
   const params = useParams()
   const router = useRouter()
   const [team, setTeam] = useState<any>(null)
@@ -25,7 +27,7 @@ export default function JoinTeamPage() {
         .single()
 
       if (error || !data) {
-        toast.error('Enlace de invitación no válido')
+        toast.error(t('join.invalid_link'))
         router.push('/dashboard')
       } else {
         setTeam(data)
@@ -34,7 +36,7 @@ export default function JoinTeamPage() {
     }
 
     if (params.code) fetchTeam()
-  }, [params.code, router, supabase])
+  }, [params.code, router, supabase, t])
 
   const handleJoin = async () => {
     setIsJoining(true)
@@ -55,12 +57,12 @@ export default function JoinTeamPage() {
 
       if (error) {
         if (error.code === '23505') {
-          toast.info('Ya eres miembro de este equipo')
+          toast.info(t('join.already_member'))
         } else {
           throw error
         }
       } else {
-        toast.success(`Te has unido a ${team.name}`)
+        toast.success(t('join.success', { team: team.name }))
       }
       
       router.push('/dashboard')
@@ -86,17 +88,17 @@ export default function JoinTeamPage() {
           <div className="mx-auto h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
             <Users className="h-8 w-8 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold">Invitación a equipo</CardTitle>
+          <CardTitle className="text-2xl font-bold">{t('join.title')}</CardTitle>
           <CardDescription>
-            Has sido invitado a unirte al equipo <span className="font-bold text-foreground">{team?.name}</span>
+            {t('join.invited_to')} <span className="font-bold text-foreground">{team?.name}</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button className="w-full" size="lg" onClick={handleJoin} disabled={isJoining}>
-            {isJoining ? 'Uniéndote...' : 'Aceptar invitación'}
+            {isJoining ? t('join.joining') : t('join.accept')}
           </Button>
           <Button variant="ghost" className="w-full" onClick={() => router.push('/dashboard')}>
-            Cancelar
+            {t('common.cancel')}
           </Button>
         </CardContent>
       </Card>

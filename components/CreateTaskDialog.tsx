@@ -7,45 +7,63 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Plus, Loader2, Target, ListTodo } from 'lucide-react'
+import { Plus, Loader2 } from 'lucide-react'
 import { useDashboardData } from '@/hooks/use-dashboard-data'
+import { useTranslation } from 'react-i18next'
 
-export function CreateTaskDialog({ children, defaultCampaignId }: { children?: React.ReactNode, defaultCampaignId?: string }) {
+export function CreateTaskDialog({ children, defaultCampaignId, defaultDate, task }: { children?: React.ReactNode, defaultCampaignId?: string, defaultDate?: string, task?: any }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [title, setTitle] = useState('')
-  const [campaignId, setCampaignId] = useState(defaultCampaignId || '')
+  const [title, setTitle] = useState(task?.title || '')
+  const [campaignId, setCampaignId] = useState(task?.campaign_id || defaultCampaignId || '')
+  const [dueDate, setDueDate] = useState(task?.due_date || defaultDate || '')
   
   const { campaigns } = useDashboardData()
   const queryClient = useQueryClient()
   const supabase = createClient()
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!title.trim()) return
 
     setIsSubmitting(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('No autorizado')
+      if (!user) throw new Error(t('pricing.login_required'))
 
-      const { error } = await supabase.from('tasks').insert([{
-        user_id: user.id,
-        title,
-        campaign_id: campaignId || null,
-        status: 'pending',
-        priority: 'medium'
-      }])
+      if (task?.id) {
+        // Update
+        const { error } = await supabase.from('tasks').update({
+          title,
+          campaign_id: campaignId || null,
+          due_date: dueDate || null
+        }).eq('id', task.id)
+        if (error) throw error
+        toast.success(t('common.success'))
+      } else {
+        // Insert
+        const { error } = await supabase.from('tasks').insert([{
+          user_id: user.id,
+          title,
+          campaign_id: campaignId || null,
+          due_date: dueDate || null,
+          status: 'pending',
+          priority: 'medium'
+        }])
+        if (error) throw error
+        toast.success(t('dialogs.task.success'))
+      }
 
-      if (error) throw error
-
-      toast.success('Misión táctica asignada')
-      await queryClient.refetchQueries({ queryKey: ['tasks'] })
-      await queryClient.refetchQueries({ queryKey: ['campaigns'] })
+      await queryClient.invalidateQueries({ queryKey: ['tasks'] })
       setOpen(false)
-      setTitle('')
+      if (!task) {
+        setTitle('')
+        setCampaignId(defaultCampaignId || '')
+        setDueDate(defaultDate || '')
+      }
     } catch (error: any) {
-      toast.error('Error al crear tarea: ' + error.message)
+      toast.error(t('common.error') + ': ' + error.message)
     } finally {
       setIsSubmitting(false)
     }
@@ -54,25 +72,38 @@ export function CreateTaskDialog({ children, defaultCampaignId }: { children?: R
   return (
     <Dialog open={open} onOpenChange={(val) => {
       setOpen(val)
-      if (val && defaultCampaignId) setCampaignId(defaultCampaignId)
+      if (val) {
+        if (task) {
+          setTitle(task.title)
+          setCampaignId(task.campaign_id || '')
+          setDueDate(task.due_date || '')
+        } else {
+          if (defaultCampaignId) setCampaignId(defaultCampaignId)
+          if (defaultDate) setDueDate(defaultDate)
+        }
+      }
     }}>
       <DialogTrigger asChild>
         {children || (
           <Button className="gap-2 rounded-xl">
-            <Plus className="h-4 w-4" /> Nueva Misión
+            <Plus className="h-4 w-4" /> {t('campanas.add_task')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] rounded-[1.5rem] border-2">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight">Nueva Misión</DialogTitle>
-          <DialogDescription className="text-muted-foreground/80">Define una acción táctica concreta para impulsar tu estrategia.</DialogDescription>
+          <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight">
+            {task ? t('common.edit') : t('dialogs.task.title')}
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground/80">
+            {task ? t('common.edit') : t('dialogs.task.desc')}
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleCreate} className="space-y-6 py-4">
+        <form onSubmit={handleSave} className="space-y-6 py-4">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Título de la Misión</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.task.label_title')}</label>
             <Input 
-              placeholder="Ej: Redactar copy para Ads, Grabar Reel..." 
+              placeholder={t('dialogs.task.placeholder_title')} 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="h-12 rounded-xl"
@@ -80,22 +111,33 @@ export function CreateTaskDialog({ children, defaultCampaignId }: { children?: R
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Vincular a Estrategia</label>
-            <select 
-              value={campaignId}
-              onChange={(e) => setCampaignId(e.target.value)}
-              className="flex h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <option value="">Sin campaña asignada</option>
-              {campaigns.map((c: any) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.task.label_date')}</label>
+              <Input 
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="h-12 rounded-xl"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.task.label_campaign')}</label>
+              <select 
+                value={campaignId}
+                onChange={(e) => setCampaignId(e.target.value)}
+                className="flex h-12 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="">{t('dialogs.task.no_campaign')}</option>
+                {campaigns.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95">
-            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Asignar Misión'}
+            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : task ? t('common.save') : t('dialogs.task.submit')}
           </Button>
         </form>
       </DialogContent>

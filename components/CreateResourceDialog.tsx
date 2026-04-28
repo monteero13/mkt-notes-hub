@@ -9,8 +9,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Link as LinkIcon, FileText, Image as ImageIcon, Loader2, Plus, Upload, Paperclip, Video, Globe } from 'lucide-react'
 import { useTeam } from '@/hooks/use-team'
+import { useTranslation } from 'react-i18next'
 
 export function CreateResourceDialog({ children }: { children?: React.ReactNode }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [title, setTitle] = useState('')
@@ -26,7 +28,7 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
     e.preventDefault()
     
     if (!file && !url.trim() && !title.trim()) {
-      toast.error('Por favor, añade un archivo, un enlace o un título')
+      toast.error(t('dialogs.resource.error'))
       return
     }
 
@@ -34,10 +36,10 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Sesión expirada')
+      if (!user) throw new Error(t('pricing.login_required'))
 
       let finalUrl = url
-      let platform = 'Enlace'
+      let platform = t('common.link', 'Enlace')
 
       // Subida de archivo si existe
       if (file) {
@@ -56,7 +58,7 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
           .getPublicUrl(filePath)
         
         finalUrl = urlData.publicUrl
-        platform = 'Archivo Local'
+        platform = t('common.local_file', 'Archivo Local')
       } else if (url.includes('instagram.com/reel') || url.includes('tiktok.com')) {
         platform = 'Social Media'
       }
@@ -64,7 +66,7 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
       const { error: dbError } = await supabase.from('content').insert([{
         user_id: user.id,
         team_id: team?.id || null,
-        title: title || file?.name || 'Recurso sin título',
+        title: title || file?.name || t('common.untitled', 'Recurso sin título'),
         type,
         url: finalUrl,
         platform,
@@ -73,14 +75,14 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
 
       if (dbError) throw dbError
 
-      toast.success('Recurso archivado con éxito')
+      toast.success(t('dialogs.resource.success'))
       await queryClient.refetchQueries({ queryKey: ['content'] })
       setOpen(false)
       setTitle('')
       setUrl('')
       setFile(null)
     } catch (error: any) {
-      toast.error(error.message || 'Error al archivar');
+      toast.error(error.message || t('dialogs.resource.error'));
     } finally {
       setIsSubmitting(false)
     }
@@ -91,14 +93,14 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
       <DialogTrigger asChild>
         {children || (
           <Button className="gap-2 rounded-xl h-11 px-6 shadow-lg shadow-primary/20">
-            <Plus className="h-4 w-4" /> Añadir Recurso
+            <Plus className="h-4 w-4" /> {t('biblioteca.add')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[450px] rounded-[2.5rem] border-2 p-8 overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="text-3xl font-black text-card-foreground tracking-tighter uppercase">Biblioteca de Activos</DialogTitle>
-          <DialogDescription className="text-xs font-bold text-muted-foreground/60 uppercase tracking-widest mt-2">Sube archivos físicos o vincula referencias de redes sociales.</DialogDescription>
+          <DialogTitle className="text-3xl font-black text-card-foreground tracking-tighter uppercase">{t('dialogs.resource.title')}</DialogTitle>
+          <DialogDescription className="text-xs font-bold text-muted-foreground/60 uppercase tracking-widest mt-2">{t('dialogs.resource.desc')}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleCreate} className="space-y-8 mt-6">
@@ -127,17 +129,17 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
                   {file ? <Paperclip className="h-5 w-5" /> : <Upload className="h-5 w-5 transition-transform group-hover:-translate-y-1" />}
                 </div>
                 <p className="text-[11px] font-black uppercase tracking-widest text-card-foreground">
-                  {file ? file.name : 'Subida Directa'}
+                  {file ? file.name : t('common.upload', 'Subida Directa')}
                 </p>
-                {!file && <p className="text-[9px] text-muted-foreground/40 font-bold uppercase mt-1">Arrastra aquí tus archivos</p>}
+                {!file && <p className="text-[9px] text-muted-foreground/40 font-bold uppercase mt-1">{t('common.drag_drop', 'Arrastra aquí tus archivos')}</p>}
               </div>
           </div>
 
           <div className="space-y-5">
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 ml-1">Título del Recurso</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 ml-1">{t('dialogs.resource.label_title')}</label>
               <Input 
-                placeholder="Ej: Logo Animado, Referencia Reel..." 
+                placeholder={t('dialogs.resource.placeholder_title')} 
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="h-12 rounded-xl bg-muted/20 border-none px-4 font-bold"
@@ -145,10 +147,10 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 ml-1">Enlace Externo (Reels, YT, Link)</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-primary/80 ml-1">{t('dialogs.resource.label_url')}</label>
               <div className="relative">
                 <Input 
-                  placeholder="https://..." 
+                  placeholder={t('dialogs.resource.placeholder_url')} 
                   value={url}
                   onChange={(e) => {
                     setUrl(e.target.value)
@@ -162,7 +164,7 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 pt-2">
                 {[
-                  { id: 'image', label: 'Imágen', icon: ImageIcon },
+                  { id: 'image', label: t('common.image', 'Imagen'), icon: ImageIcon },
                   { id: 'video', label: 'Vídeo/Reel', icon: Video },
                   { id: 'document', label: 'Doc', icon: FileText },
                   { id: 'link', label: 'Link', icon: Globe },
@@ -187,7 +189,7 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <div className="flex items-center gap-2">
-                 Archivar recurso <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
+                 {t('dialogs.resource.submit')} <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
               </div>
             )}
           </Button>

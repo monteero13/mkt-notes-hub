@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Apple, Mail, KeyRound, Loader2, ArrowRight, User, Camera, X, Wand2, ArrowLeft, CheckCircle2, Info } from 'lucide-react'
+import { Apple, Mail, KeyRound, Loader2, ArrowRight, User, Camera, X, Wand2, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useQueryClient } from '@tanstack/react-query'
@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 type AuthMode = 'login' | 'signup' | 'forgot-password' | 'magic-link' | 'verification-sent';
 
 function LoginContent() {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -48,7 +49,7 @@ function LoginContent() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
       if (file.size > 2 * 1024 * 1024) { // 2MB limit
-        toast.error('La imagen es demasiado grande. Máximo 2MB.')
+        toast.error(t('login.errors.image_size'))
         return
       }
       setAvatarFile(file)
@@ -76,7 +77,7 @@ function LoginContent() {
         if (error) throw error
         
         await queryClient.invalidateQueries({ queryKey: ['user'] })
-        toast.success('Sesión iniciada correctamente')
+        toast.success(t('login.success.login'))
         
         setTimeout(() => {
           window.location.assign('/dashboard')
@@ -119,7 +120,7 @@ function LoginContent() {
             } else {
               const errorData = await uploadRes.json()
               console.error('Avatar upload error:', errorData.error)
-              toast.info('Tu cuenta se creó, pero la foto se subirá al confirmar tu email.')
+              toast.info(t('login.errors.upload_info'))
             }
           } catch (storageError) {
             console.error('Storage error:', storageError)
@@ -132,7 +133,7 @@ function LoginContent() {
           redirectTo: `${window.location.origin}/auth/callback?next=/auth/reset-password`,
         })
         if (error) throw error
-        toast.success('Email de recuperación enviado')
+        toast.success(t('login.success.recovery_sent'))
         setMode('verification-sent')
       } else if (mode === 'magic-link') {
         const { error } = await supabase.auth.signInWithOtp({
@@ -143,11 +144,11 @@ function LoginContent() {
         })
         if (error) throw error
         await queryClient.invalidateQueries({ queryKey: ['user'] })
-        toast.success('Magic link enviado a tu email')
+        toast.success(t('login.success.magic_sent'))
         setMode('verification-sent')
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error en la autenticación')
+      toast.error(error.message || t('login.errors.auth_error'))
     } finally {
       setIsLoading(false)
     }
@@ -174,14 +175,14 @@ function LoginContent() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary mb-6 animate-bounce">
             <CheckCircle2 className="h-10 w-10" />
           </div>
-          <CardTitle className="text-2xl font-bold mb-2">Verifica tu bandeja de entrada</CardTitle>
+          <CardTitle className="text-2xl font-bold mb-2">{t('login.verification.title')}</CardTitle>
           <CardDescription className="text-base mb-8">
-             Hemos enviado un correo de confirmación a <span className="font-bold text-foreground">{email}</span>.
-             Por favor, revisa el enlace para validar tu acceso.
+             {t('login.verification.desc_prefix')} <span className="font-bold text-foreground">{email}</span>.
+             {t('login.verification.desc_suffix')}
           </CardDescription>
           <Button variant="outline" className="w-full" onClick={() => setMode('login')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver al login
+            {t('login.verification.back_btn')}
           </Button>
         </Card>
       </div>
@@ -196,22 +197,22 @@ function LoginContent() {
             <KeyRound className="h-6 w-6" />
           </div>
           <h2 className="mt-6 font-heading text-3xl font-bold tracking-tight text-foreground">
-            {mode === 'login' && 'Inicia sesión en mkt.notes'}
-            {mode === 'signup' && 'Crea tu cuenta gratuita'}
-            {mode === 'forgot-password' && 'Recupera tu acceso'}
-            {mode === 'magic-link' && 'Entra sin contraseña'}
+            {mode === 'login' && t('login.title_login')}
+            {mode === 'signup' && t('login.title_signup')}
+            {mode === 'forgot-password' && t('login.title_forgot')}
+            {mode === 'magic-link' && t('login.title_magic')}
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
              {mode === 'login' && (
               <>
-                ¿Aún no tienes cuenta?
-                <button type="button" onClick={() => setMode('signup')} className="ml-2 font-bold text-primary hover:underline">Regístrate aquí</button>
+                {t('login.no_account')}
+                <button type="button" onClick={() => setMode('signup')} className="ml-2 font-bold text-primary hover:underline">{t('login.register_here')}</button>
               </>
             )}
             {(mode === 'signup' || mode === 'forgot-password' || mode === 'magic-link') && (
               <>
-                ¿Prefieres otra opción?
-                <button type="button" onClick={() => setMode('login')} className="ml-2 font-bold text-primary hover:underline">Volver al login</button>
+                {t('login.other_option')}
+                <button type="button" onClick={() => setMode('login')} className="ml-2 font-bold text-primary hover:underline">{t('login.back_to_login')}</button>
               </>
             )}
           </p>
@@ -220,10 +221,10 @@ function LoginContent() {
         <Card className="border-border/50 bg-card/50 backdrop-blur-xl shadow-xl">
           <CardHeader className="space-y-1">
             <CardTitle className="text-xl">
-              {mode === 'forgot-password' ? 'Recuperación' : mode === 'magic-link' ? 'Magic Link' : 'Acceso rápido'}
+              {mode === 'forgot-password' ? t('login.recovery') : mode === 'magic-link' ? t('login.magic_link') : t('login.quick_access')}
             </CardTitle>
             <CardDescription>
-              {mode === 'forgot-password' ? 'Te enviaremos un link para cambiar tu clave' : 'Usa tu cuenta favorita para continuar'}
+              {mode === 'forgot-password' ? t('login.recovery_desc') : t('login.quick_access_desc')}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4">
@@ -249,7 +250,7 @@ function LoginContent() {
                     <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground whitespace-nowrap">O continúa con email</span>
+                    <span className="bg-background px-2 text-muted-foreground whitespace-nowrap">{t('login.or_email')}</span>
                   </div>
                 </div>
               </>
@@ -267,7 +268,6 @@ function LoginContent() {
                         </AvatarFallback>
                       </Avatar>
                       
-                      {/* Trigger nativo con Label para máxima fiabilidad en escritorio */}
                       <label 
                         htmlFor="avatar-upload" 
                         className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full shadow-lg border border-border bg-secondary flex items-center justify-center cursor-pointer hover:bg-primary hover:text-white transition-all transform hover:scale-110 active:scale-95 z-10"
@@ -300,33 +300,33 @@ function LoginContent() {
                         </Button>
                       )}
                     </div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">Foto de perfil (opcional)</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold">{t('login.photo_optional')}</p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Nombre completo</Label>
+                    <Label htmlFor="fullName">{t('login.full_name')}</Label>
                     <div className="relative">
                       <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input id="fullName" type="text" placeholder="Juan Pérez" className="pl-10 h-11" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                      <Input id="fullName" type="text" placeholder={t('login.full_name_placeholder')} className="pl-10 h-11" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
                     </div>
                   </div>
                 </>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('login.email')}</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input id="email" type="email" placeholder="nombre@ejemplo.com" className="pl-10 h-11" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <Input id="email" type="email" placeholder={t('login.email_placeholder')} className="pl-10 h-11" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 </div>
               </div>
 
               {(mode === 'login' || mode === 'signup') && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Contraseña</Label>
+                    <Label htmlFor="password">{t('login.password')}</Label>
                     {mode === 'login' && (
                       <button type="button" onClick={() => setMode('forgot-password')} className="text-xs text-primary hover:underline">
-                        ¿Olvidaste tu contraseña?
+                        {t('login.forgot_password')}
                       </button>
                     )}
                   </div>
@@ -342,10 +342,10 @@ function LoginContent() {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <>
-                    {mode === 'login' && 'Entrar'}
-                    {mode === 'signup' && 'Crear cuenta'}
-                    {mode === 'forgot-password' && 'Enviar recuperación'}
-                    {mode === 'magic-link' && 'Enviar link mágico'}
+                    {mode === 'login' && t('login.enter')}
+                    {mode === 'signup' && t('login.create_account')}
+                    {mode === 'forgot-password' && t('login.send_recovery')}
+                    {mode === 'magic-link' && t('login.send_magic')}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </>
                 )}
@@ -354,14 +354,14 @@ function LoginContent() {
               {mode === 'login' && (
                 <Button type="button" variant="ghost" className="w-full h-12 text-xs font-bold hover:bg-primary/5 hover:text-primary rounded-xl border border-dashed border-border/60" onClick={() => setMode('magic-link')}>
                   <Wand2 className="mr-2 h-4 w-4 text-primary" />
-                  Entrar con un link mágico (sin contraseña)
+                  {t('login.magic_link_btn')}
                 </Button>
               )}
             </form>
           </CardContent>
           <CardFooter>
             <p className="text-center text-[10px] text-muted-foreground w-full px-4">
-              Al continuar, aceptas nuestros <Link href="/" className="underline text-muted-foreground hover:text-primary transition-colors">Términos de Servicio</Link> y <Link href="/" className="underline text-muted-foreground hover:text-primary transition-colors">Política de Privacidad</Link>.
+              {t('login.terms_prefix')} <Link href="/" className="underline text-muted-foreground hover:text-primary transition-colors">{t('login.terms_link')}</Link> {t('login.terms_and')} <Link href="/" className="underline text-muted-foreground hover:text-primary transition-colors">{t('login.privacy_link')}</Link>.
             </p>
           </CardFooter>
         </Card>

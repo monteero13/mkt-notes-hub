@@ -1,91 +1,91 @@
 'use client';
 
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { PageHeader } from "@/components/PageHeader";
-import { Lightbulb, Plus, MoreHorizontal, Loader2, Trash2, Tag, Layers } from "lucide-react";
+import { Lightbulb, Plus, Loader2, Trash2, Layers } from "lucide-react";
 import { useIdeas } from "@/hooks/use-features-data";
 import { CreateIdeaDialog } from "@/components/CreateIdeaDialog";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 export default function IdeasPage() {
+  const { t, i18n } = useTranslation();
   const { data: ideas = [], isLoading } = useIdeas();
   const queryClient = useQueryClient();
   const supabase = createClient();
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar esta idea del banco?')) return;
+    if (!confirm(t('ideas.delete_confirm'))) return;
     try {
       const { error } = await supabase.from('ideas').delete().eq('id', id);
       if (error) throw error;
-      toast.success('Idea eliminada');
+      toast.success(t('ideas.delete_success'));
       queryClient.invalidateQueries({ queryKey: ['ideas'] });
     } catch (error: any) {
-      toast.error('Error: ' + error.message);
+      toast.error(t('common.error') + ': ' + error.message);
     }
   };
 
-  if (isLoading) return (
-    <DashboardLayout>
-      <div className="flex h-[70vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    </DashboardLayout>
-  )
-
   return (
     <DashboardLayout>
-      <div className="space-y-6 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
-        <PageHeader title="Banco de Ideas" description="Captura tendencias y conceptos creativos antes de que se escapen.">
-          <CreateIdeaDialog />
-        </PageHeader>
+      <div className="p-8 space-y-8 relative">
+        {isLoading && (
+          <div className="absolute inset-0 bg-background/20 backdrop-blur-[2px] z-50 flex items-center justify-center min-h-[70vh] rounded-[2.5rem]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary opacity-50" />
+          </div>
+        )}
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight">{t('ideas.title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('ideas.desc')}</p>
+          </div>
+          <CreateIdeaDialog>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2 font-bold px-6">
+              <Plus className="h-4 w-4" />
+              {t('ideas.new')}
+            </Button>
+          </CreateIdeaDialog>
+        </div>
 
-        {ideas.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-32 bg-card/40 border-2 border-dashed border-border/60 rounded-[3rem] text-center px-4 shadow-inner shadow-black/[0.02]">
-            <div className="h-24 w-24 bg-primary/10 rounded-[2rem] flex items-center justify-center mb-10 rotate-3 transition-transform">
-               <Lightbulb className="h-12 w-12 text-primary" />
-            </div>
-            <h3 className="text-3xl font-heading font-bold mb-4 uppercase tracking-tighter">Sin ideas capturadas</h3>
-            <p className="text-muted-foreground max-w-md mb-12 text-base leading-relaxed">
-              El Banco de Ideas es tu espacio para la creatividad sin filtros. Captura aquí cualquier concepto para futuras campañas.
-            </p>
-            
-            <CreateIdeaDialog>
-              <Button size="lg" className="rounded-2xl px-12 h-14 font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
-                Capturar primera idea
-              </Button>
-            </CreateIdeaDialog>
+        {ideas.length === 0 && !isLoading ? (
+          <div className="py-32 text-center border-2 border-dashed border-border/10 rounded-3xl">
+            <Lightbulb className="mx-auto h-12 w-12 text-muted-foreground opacity-20 mb-4" />
+            <p className="text-muted-foreground italic">{t('ideas.empty')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {ideas.map((idea: any) => (
-              <div key={idea.id} className="group p-8 bg-card border border-border/50 rounded-[2.5rem] hover:shadow-2xl hover:bg-muted/10 transition-all relative">
-                <div className="absolute top-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
+              <div key={idea.id} className="bg-card border border-border/50 rounded-[2rem] p-8 flex flex-col justify-between hover:border-border/30 transition-all group relative">
+                <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => handleDelete(idea.id)}
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
+                    className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
 
-                <div className="flex items-center gap-2 mb-6 text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                  <Tag className="h-3 w-3" />
-                  {idea.category || 'Creatividad'}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-blue-500" />
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{idea.category || t('ideas.category_default')}</span>
+                  </div>
+
+                  <h3 className="text-2xl font-bold leading-tight">{idea.title}</h3>
                 </div>
 
-                <h3 className="text-2xl font-black text-card-foreground leading-tight mb-8 pr-10">{idea.title}</h3>
-                
-                <div className="flex flex-wrap gap-4 items-center justify-between pt-6 border-t border-border/20">
-                   <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
-                     <Layers className="h-3.5 w-3.5" />
-                     {idea.format || 'Multiformato'}
-                   </div>
-                   <span className="text-[10px] font-medium text-muted-foreground/30">{new Date(idea.created_at).toLocaleDateString()}</span>
+                <div className="flex items-center justify-between pt-8 border-t border-border/5 mt-8">
+                  <div className="flex items-center gap-2">
+                    <Layers className="h-3.5 w-3.5 text-muted-foreground/40" />
+                    <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{idea.format || t('ideas.format_default')}</span>
+                  </div>
+                  <span className="text-[10px] text-muted-foreground/30 font-bold">
+                    {new Date(idea.created_at).toLocaleDateString(i18n.language === 'es' ? 'es-ES' : 'en-US', { day: 'numeric', month: 'short' })}
+                  </span>
                 </div>
               </div>
             ))}

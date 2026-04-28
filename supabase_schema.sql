@@ -55,9 +55,21 @@ CREATE TABLE IF NOT EXISTS public.tasks (
   team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
   campaign_id UUID REFERENCES campaigns(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
-  description TEXT, -- NUEVO
+  description TEXT,
   status TEXT DEFAULT 'pending',
   priority TEXT DEFAULT 'medium',
+  assignees UUID[] DEFAULT '{}', -- NUEVO: Array de IDs de usuarios
+  category_color TEXT,           -- NUEVO: Color de la categoría
+  category_name TEXT,            -- NUEVO: Nombre de la categoría
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS public.task_categories (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  team_id UUID REFERENCES teams(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  color TEXT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -98,6 +110,9 @@ CREATE TABLE IF NOT EXISTS public.objectives (
 
 -- PARCHE DE COLUMNAS (Para asegurar que se añaden a tablas existentes)
 ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS assignees UUID[] DEFAULT '{}';
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS category_color TEXT;
+ALTER TABLE public.tasks ADD COLUMN IF NOT EXISTS category_name TEXT;
 ALTER TABLE public.content ADD COLUMN IF NOT EXISTS url TEXT;
 
 -- FORZAR REFRESCO DE API

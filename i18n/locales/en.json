@@ -14,7 +14,14 @@
       "premium_desc": "Unlock unlimited campaigns and advanced analytics for just 5€/month.",
       "upgrade_now": "Upgrade Now",
       "light_mode": "Light Mode",
-      "dark_mode": "Dark Mode"
+      "dark_mode": "Dark Mode",
+      "my_account": "My Account",
+      "profile": "Profile",
+      "logout": "Logout",
+      "logout_success": "Logged out successfully",
+      "marketing_hub": "MARKETING HUB",
+      "section": "SECTION",
+      "personal_hub": "PERSONAL HUB"
     },
     "tutorial": {
       "next": "Next",
@@ -40,7 +47,14 @@
       "step_equipo_title": "Team",
       "step_equipo_content": "Manage permissions, invite collaborators, and coordinate your entire department asynchronously.",
       "step3_title": "Premium Features",
-      "step3_content": "If you need to scale, you can unlock Pro features anytime for 5€."
+      "step3_content": "If you need to scale, you can unlock Pro features anytime for 5€.",
+      "step_stats_title": "Key Metrics",
+      "step_stats_content": "At a glance, track reach, posts, and goals for the month.",
+      "step_new_action_content": "Quickly create new tasks or tactical missions from anywhere.",
+      "step_campaigns_list_title": "Your Campaigns",
+      "step_campaigns_list_content": "Here you'll see the real progress of your active strategies.",
+      "step_priority_tasks_title": "Critical Missions",
+      "step_priority_tasks_content": "The most urgent tasks appear here so you never miss a beat."
     },
     "common": {
       "not_found_title": "404",
@@ -54,7 +68,37 @@
       "in_progress": "In Progress",
       "pending": "Pending",
       "active": "Active",
-      "planning": "Planning"
+      "planning": "Planning",
+      "new": "New",
+      "add": "Add",
+      "save": "Save",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "loading": "Loading...",
+      "error": "Error",
+      "success": "Success",
+      "all": "All",
+      "confirm_delete": "Are you sure?",
+      "no_data": "No data available",
+      "more": "more",
+      "of": "of",
+      "developed_by": "Developed by",
+      "link": "Link",
+      "local_file": "Local File",
+      "untitled": "Untitled",
+      "upload": "Direct Upload",
+      "drag_drop": "Drag your files here",
+      "image": "Image",
+      "days_short": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      }
     },
     "dashboard": {
       "welcome": "Welcome",
@@ -66,7 +110,14 @@
       "goals_achieved": "Goals achieved",
       "pending_tasks": "Pending tasks",
       "priority_tasks": "Priority tasks",
-      "current_week": "Current week"
+      "current_week": "Current week",
+      "current_month": "This month",
+      "urgent_count": "{{count}} urgent",
+      "view_full_agenda": "View full agenda",
+      "mock_task_1": "Review copy for Instagram campaign",
+      "mock_task_2": "Invite your team to the hub",
+      "mock_date_tomorrow": "Tomorrow, 09:00",
+      "mock_date_today": "Today, 14:00"
     },
     "pricing": {
       "badge": "Plans & Pricing",
@@ -82,6 +133,11 @@
       "get_pro": "Get Pro Now",
       "keep_free": "Stay with Free",
       "secure_payment": "Secure payment with Stripe. Cancel at any time.",
+      "subscribed": "Subscribed (Pro Plan)",
+      "login_required": "You must log in to subscribe",
+      "payment_error": "Error processing payment",
+      "title_part1": "Take your marketing to the",
+      "title_accent": "next level",
       "features": {
         "active_campaigns": "Up to 3 active campaigns",
         "basic_library": "Basic resource library",
@@ -93,6 +149,348 @@
         "team_collaboration": "Team collaboration",
         "priority_support": "Priority support",
         "multi_device": "Multi-device access"
+      }
+    },
+    "ideas": {
+      "title": "Ideas Bank",
+      "desc": "Capture creative concepts quickly",
+      "new": "New",
+      "delete_confirm": "Delete this idea from the bank?",
+      "delete_success": "Idea deleted",
+      "empty": "No ideas captured",
+      "category_default": "Creativity",
+      "format_default": "Trend"
+    },
+    "biblioteca": {
+      "title": "Library",
+      "desc": "Your assets and centralized training",
+      "add": "Add",
+      "delete_confirm": "Are you sure you want to delete this resource?",
+      "delete_success": "Resource deleted",
+      "empty": "No resources in the library"
+    },
+    "equipo": {
+      "title": "My Team",
+      "desc": "Manage your collaborators, assign roles and centralize strategy.",
+      "settings": "Team Settings",
+      "create_title": "Found your team",
+      "create_desc": "Invite collaborators to centralize work and coordinate campaigns in real time.",
+      "name_placeholder": "Team name",
+      "create_btn": "Found",
+      "create_success": "Team founded successfully!",
+      "update_success": "Name updated",
+      "kick_self_error": "You cannot kick yourself",
+      "kick_confirm": "Are you sure you want to kick this member?",
+      "kick_success": "Member kicked",
+      "copy_success": "Link copied",
+      "members": "Collaborators",
+      "active_members": "active members",
+      "you": "(You)",
+      "role_owner": "Leader",
+      "role_member": "Expert",
+      "online": "Online",
+      "kick": "Kick",
+      "invite_title": "Invite your team",
+      "invite_desc": "Share this link for them to join.",
+      "copied": "Copied",
+      "copy_link": "Copy Link",
+      "role_collab": "Role: Collaborator",
+      "role_collab_desc": "You have access to tools. Only the admin manages invitations."
+    },
+    "planificador": {
+      "title": "Planner",
+      "desc": "Organize your launches and team tasks",
+      "events_planned": "planned events",
+      "task_placeholder": "Task title...",
+      "assign_to": "Assign to",
+      "save_task": "Save Task",
+      "task_assigned": "Task assigned",
+      "no_events": "No events",
+      "days": ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"],
+      "categories": {
+        "content": "Content",
+        "meeting": "Meeting",
+        "strategy": "Strategy",
+        "urgent": "Urgent"
+      }
+    },
+    "contenido": {
+      "title": "Content Calendar",
+      "desc": "Plan and organize your posts",
+      "new": "New",
+      "delete_confirm": "Delete this piece of content?",
+      "delete_success": "Content deleted",
+      "status_updated": "Status updated",
+      "empty": "No content planned",
+      "status": {
+        "draft": "Draft",
+        "in_proceso": "In progress",
+        "published": "Published"
+      }
+    },
+    "campanas": {
+      "title": "Campaigns",
+      "desc": "Manage your marketing strategies and performance.",
+      "new": "New",
+      "delete_confirm": "Are you sure you want to delete this campaign?",
+      "delete_success": "Campaign deleted",
+      "table": {
+        "name": "Campaign name",
+        "start": "Start Date",
+        "end": "End Date",
+        "progress": "Progress",
+        "actions": "Actions"
+      },
+      "empty": "No active campaigns",
+      "tasks_associated": "associated tasks",
+      "add_task": "Add Task",
+      "no_tasks": "No pending tasks"
+    },
+    "objetivos": {
+      "title": "Strategic Goals",
+      "desc": "Measure the impact of your marketing",
+      "new": "New",
+      "delete_confirm": "Delete this strategic goal?",
+      "delete_success": "Goal deleted",
+      "empty": "No goals defined",
+      "target_label": "Target"
+    },
+    "perfil": {
+      "title": "Account Settings",
+      "desc": "Manage your identity and personal settings.",
+      "personal_info": "Personal Information",
+      "personal_info_desc": "This information will be visible to other team members.",
+      "photo": "Profile photo",
+      "photo_desc": "PNG or JPG. Max 2MB.",
+      "full_name": "Full Name",
+      "full_name_placeholder": "Your name",
+      "email": "Email Address (Read-only)",
+      "save_changes": "Save Changes",
+      "update_success": "Profile updated successfully",
+      "avatar_success": "Avatar updated successfully",
+      "avatar_error": "Could not upload image. Verify that the 'avatars' bucket is public.",
+      "sync_error": "Error syncing profile in DB",
+      "security": "Security",
+      "reset_password": "Send reset email",
+      "plan_pro": "Premium Plan",
+      "plan_free": "Free Plan",
+      "pro_active": "Pro Active",
+      "pro_desc": "You have full access to all corporate tools.",
+      "free_desc": "Upgrade to Pro to unlock unlimited teams and campaigns.",
+      "upgrade_btn": "Upgrade Account"
+    },
+    "landing": {
+      "solutions": "Solutions",
+      "demo": "Demo",
+      "plans": "Plans",
+      "login": "LOGIN",
+      "start": "Get Started",
+      "digital_trans": "Digital Transformation 2026",
+      "hero_title": "From paper agenda to",
+      "hero_title_accent": "digital efficiency.",
+      "hero_desc": "Organize your strategy with the clarity of a notebook and the power of a scalable business system.",
+      "go_dashboard": "Go to Dashboard",
+      "digitalize_now": "Digitalize your company",
+      "interactive_demo": "Watch interactive demo",
+      "digital_solutions": "Digital Solutions",
+      "smart_processes": "Smart processes for modern companies",
+      "corp_module": "Corporate Module",
+      "digitalize_btn": "Digitalize now",
+      "ready": "Ready for the change?",
+      "ready_desc": "Join the marketing departments that have already taken the step towards digital structural organization.",
+      "book_agenda": "Book my Digital Agenda",
+      "footer_terms": "Terms",
+      "footer_privacy": "Privacy",
+      "footer_contact": "Contact",
+      "footer_copy": "© 2026 mkt.notes. Digital Transformation.",
+      "features": {
+        "org_title": "Total Organization",
+        "org_desc": "Replace the chaos of physical agendas with a centralized system. All your marketing in one place.",
+        "collab_title": "Team Sync",
+        "collab_desc": "Coordinate your team without friction. Assign tasks and keep everyone aligned with objectives.",
+        "analytics_title": "Impact Analysis",
+        "analytics_desc": "What isn't measured isn't improved. Get critical visual reports on performance.",
+        "security_title": "Security and Cloud",
+        "security_desc": "Your data is protected with enterprise-grade encryption. Automatic backups."
+      }
+    },
+    "login": {
+      "title_login": "Log in to mkt.notes",
+      "title_signup": "Create your free account",
+      "title_forgot": "Recover your access",
+      "title_magic": "Enter without password",
+      "no_account": "Don't have an account yet?",
+      "register_here": "Register here",
+      "other_option": "Prefer another option?",
+      "back_to_login": "Back to login",
+      "recovery": "Recovery",
+      "magic_link": "Magic Link",
+      "quick_access": "Quick access",
+      "recovery_desc": "We will send you a link to change your password",
+      "quick_access_desc": "Use your favorite account to continue",
+      "or_email": "Or continue with email",
+      "full_name": "Full name",
+      "full_name_placeholder": "John Doe",
+      "email": "Email",
+      "email_placeholder": "name@example.com",
+      "password": "Password",
+      "forgot_password": "Forgot your password?",
+      "enter": "Enter",
+      "create_account": "Create account",
+      "send_recovery": "Send recovery",
+      "send_magic": "Send magic link",
+      "magic_link_btn": "Enter with a magic link (no password)",
+      "photo_optional": "Profile photo (optional)",
+      "terms_prefix": "By continuing, you accept our",
+      "terms_link": "Terms of Service",
+      "terms_and": "and",
+      "privacy_link": "Privacy Policy",
+      "verification": {
+        "title": "Check your inbox",
+        "desc_prefix": "We have sent a confirmation email to",
+        "desc_suffix": "Please check the link to validate your access.",
+        "back_btn": "Back to login"
+      },
+      "errors": {
+        "image_size": "The image is too large. Max 2MB.",
+        "auth_error": "Authentication error",
+        "upload_info": "Your account was created, but the photo will be uploaded after email confirmation."
+      },
+      "success": {
+        "login": "Logged in successfully",
+        "recovery_sent": "Recovery email sent",
+        "magic_sent": "Magic link sent to your email"
+      }
+    },
+    "demo": {
+      "title": "Demo View",
+      "desc": "Explore the dashboard with sample data",
+      "badge": "INTERACTIVE DEMO MODE",
+      "stats": {
+        "reach": "Total Reach",
+        "campaigns": "Active Campaigns",
+        "conversion": "Avg Conversion",
+        "objectives": "Q2 Objectives"
+      },
+      "trends": {
+        "reach": "+12% vs last month",
+        "campaigns": "3 ending this week",
+        "conversion": "+0.4% increase",
+        "objectives": "On track to complete"
+      },
+      "chart_title": "Campaign Performance",
+      "chart_desc": "Projected weekly reach",
+      "tasks_title": "Pending Tasks",
+      "tasks": {
+        "item1": { "title": "Instagram copy review", "time": "Today, 14:00" },
+        "item2": { "title": "Approve TikTok budget", "time": "Tomorrow, 09:00" },
+        "item3": { "title": "Monthly client report", "time": "Friday, 10:00" },
+        "item4": { "title": "New collection briefing", "time": "Monday, 11:30" }
+      },
+      "see_agenda": "See full agenda",
+      "features": {
+        "analytics": {
+          "title": "Analytics",
+          "desc": "Visualize the real impact of each action with automatic reports."
+        },
+        "planner": {
+          "title": "Planner",
+          "desc": "Organize your launches in an intuitive drag-and-drop calendar."
+        }
+      },
+      "pro": {
+        "title": "Unlock everything",
+        "desc": "Get access to advanced tools and unlimited collaboration.",
+        "btn": "Upgrade to Pro"
+      }
+    },
+    "join": {
+      "title": "Team Invitation",
+      "invited_to": "You have been invited to join the team",
+      "accept": "Accept Invitation",
+      "joining": "Joining...",
+      "invalid_link": "Invalid invitation link",
+      "already_member": "You are already a member of this team",
+      "success": "You have joined {{team}}"
+    },
+    "dialogs": {
+      "common": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "creating": "Creating..."
+      },
+      "campaign": {
+        "title": "New Strategy",
+        "desc": "Define the name and main channel of your next campaign to start measuring results.",
+        "label_name": "Project Name",
+        "placeholder_name": "Ex: Summer Launch 2026",
+        "label_channel": "Main Channel",
+        "placeholder_channel": "Ex: Instagram Ads, Email, TikTok...",
+        "submit": "Launch Campaign",
+        "success": "Campaign launched successfully",
+        "error": "Error creating campaign"
+      },
+      "content": {
+        "title": "New Content Piece",
+        "desc": "Plan the next post or article in your editorial calendar.",
+        "label_title": "Content Title",
+        "placeholder_title": "Ex: 5 Marketing Tips for 2026",
+        "label_platform": "Platform",
+        "placeholder_platform": "Instagram, YouTube, etc.",
+        "label_date": "Publishing Date",
+        "submit": "Schedule Content",
+        "success": "Content scheduled",
+        "error": "Error scheduling content"
+      },
+      "idea": {
+        "title": "New Creative Idea",
+        "desc": "Don't let it slip away. Write down any concept or trend that inspires you.",
+        "label_title": "Idea Title",
+        "placeholder_title": "Ex: Reels series on AI",
+        "label_category": "Category",
+        "placeholder_category": "Trend, Concept, etc.",
+        "submit": "Capture Idea",
+        "success": "Idea captured",
+        "error": "Error capturing idea"
+      },
+      "objective": {
+        "title": "New Strategic Goal",
+        "desc": "Define a clear and measurable goal for your marketing strategy.",
+        "label_title": "What you want to achieve",
+        "placeholder_title": "Ex: Increase leads in Q3",
+        "label_kpi": "KPI to measure",
+        "placeholder_kpi": "Conversions, Reach, etc.",
+        "label_target": "Target Value",
+        "label_deadline": "Deadline",
+        "submit": "Set Goal",
+        "success": "Goal set successfully",
+        "error": "Error creating goal"
+      },
+      "resource": {
+        "title": "New Resource",
+        "desc": "Add files, images or external links to your library.",
+        "label_title": "Resource Name",
+        "placeholder_title": "Ex: Style Guide 2026",
+        "label_type": "File Type",
+        "label_url": "External URL (Optional)",
+        "placeholder_url": "https://...",
+        "label_file": "Upload file (Image/Doc)",
+        "submit": "Add to Library",
+        "success": "Resource added",
+        "error": "Error adding resource",
+        "error_file": "Error uploading file"
+      },
+      "task": {
+        "title": "New Task",
+        "desc": "Assign a specific action to a project or campaign.",
+        "label_title": "What needs to be done",
+        "placeholder_title": "Ex: Design IG carousel",
+        "label_date": "Due Date",
+        "label_campaign": "Link to campaign (Optional)",
+        "no_campaign": "No linked campaign",
+        "submit": "Create Task",
+        "success": "Task created successfully",
+        "error": "Error creating task"
       }
     }
   }

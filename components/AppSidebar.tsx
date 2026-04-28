@@ -11,8 +11,6 @@ import {
   BookOpen,
   Users,
   BarChart3,
-  ChevronLeft,
-  ChevronRight,
   Globe,
   Sun,
   Moon,
@@ -24,7 +22,6 @@ import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { DeveloperSignature } from "./DeveloperSignature";
 import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -51,7 +48,6 @@ const navItems = [
 ];
 
 export function AppSidebar() {
-  const [collapsed, setCollapsed] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -69,7 +65,7 @@ export function AppSidebar() {
     await supabase.auth.signOut();
     router.push('/login');
     router.refresh();
-    toast.success('Sesión cerrada correctamente');
+    toast.success(t('sidebar.logout_success', 'Sesión cerrada correctamente'));
   };
 
   const toggleTheme = () => {
@@ -83,99 +79,53 @@ export function AppSidebar() {
 
   if (!mounted || isLoading) {
     return (
-      <aside className={cn(
-        "fixed inset-y-0 left-0 z-30 hidden md:flex flex-col transition-all duration-300",
-        "bg-sidebar/95 backdrop-blur-xl border-r border-border/50 shadow-2xl",
-        collapsed ? "w-16" : "w-64"
-      )}>
-        <div className="flex h-20 items-center px-6">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden md:flex flex-col bg-sidebar border-r border-sidebar-border w-64">
+        <div className="flex h-24 items-center px-6">
           <div className="h-10 w-10 bg-muted animate-pulse rounded-lg" />
         </div>
       </aside>
     );
   }
 
-  // Lógica de Fallback Extrema
   const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario';
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || null;
 
   return (
-    <aside
-      className={cn(
-        "fixed inset-y-0 left-0 z-30 hidden md:flex flex-col transition-all duration-300",
-        "bg-sidebar/95 backdrop-blur-xl border-r border-border/50 shadow-2xl",
-        collapsed ? "w-16" : "w-64"
-      )}
-    >
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-6 z-40 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-background shadow-md text-muted-foreground hover:text-foreground transition-all hover:scale-110"
-      >
-        {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
-      </button>
-
+    <aside className="fixed inset-y-0 left-0 z-30 hidden md:flex flex-col bg-sidebar border-r border-sidebar-border shadow-2xl w-64">
       {/* Logo */}
-      <div className={cn("flex h-20 items-center px-6", collapsed ? "justify-center px-0" : "justify-between")}>
-        <Link href="/dashboard" className="flex items-center gap-3" title="Volver al Dashboard">
-          <div className="relative">
-            <div className={cn(
-              "relative flex shrink-0 items-center justify-center transition-all duration-300",
-              collapsed ? "h-11 w-11 mx-auto" : "h-14 w-14"
-            )}>
-              <img
-                src={theme === 'dark' ? "/dark_logo.png" : "/logo.png"}
-                alt="mkt.notes"
-                className={cn(
-                  "h-full w-full object-contain transition-all duration-500",
-                  theme !== 'dark' && "mix-blend-multiply"
-                )}
-              />
+      <div className="flex h-24 items-center px-6 justify-between">
+        <Link href="/dashboard" className="flex items-center gap-3">
+          <div className="h-10 w-10 flex items-center justify-center shrink-0">
+            <div className="h-9 w-9 bg-black dark:bg-white rounded-lg flex items-center justify-center text-white dark:text-black font-black text-xs">
+              mkt
             </div>
           </div>
-          {!collapsed && (
-            <div className="flex flex-col">
-              <span className="font-heading text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
-                mkt.notes
-              </span>
-              <span className="text-[9px] font-bold text-primary tracking-[0.2em] uppercase opacity-80 -mt-1">Marketing Hub</span>
-            </div>
-          )}
+          <div className="flex flex-col">
+            <span className="font-bold text-xl tracking-tighter leading-none">mkt.notes</span>
+            <span className="text-[7px] font-black text-primary uppercase tracking-[0.4em] mt-0.5 ml-0.5">{t('sidebar.marketing_hub')}</span>
+          </div>
         </Link>
       </div>
 
       {/* Nav */}
-      <nav className="tour-sidebar-nav flex-1 space-y-1 px-3 py-6 overflow-y-auto overflow-x-hidden scrollbar-none">
+      <nav className="flex-1 space-y-1 px-4 py-8 overflow-y-auto scrollbar-none">
         {navItems.map((item) => {
-          const isActive =
-            item.to === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.to);
+          const isActive = pathname.startsWith(item.to);
 
           return (
             <Link
               key={item.to}
               href={item.to}
               className={cn(
+                "group flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200",
                 `tour-item-${item.id}`,
-                "group relative flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300",
                 isActive
-                   ? "bg-primary/10 text-primary shadow-[0_0_20px_rgba(94,129,244,0.1)]"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-accent-foreground",
-                collapsed ? "justify-center" : ""
+                   ? "bg-primary/10 text-primary"
+                  : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/30"
               )}
             >
-              {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
-              )}
-              <div className="flex items-center gap-3">
-                <item.icon className={cn("shrink-0 transition-transform duration-300 group-hover:scale-110", collapsed ? "h-5 w-5" : "h-[18px] w-[18px]", isActive ? "text-primary" : "text-muted-foreground")} />
-                {!collapsed && <span>{t(`sidebar.${item.id}`)}</span>}
-              </div>
-              {!collapsed && item.isPro && (
-                <Badge variant="secondary" className="h-4 px-1.5 text-[8px] bg-primary/10 text-primary border-none font-bold uppercase tracking-wider">
-                  {t('sidebar.pro')}
-                </Badge>
-              )}
+              <item.icon className={cn("shrink-0 h-5 w-5", isActive ? "text-primary" : "group-hover:text-sidebar-foreground")} />
+              <span>{t(`sidebar.${item.id}`)}</span>
             </Link>
           );
         })}
@@ -183,40 +133,46 @@ export function AppSidebar() {
 
       {/* User & Settings */}
       <div className="mt-auto p-3 space-y-2 border-t border-border/40">
+        {!profile?.is_pro && (
+          <div className="mx-4 mb-6 p-6 bg-primary/10 border border-primary/20 rounded-3xl space-y-3 tour-upgrade-card relative overflow-hidden group">
+            <div className="absolute -right-4 -top-4 h-16 w-16 bg-primary/20 rounded-full blur-2xl group-hover:bg-primary/30 transition-all" />
+            <p className="text-xs font-bold text-primary uppercase tracking-widest">{t('sidebar.premium_access')}</p>
+            <p className="text-[10px] text-muted-foreground leading-relaxed">{t('sidebar.premium_desc')}</p>
+            <Button size="sm" className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl text-[10px] font-bold h-8">
+              {t('sidebar.upgrade_now')}
+            </Button>
+          </div>
+        )}
+
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className={cn(
-                "flex items-center gap-3 w-full p-2 rounded-xl hover:bg-sidebar-accent transition-all duration-300 group",
-                collapsed ? "justify-center" : ""
-              )}>
-                <Avatar className="h-8 w-8 border border-border/50 group-hover:border-primary/50 transition-all shadow-sm">
+              <button className="flex items-center gap-3 w-full p-2 rounded-xl hover:bg-sidebar-accent transition-all duration-300 group">
+                <Avatar className="h-9 w-9 border border-white/5 group-hover:border-primary/50 transition-all shadow-lg shrink-0">
                   <AvatarImage src={avatarUrl || undefined} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
+                  <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-black">
                     {displayName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                {!collapsed && (
-                  <div className="flex flex-col items-start min-w-0">
-                    <span className="text-xs font-bold text-foreground truncate w-full">
-                      {displayName}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground truncate w-full">
-                      {profile?.is_pro ? (i18n.language === 'es' ? 'Plan Pro Activo' : 'Pro Plan Active') : (i18n.language === 'es' ? 'Sesión Iniciada' : 'Active Session')}
-                    </span>
-                  </div>
-                )}
+                <div className="flex flex-col items-start min-w-0 text-left">
+                  <span className="text-xs font-black text-foreground truncate w-full tracking-tight">
+                    {displayName}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground/60 truncate w-full font-bold uppercase tracking-widest mt-0.5">
+                    {user?.email?.split('@')[0] || 'Marketing Lead'}
+                  </span>
+                </div>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 mb-2 bg-card/95 backdrop-blur-xl border-border/50">
               <DropdownMenuLabel className="font-heading text-xs font-bold text-muted-foreground uppercase tracking-widest px-3 py-2">
-                Mi Cuenta
+                {t('sidebar.my_account')}
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-border/40" />
               <DropdownMenuItem asChild className="focus:bg-primary/10 focus:text-primary transition-colors cursor-pointer py-2 px-3">
                 <Link href="/perfil" className="flex items-center w-full">
                    <User className="mr-2 h-4 w-4" />
-                   <span className="text-xs font-semibold">Perfil</span>
+                   <span className="text-xs font-semibold">{t('sidebar.profile')}</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/40" />
@@ -225,44 +181,29 @@ export function AppSidebar() {
                 className="focus:bg-destructive/10 focus:text-destructive transition-colors cursor-pointer py-2 px-3 text-destructive"
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                <span className="text-xs font-bold">Cerrar sesión</span>
+                <span className="text-xs font-bold">{t('sidebar.logout')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : (
-          <Link href="/login" className="block w-full">
-            <Button variant="ghost" className="w-full justify-start gap-3 h-10 px-2 hover:bg-primary/10 hover:text-primary">
-              <LogOut className="h-4 w-4 rotate-180" />
-              {!collapsed && <span className="text-xs font-bold">Entrar</span>}
-            </Button>
-          </Link>
-        )}
+        ) : null}
 
         {/* Toggles */}
-        <div className={cn("flex flex-col gap-2", collapsed ? "items-center" : "")}>
+        <div className="flex flex-col gap-2">
            <button
             onClick={toggleTheme}
-             className={cn(
-              "flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-2 px-3 transition-all hover:bg-white/10 hover:border-white/20",
-              collapsed ? "p-2 px-2" : "w-full"
-            )}
+             className="flex items-center gap-3 rounded-2xl border border-sidebar-border bg-sidebar-accent/50 p-2 px-3 transition-all hover:bg-sidebar-accent hover:border-sidebar-border w-full"
           >
             <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
               {theme === 'dark' ? <Sun className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
             </div>
-            {!collapsed && (
-              <span className="text-xs font-semibold text-foreground/80">
-                {theme === 'dark' ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
-              </span>
-            )}
+            <span className="text-xs font-semibold text-foreground/80">
+              {theme === 'dark' ? t('sidebar.light_mode') : t('sidebar.dark_mode')}
+            </span>
           </button>
 
           <button
             onClick={toggleLanguage}
-            className={cn(
-              "flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-2 px-3 transition-all hover:bg-white/10 hover:border-white/20",
-              collapsed ? "p-2 px-2" : "w-full"
-            )}
+            className="flex items-center gap-3 rounded-2xl border border-sidebar-border bg-sidebar-accent/50 p-2 px-3 transition-all hover:bg-sidebar-accent hover:border-sidebar-border w-full"
           >
             <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full overflow-hidden shadow-sm ring-1 ring-white/20">
               {i18n.language === 'es' ? (
@@ -271,19 +212,16 @@ export function AppSidebar() {
                 <img src="https://flagcdn.com/w40/gb.png" alt="EN" className="h-full w-full object-cover" />
               )}
             </div>
-            {!collapsed && (
-              <div className="flex flex-1 items-center justify-between">
-                <span className="text-xs font-semibold text-foreground/80">
-                  {i18n.language === 'es' ? 'Español' : 'English'}
-                </span>
-                <Globe className="h-3 w-3 text-muted-foreground opacity-50" />
-              </div>
-            )}
+            <div className="flex flex-1 items-center justify-between">
+              <span className="text-xs font-semibold text-foreground/80">
+                {i18n.language === 'es' ? 'Español' : 'English'}
+              </span>
+            </div>
           </button>
         </div>
       </div>
 
-      <DeveloperSignature collapsed={collapsed} />
+      <DeveloperSignature collapsed={false} />
     </aside>
   );
 }
@@ -304,23 +242,20 @@ export function MobileNav() {
   }
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-around border-t border-border/50 bg-background/80 backdrop-blur-xl py-3 md:hidden">
+    <nav className="fixed inset-x-4 bottom-4 z-30 flex items-center justify-around bg-background/80 backdrop-blur-2xl border border-border/50 py-4 rounded-[2.5rem] md:hidden shadow-2xl">
       {mobileItems.map((item) => {
-        const isActive =
-          item.to === "/"
-            ? pathname === "/"
-            : pathname.startsWith(item.to);
+        const isActive = pathname.startsWith(item.to);
         return (
           <Link
             key={item.to}
             href={item.to}
             className={cn(
-              "flex flex-col items-center gap-1 text-[10px] transition-all",
-              isActive ? "text-primary scale-110" : "text-muted-foreground hover:text-foreground"
+              "flex flex-col items-center gap-1.5 transition-all",
+              isActive ? "text-blue-500 scale-110" : "text-muted-foreground"
             )}
           >
             <item.icon className="h-5 w-5" />
-            <span className="font-medium">{t(`sidebar.${item.id}`)}</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">{t(`sidebar.${item.id}`).slice(0, 4)}</span>
           </Link>
         );
       })}

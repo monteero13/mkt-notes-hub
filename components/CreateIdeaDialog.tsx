@@ -7,10 +7,12 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Lightbulb, Loader2, Plus } from 'lucide-react'
+import { Loader2, Plus } from 'lucide-react'
 import { useTeam } from '@/hooks/use-team'
+import { useTranslation } from 'react-i18next'
 
 export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [title, setTitle] = useState('')
@@ -26,7 +28,7 @@ export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
     setIsSubmitting(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('No autorizado. Por favor inicia sesión.')
+      if (!user) throw new Error(t('pricing.login_required'))
 
       const response = await fetch('/api/create-entity', {
         method: 'POST',
@@ -43,9 +45,9 @@ export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
       })
 
       const result = await response.json()
-      if (!response.ok) throw new Error(result.error || 'Error al capturar la idea')
+      if (!response.ok) throw new Error(result.error || t('dialogs.idea.error'))
 
-      toast.success('Idea almacenada en el Banco de Ideas')
+      toast.success(t('dialogs.idea.success'))
       await queryClient.refetchQueries({ queryKey: ['ideas'] })
       setOpen(false)
       setTitle('')
@@ -62,20 +64,20 @@ export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
       <DialogTrigger asChild>
         {children || (
           <Button className="gap-2 rounded-xl">
-            <Plus className="h-4 w-4" /> Nueva Idea
+            <Plus className="h-4 w-4" /> {t('ideas.new')}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] rounded-[1.5rem] border-2">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight">Captura Creativa</DialogTitle>
-          <DialogDescription className="text-muted-foreground/80">No dejes escapar ninguna tendencia. Anota tu idea de forma rápida.</DialogDescription>
+          <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight">{t('dialogs.idea.title')}</DialogTitle>
+          <DialogDescription className="text-muted-foreground/80">{t('dialogs.idea.desc')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleCreate} className="space-y-6 py-4">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Concepto / Idea</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.idea.label_title')}</label>
             <Input 
-              placeholder="Ej: Podcast sobre IA generativa" 
+              placeholder={t('dialogs.idea.placeholder_title')} 
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="h-12 rounded-xl"
@@ -83,11 +85,11 @@ export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Categoría / Tendencia</label>
-            <Input placeholder="Ej: Tech / Podcast" value={category} onChange={(e) => setCategory(e.target.value)} className="h-12 rounded-xl" />
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.idea.label_category')}</label>
+            <Input placeholder={t('dialogs.idea.placeholder_category')} value={category} onChange={(e) => setCategory(e.target.value)} className="h-12 rounded-xl" />
           </div>
           <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95">
-            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Guardar en el Banco'}
+            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('dialogs.idea.submit')}
           </Button>
         </form>
       </DialogContent>

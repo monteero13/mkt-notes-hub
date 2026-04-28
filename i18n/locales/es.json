@@ -14,7 +14,14 @@
       "premium_desc": "Desbloquea campañas ilimitadas y análisis avanzado por solo 5€/mes.",
       "upgrade_now": "Actualizar Ahora",
       "light_mode": "Modo Claro",
-      "dark_mode": "Modo Oscuro"
+      "dark_mode": "Modo Oscuro",
+      "my_account": "Mi Cuenta",
+      "profile": "Perfil",
+      "logout": "Cerrar sesión",
+      "logout_success": "Sesión cerrada correctamente",
+      "marketing_hub": "MARKETING HUB",
+      "section": "SECCIÓN",
+      "personal_hub": "HUB PERSONAL"
     },
     "tutorial": {
       "next": "Siguiente",
@@ -40,7 +47,14 @@
       "step_equipo_title": "Equipo",
       "step_equipo_content": "Gestiona permisos, invita colaboradores y coordina a todo tu departamento asíncronamente.",
       "step3_title": "Funciones Premium",
-      "step3_content": "Si necesitas escalar, puedes desbloquear las características Pro en cualquier momento por 5€."
+      "step3_content": "Si necesitas escalar, puedes desbloquear las características Pro en cualquier momento por 5€.",
+      "step_stats_title": "Métricas Clave",
+      "step_stats_content": "De un vistazo, controla el alcance, posts y objetivos del mes.",
+      "step_new_action_content": "Crea rápidamente nuevas tareas o misiones tácticas desde cualquier lugar.",
+      "step_campaigns_list_title": "Tus Campañas",
+      "step_campaigns_list_content": "Aquí verás el progreso real de tus estrategias activas.",
+      "step_priority_tasks_title": "Misiones Críticas",
+      "step_priority_tasks_content": "Las tareas más urgentes aparecen aquí para que no se te pase nada."
     },
     "common": {
       "not_found_title": "404",
@@ -54,7 +68,37 @@
       "in_progress": "En proceso",
       "pending": "Pendiente",
       "active": "Activa",
-      "planning": "Planificación"
+      "planning": "Planificación",
+      "new": "Nuevo",
+      "add": "Añadir",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "delete": "Eliminar",
+      "edit": "Editar",
+      "loading": "Cargando...",
+      "error": "Error",
+      "success": "Éxito",
+      "all": "Todos",
+      "confirm_delete": "¿Estás seguro?",
+      "no_data": "No hay datos disponibles",
+      "more": "más",
+      "of": "de",
+      "developed_by": "Desarrollado por",
+      "link": "Enlace",
+      "local_file": "Archivo Local",
+      "untitled": "Sin título",
+      "upload": "Subida Directa",
+      "drag_drop": "Arrastra aquí tus archivos",
+      "image": "Imagen",
+      "days_short": {
+        "mon": "Lun",
+        "tue": "Mar",
+        "wed": "Mie",
+        "thu": "Jue",
+        "fri": "Vie",
+        "sat": "Sab",
+        "sun": "Dom"
+      }
     },
     "dashboard": {
       "welcome": "Bienvenido",
@@ -66,7 +110,14 @@
       "goals_achieved": "Objetivos cumplidos",
       "pending_tasks": "Tareas pendientes",
       "priority_tasks": "Tareas prioritarias",
-      "current_week": "Semana actual"
+      "current_week": "Semana actual",
+      "current_month": "Este mes",
+      "urgent_count": "{{count}} urgentes",
+      "view_full_agenda": "Ver toda la agenda",
+      "mock_task_1": "Revisar copy para campaña de Instagram",
+      "mock_task_2": "Invita a tu equipo al hub",
+      "mock_date_tomorrow": "Mañana, 09:00",
+      "mock_date_today": "Hoy, 14:00"
     },
     "pricing": {
       "badge": "Planes y Precios",
@@ -82,6 +133,11 @@
       "get_pro": "Obtener Pro Ahora",
       "keep_free": "Seguir con Free",
       "secure_payment": "Pago seguro con Stripe. Cancela en cualquier momento.",
+      "subscribed": "Suscrito (Plan Pro)",
+      "login_required": "Debes iniciar sesión para suscribirte",
+      "payment_error": "Error al procesar el pago",
+      "title_part1": "Lleva tu marketing al",
+      "title_accent": "siguiente nivel",
       "features": {
         "active_campaigns": "Hasta 3 campañas activas",
         "basic_library": "Biblioteca de recursos básica",
@@ -93,6 +149,348 @@
         "team_collaboration": "Colaboración en equipo",
         "priority_support": "Soporte prioritario",
         "multi_device": "Acceso multidispositivo"
+      }
+    },
+    "ideas": {
+      "title": "Banco de Ideas",
+      "desc": "Captura conceptos creativos rápidamente",
+      "new": "Nueva",
+      "delete_confirm": "¿Eliminar esta idea del banco?",
+      "delete_success": "Idea eliminada",
+      "empty": "No hay ideas capturadas",
+      "category_default": "Creatividad",
+      "format_default": "Trend"
+    },
+    "biblioteca": {
+      "title": "Biblioteca",
+      "desc": "Tus activos y formación centralizada",
+      "add": "Añadir",
+      "delete_confirm": "¿Estás seguro de que deseas eliminar este recurso?",
+      "delete_success": "Recurso eliminado",
+      "empty": "No hay recursos en la biblioteca"
+    },
+    "equipo": {
+      "title": "Mi Equipo",
+      "desc": "Gestiona tus colaboradores, asigna roles y centraliza la estrategia.",
+      "settings": "Ajustes de Equipo",
+      "create_title": "Funda tu equipo",
+      "create_desc": "Invita a colaboradores para centralizar el trabajo y coordinar campañas en tiempo real.",
+      "name_placeholder": "Nombre del equipo",
+      "create_btn": "Fundar",
+      "create_success": "¡Equipo fundado correctamente!",
+      "update_success": "Nombre actualizado",
+      "kick_self_error": "No puedes expulsarte a ti mismo",
+      "kick_confirm": "¿Seguro que quieres expulsar a este miembro?",
+      "kick_success": "Miembro expulsado",
+      "copy_success": "Enlace copiado",
+      "members": "Colaboradores",
+      "active_members": "miembros activos",
+      "you": "(Tú)",
+      "role_owner": "Líder",
+      "role_member": "Experto",
+      "online": "Online",
+      "kick": "Expulsar",
+      "invite_title": "Invita a tu equipo",
+      "invite_desc": "Comparte este enlace para que se unan.",
+      "copied": "Copiado",
+      "copy_link": "Copiar Enlace",
+      "role_collab": "Rol: Colaborador",
+      "role_collab_desc": "Tienes acceso a las herramientas. Solo el administrador gestiona invitaciones."
+    },
+    "planificador": {
+      "title": "Planificador",
+      "desc": "Organiza tus lanzamientos y tareas en equipo",
+      "events_planned": "eventos planificados",
+      "task_placeholder": "Título de la tarea...",
+      "assign_to": "Asignar a",
+      "save_task": "Guardar Tarea",
+      "task_assigned": "Tarea asignada",
+      "no_events": "No hay eventos",
+      "days": ["LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM"],
+      "categories": {
+        "content": "Contenido",
+        "meeting": "Reunión",
+        "strategy": "Estrategia",
+        "urgent": "Urgente"
+      }
+    },
+    "contenido": {
+      "title": "Calendario de Contenido",
+      "desc": "Planifica y organiza tus publicaciones",
+      "new": "Nuevo",
+      "delete_confirm": "¿Eliminar esta pieza de contenido?",
+      "delete_success": "Contenido eliminado",
+      "status_updated": "Estado actualizado",
+      "empty": "No hay contenido planificado",
+      "status": {
+        "draft": "Borrador",
+        "in_proceso": "En proceso",
+        "published": "Publicado"
+      }
+    },
+    "campanas": {
+      "title": "Campañas",
+      "desc": "Gestiona tus estrategias de marketing y rendimiento.",
+      "new": "Nueva",
+      "delete_confirm": "¿Estás seguro de que deseas eliminar esta campaña?",
+      "delete_success": "Campaña eliminada",
+      "table": {
+        "name": "Nombre de la campaña",
+        "start": "F. Inicio",
+        "end": "F. Fin",
+        "progress": "Progreso",
+        "actions": "Acciones"
+      },
+      "empty": "No hay campañas activas",
+      "tasks_associated": "tareas asociadas",
+      "add_task": "Añadir Tarea",
+      "no_tasks": "Sin tareas pendientes"
+    },
+    "objetivos": {
+      "title": "Objetivos Estratégicos",
+      "desc": "Mide el impacto de tu marketing",
+      "new": "Nuevo",
+      "delete_confirm": "¿Eliminar este objetivo estratégico?",
+      "delete_success": "Objetivo eliminado",
+      "empty": "No hay objetivos definidos",
+      "target_label": "Objetivo"
+    },
+    "perfil": {
+      "title": "Ajustes de Cuenta",
+      "desc": "Gestiona tu identidad y configuración personal.",
+      "personal_info": "Información Personal",
+      "personal_info_desc": "Esta información será visible para otros miembros de tu equipo.",
+      "photo": "Foto de perfil",
+      "photo_desc": "PNG o JPG. Máximo 2MB.",
+      "full_name": "Nombre Completo",
+      "full_name_placeholder": "Tu nombre",
+      "email": "Correo Electrónico (Lectura)",
+      "save_changes": "Guardar Cambios",
+      "update_success": "Perfil actualizado correctamente",
+      "avatar_success": "Avatar actualizado con éxito",
+      "avatar_error": "No se pudo subir la imagen. Verifica que el bucket \"avatars\" sea público.",
+      "sync_error": "Error al sincronizar perfil en DB",
+      "security": "Seguridad",
+      "reset_password": "Enviar email de restablecimiento",
+      "plan_pro": "Plan Premium",
+      "plan_free": "Plan Gratuito",
+      "pro_active": "Pro Activo",
+      "pro_desc": "Tienes acceso total a todas las herramientas corporativas.",
+      "free_desc": "Pásate a Pro para desbloquear equipos y campañas ilimitadas.",
+      "upgrade_btn": "Mejorar Cuenta"
+    },
+    "landing": {
+      "solutions": "Soluciones",
+      "demo": "Demo",
+      "plans": "Planes",
+      "login": "LOGIN",
+      "start": "Comenzar",
+      "digital_trans": "Transformación Digital 2026",
+      "hero_title": "De la agenda física a la",
+      "hero_title_accent": "eficiencia digital.",
+      "hero_desc": "Organiza tu estrategia con la claridad de un cuaderno y la potencia de un sistema empresarial escalable.",
+      "go_dashboard": "Ir al Dashboard",
+      "digitalize_now": "Digitaliza tu empresa",
+      "interactive_demo": "Ver demo interactiva",
+      "digital_solutions": "Soluciones Digitales",
+      "smart_processes": "Procesos inteligentes para empresas modernas",
+      "corp_module": "Módulo Corporativo",
+      "digitalize_btn": "Digitalizar ahora",
+      "ready": "¿Listo para el cambio?",
+      "ready_desc": "Unete a los departamentos de marketing que ya han dado el paso hacia la organización estructural digital.",
+      "book_agenda": "Reservar mi Agenda Digital",
+      "footer_terms": "Términos",
+      "footer_privacy": "Privacidad",
+      "footer_contact": "Contacto",
+      "footer_copy": "© 2026 mkt.notes. Digital Transformation.",
+      "features": {
+        "org_title": "Organización Total",
+        "org_desc": "Reemplaza el caos de las agendas físicas por un sistema centralizado. Todo tu marketing en un solo lugar.",
+        "collab_title": "Sincronización de Equipos",
+        "collab_desc": "Coordina a tu equipo sin fricciones. Asigna tareas y mantén a todos alineados con los objetivos.",
+        "analytics_title": "Análisis de Impacto",
+        "analytics_desc": "Lo que no se mide no se mejora. Obtén informes visuales críticos sobre el rendimiento.",
+        "security_title": "Seguridad y Nube",
+        "security_desc": "Tus datos están protegidos con cifrado de grado empresarial. Copias de seguridad automáticas."
+      }
+    },
+    "login": {
+      "title_login": "Inicia sesión en mkt.notes",
+      "title_signup": "Crea tu cuenta gratuita",
+      "title_forgot": "Recupera tu acceso",
+      "title_magic": "Entra sin contraseña",
+      "no_account": "¿Aún no tienes cuenta?",
+      "register_here": "Regístrate aquí",
+      "other_option": "¿Prefieres otra opción?",
+      "back_to_login": "Volver al login",
+      "recovery": "Recuperación",
+      "magic_link": "Magic Link",
+      "quick_access": "Acceso rápido",
+      "recovery_desc": "Te enviaremos un link para cambiar tu clave",
+      "quick_access_desc": "Usa tu cuenta favorita para continuar",
+      "or_email": "O continúa con email",
+      "full_name": "Nombre completo",
+      "full_name_placeholder": "Juan Pérez",
+      "email": "Email",
+      "email_placeholder": "nombre@ejemplo.com",
+      "password": "Contraseña",
+      "forgot_password": "¿Olvidaste tu contraseña?",
+      "enter": "Entrar",
+      "create_account": "Crear cuenta",
+      "send_recovery": "Enviar recuperación",
+      "send_magic": "Enviar link mágico",
+      "magic_link_btn": "Entrar con un link mágico (sin contraseña)",
+      "photo_optional": "Foto de perfil (opcional)",
+      "terms_prefix": "Al continuar, aceptas nuestros",
+      "terms_link": "Términos de Servicio",
+      "terms_and": "y",
+      "privacy_link": "Política de Privacidad",
+      "verification": {
+        "title": "Verifica tu bandeja de entrada",
+        "desc_prefix": "Hemos enviado un correo de confirmación a",
+        "desc_suffix": "Por favor, revisa el enlace para validar tu acceso.",
+        "back_btn": "Volver al login"
+      },
+      "errors": {
+        "image_size": "La imagen es demasiado grande. Máximo 2MB.",
+        "auth_error": "Error en la autenticación",
+        "upload_info": "Tu cuenta se creó, pero la foto se subirá al confirmar tu email."
+      },
+      "success": {
+        "login": "Sesión iniciada correctamente",
+        "recovery_sent": "Email de recuperación enviado",
+        "magic_sent": "Magic link enviado a tu email"
+      }
+    },
+    "demo": {
+      "title": "Vista de Demo",
+      "desc": "Explora el panel de control con datos de ejemplo",
+      "badge": "MODO DEMO INTERACTIVA",
+      "stats": {
+        "reach": "Alcance Total",
+        "campaigns": "Campañas Activas",
+        "conversion": "Conversión Media",
+        "objectives": "Objetivos Q2"
+      },
+      "trends": {
+        "reach": "+12% vs mes anterior",
+        "campaigns": "3 finalizan esta semana",
+        "conversion": "+0.4% incremento",
+        "objectives": "A ritmo para completar"
+      },
+      "chart_title": "Rendimiento de Campañas",
+      "chart_desc": "Alcance semanal proyectado",
+      "tasks_title": "Tareas Pendientes",
+      "tasks": {
+        "item1": { "title": "Review de copys Instagram", "time": "Hoy, 14:00" },
+        "item2": { "title": "Aprobar presupuesto TikTok", "time": "Mañana, 09:00" },
+        "item3": { "title": "Reporte mensual clientes", "time": "Viernes, 10:00" },
+        "item4": { "title": "Briefing nueva colección", "time": "Lunes, 11:30" }
+      },
+      "see_agenda": "Ver toda la agenda",
+      "features": {
+        "analytics": {
+          "title": "Analítica",
+          "desc": "Visualiza el impacto real de cada acción con reportes automáticos."
+        },
+        "planner": {
+          "title": "Planificador",
+          "desc": "Organiza tus lanzamientos en un calendario drag-and-drop intuitivo."
+        }
+      },
+      "pro": {
+        "title": "Desbloquea todo",
+        "desc": "Obtén acceso a herramientas avanzadas y colaboración ilimitada.",
+        "btn": "Subir a Pro"
+      }
+    },
+    "join": {
+      "title": "Invitación a equipo",
+      "invited_to": "Has sido invitado a unirte al equipo",
+      "accept": "Aceptar invitación",
+      "joining": "Uniéndote...",
+      "invalid_link": "Enlace de invitación no válido",
+      "already_member": "Ya eres miembro de este equipo",
+      "success": "Te has unido a {{team}}"
+    },
+    "dialogs": {
+      "common": {
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "creating": "Creando..."
+      },
+      "campaign": {
+        "title": "Nueva Estrategia",
+        "desc": "Define el nombre y canal principal de tu próxima campaña para empezar a medir resultados.",
+        "label_name": "Nombre del proyecto",
+        "placeholder_name": "Ej: Lanzamiento Verano 2026",
+        "label_channel": "Canal Principal",
+        "placeholder_channel": "Ej: Instagram Ads, Email, TikTok...",
+        "submit": "Lanzar Campaña",
+        "success": "Campaña lanzada con éxito",
+        "error": "Error al crear la campaña"
+      },
+      "content": {
+        "title": "Nueva Pieza de Contenido",
+        "desc": "Planifica el siguiente post o artículo en tu calendario editorial.",
+        "label_title": "Título del contenido",
+        "placeholder_title": "Ej: 5 tips de Marketing para 2026",
+        "label_platform": "Plataforma",
+        "placeholder_platform": "Instagram, YouTube, etc.",
+        "label_date": "Fecha de publicación",
+        "submit": "Agendar Contenido",
+        "success": "Contenido agendado",
+        "error": "Error al agendar contenido"
+      },
+      "idea": {
+        "title": "Nueva Idea Creativa",
+        "desc": "No dejes que se escape. Anota cualquier concepto o tendencia que te inspire.",
+        "label_title": "Título de la idea",
+        "placeholder_title": "Ej: Serie de Reels sobre IA",
+        "label_category": "Categoría",
+        "placeholder_category": "Trend, Concepto, etc.",
+        "submit": "Capturar Idea",
+        "success": "Idea capturada",
+        "error": "Error al capturar idea"
+      },
+      "objective": {
+        "title": "Nuevo Objetivo Estratégico",
+        "desc": "Define una meta clara y medible para tu estrategia de marketing.",
+        "label_title": "Qué quieres conseguir",
+        "placeholder_title": "Ej: Incrementar leads en Q3",
+        "label_kpi": "KPI a medir",
+        "placeholder_kpi": "Conversiones, Alcance, etc.",
+        "label_target": "Valor objetivo",
+        "label_deadline": "Fecha límite",
+        "submit": "Fijar Objetivo",
+        "success": "Objetivo fijado con éxito",
+        "error": "Error al crear objetivo"
+      },
+      "resource": {
+        "title": "Nuevo Recurso",
+        "desc": "Añade archivos, imágenes o enlaces externos a tu biblioteca.",
+        "label_title": "Nombre del recurso",
+        "placeholder_title": "Ej: Guía de Estilo 2026",
+        "label_type": "Tipo de archivo",
+        "label_url": "URL externa (Opcional)",
+        "placeholder_url": "https://...",
+        "label_file": "Subir archivo (Imagen/Doc)",
+        "submit": "Añadir a Biblioteca",
+        "success": "Recurso añadido",
+        "error": "Error al añadir recurso",
+        "error_file": "Error al subir archivo"
+      },
+      "task": {
+        "title": "Nueva Tarea",
+        "desc": "Asigna una acción específica a un proyecto o campaña.",
+        "label_title": "Qué hay que hacer",
+        "placeholder_title": "Ej: Diseñar carrusel para IG",
+        "label_date": "Fecha de entrega",
+        "label_campaign": "Vincular a campaña (Opcional)",
+        "no_campaign": "Sin campaña vinculada",
+        "submit": "Crear Tarea",
+        "success": "Tarea creada correctamente",
+        "error": "Error al crear tarea"
       }
     }
   }

@@ -15,7 +15,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useQuery } from '@tanstack/react-query'
 
 export default function PricingPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClient();
@@ -40,7 +40,7 @@ export default function PricingPage() {
 
   const handleCheckout = async () => {
     if (!user) {
-      toast.error('Debes iniciar sesión para suscribirte');
+      toast.error(t('pricing.login_required', 'Debes iniciar sesión para suscribirte'));
       return;
     }
     
@@ -55,7 +55,7 @@ export default function PricingPage() {
       await createCheckoutSession(priceId);
     } catch (error: any) {
       if (error.message !== 'NEXT_REDIRECT') {
-        toast.error(error.message || 'Error al procesar el pago');
+        toast.error(error.message || t('pricing.payment_error', 'Error al procesar el pago'));
         setIsLoading(false);
       }
     }
@@ -68,11 +68,7 @@ export default function PricingPage() {
           {t('pricing.badge')}
         </Badge>
         <h1 className="font-heading text-4xl md:text-6xl font-bold tracking-tight text-foreground mb-6">
-          {i18n.language === 'es' ? (
-            <>Lleva tu marketing al <span className="text-primary tracking-tighter italic">siguiente nivel</span></>
-          ) : (
-            <>Take your marketing to the <span className="text-primary tracking-tighter italic">next level</span></>
-          )}
+           {t('pricing.title_part1', 'Lleva tu marketing al')} <span className="text-primary tracking-tighter italic">{t('pricing.title_accent', 'siguiente nivel')}</span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           {t('pricing.subtitle')}
@@ -149,7 +145,7 @@ export default function PricingPage() {
               ) : (
                 <Sparkles className="h-4 w-4 mr-2" />
               )}
-              {isPro ? 'Suscrito (Plan Pro)' : t('pricing.get_pro')}
+              {isPro ? t('pricing.subscribed', 'Suscrito (Plan Pro)') : t('pricing.get_pro')}
             </Button>
           </CardFooter>
         </Card>
@@ -177,4 +173,3 @@ function FeatureItem({ text, isPro = false }: { text: string; isPro?: boolean })
     </div>
   )
 }
-

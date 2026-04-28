@@ -103,39 +103,64 @@
 }
 
 .dark {
-  /* Deep Space palette */
-  --background: oklch(0.12 0.015 258);
-  --foreground: oklch(0.98 0.005 250);
-  --card: oklch(0.16 0.02 258);
-  --card-foreground: oklch(0.98 0.005 250);
-  --popover: oklch(0.14 0.02 258);
-  --popover-foreground: oklch(0.98 0.005 250);
-  --primary: oklch(0.65 0.16 255);
+  /* Neutral Dark / Zinc palette */
+  --background: oklch(0.18 0 0); /* zinc-900 equivalent */
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.21 0 0); /* zinc-800 equivalent */
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.21 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.65 0.16 255); /* keep blue primary */
   --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.2 0.02 258);
-  --secondary-foreground: oklch(0.9 0.01 250);
-  --muted: oklch(0.18 0.02 258);
-  --muted-foreground: oklch(0.65 0.02 250);
-  --accent: oklch(0.22 0.02 258);
-  --accent-foreground: oklch(0.95 0.01 250);
+  --secondary: oklch(0.25 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.25 0 0);
+  --muted-foreground: oklch(0.7 0 0);
+  --accent: oklch(0.25 0 0);
+  --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.5 0.2 25);
-  --destructive-foreground: oklch(0.98 0.005 250);
-  --border: oklch(0.22 0.02 258);
-  --input: oklch(0.22 0.02 258);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.28 0 0);
+  --input: oklch(0.28 0 0);
   --ring: oklch(0.65 0.16 255);
 
-  --sidebar: oklch(0.1 0.02 258);
-  --sidebar-foreground: oklch(0.9 0.01 250);
+  --sidebar: oklch(0.145 0 0); /* darker sidebar, zinc-950ish */
+  --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.65 0.16 255);
   --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.18 0.02 258);
-  --sidebar-accent-foreground: oklch(0.95 0.01 250);
-  --sidebar-border: oklch(0.18 0.02 258);
+  --sidebar-accent: oklch(0.21 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.21 0 0);
   --sidebar-ring: oklch(0.65 0.16 255);
 
   --chart-1: oklch(0.65 0.16 255);
   --chart-2: oklch(0.65 0.16 150);
   --chart-3: oklch(0.75 0.15 80);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 @layer base {

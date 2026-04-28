@@ -4,82 +4,78 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";
 import {
-    BarChart3,
     Users,
     Target,
     Zap,
     TrendingUp,
     Calendar,
-    ArrowUpRight,
     MoreHorizontal,
-    CheckCircle2,
     Clock
 } from "lucide-react";
 import {
-    BarChart,
-    Bar,
     XAxis,
     YAxis,
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    LineChart,
-    Line,
     AreaChart,
     Area
 } from 'recharts';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const data = [
-    { name: 'Lun', campaigns: 4, reach: 2400 },
-    { name: 'Mar', campaigns: 3, reach: 1398 },
-    { name: 'Mie', campaigns: 2, reach: 9800 },
-    { name: 'Jue', campaigns: 5, reach: 3908 },
-    { name: 'Vie', campaigns: 8, reach: 4800 },
-    { name: 'Sab', campaigns: 6, reach: 3800 },
-    { name: 'Dom', campaigns: 4, reach: 4300 },
-];
+import { useTranslation } from "react-i18next";
 
 export default function DemoDashboardPage() {
+    const { t } = useTranslation();
+
+    const data = [
+        { name: t('common.days_short.mon', 'Lun'), campaigns: 4, reach: 2400 },
+        { name: t('common.days_short.tue', 'Mar'), campaigns: 3, reach: 1398 },
+        { name: t('common.days_short.wed', 'Mie'), campaigns: 2, reach: 9800 },
+        { name: t('common.days_short.thu', 'Jue'), campaigns: 5, reach: 3908 },
+        { name: t('common.days_short.fri', 'Vie'), campaigns: 8, reach: 4800 },
+        { name: t('common.days_short.sat', 'Sab'), campaigns: 6, reach: 3800 },
+        { name: t('common.days_short.sun', 'Dom'), campaigns: 4, reach: 4300 },
+    ];
+
     return (
         <DashboardLayout>
             <div className="p-8 space-y-8">
                 <div className="flex items-center justify-between">
                     <PageHeader
-                        title="Vista de Demo"
-                        description="Explora el panel de control con datos de ejemplo"
+                        title={t('demo.title')}
+                        description={t('demo.desc')}
                     />
                     <Badge variant="outline" className="px-4 py-2 bg-primary/10 text-primary border-primary/20 font-bold animate-pulse">
-                        MODO DEMO INTERACTIVA
+                        {t('demo.badge')}
                     </Badge>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <StatCard
-                        title="Alcance Total"
+                        title={t('demo.stats.reach')}
                         value="128.4k"
                         icon={Users}
-                        trend={{ value: "+12% vs mes anterior", positive: true }}
+                        trend={{ value: t('demo.trends.reach'), positive: true }}
                     />
                     <StatCard
-                        title="Campañas Activas"
+                        title={t('demo.stats.campaigns')}
                         value="14"
                         icon={Zap}
-                        trend={{ value: "3 finalizan esta semana", positive: false }}
+                        trend={{ value: t('demo.trends.campaigns'), positive: false }}
                     />
                     <StatCard
-                        title="Conversión Media"
+                        title={t('demo.stats.conversion')}
                         value="3.2%"
                         icon={TrendingUp}
-                        trend={{ value: "+0.4% incremento", positive: true }}
+                        trend={{ value: t('demo.trends.conversion'), positive: true }}
                     />
                     <StatCard
-                        title="Objetivos Q2"
+                        title={t('demo.stats.objectives')}
                         value="68%"
                         icon={Target}
-                        trend={{ value: "A ritmo para completar", positive: true }}
+                        trend={{ value: t('demo.trends.objectives'), positive: true }}
                     />
                 </div>
 
@@ -87,8 +83,8 @@ export default function DemoDashboardPage() {
                     <Card className="lg:col-span-2 border-border/50 bg-card/50 backdrop-blur-sm">
                         <CardHeader className="flex flex-row items-center justify-between">
                             <div>
-                                <CardTitle className="text-lg font-bold">Rendimiento de Campañas</CardTitle>
-                                <p className="text-sm text-muted-foreground">Alcance semanal proyectado</p>
+                                <CardTitle className="text-lg font-bold">{t('demo.chart_title')}</CardTitle>
+                                <p className="text-sm text-muted-foreground">{t('demo.chart_desc')}</p>
                             </div>
                             <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                         </CardHeader>
@@ -117,14 +113,14 @@ export default function DemoDashboardPage() {
 
                     <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
                         <CardHeader>
-                            <CardTitle className="text-lg font-bold">Tareas Pendientes</CardTitle>
+                            <CardTitle className="text-lg font-bold">{t('demo.tasks_title')}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-6">
                             {[
-                                { title: "Review de copys Instagram", time: "Hoy, 14:00", status: "urgent" },
-                                { title: "Aprobar presupuesto TikTok", time: "Mañana, 09:00", status: "pending" },
-                                { title: "Reporte mensual clientes", time: "Viernes, 10:00", status: "upcoming" },
-                                { title: "Briefing nueva colección", time: "Lunes, 11:30", status: "upcoming" }
+                                { title: t('demo.tasks.item1.title'), time: t('demo.tasks.item1.time'), status: "urgent" },
+                                { title: t('demo.tasks.item2.title'), time: t('demo.tasks.item2.time'), status: "pending" },
+                                { title: t('demo.tasks.item3.title'), time: t('demo.tasks.item3.time'), status: "upcoming" },
+                                { title: t('demo.tasks.item4.title'), time: t('demo.tasks.item4.time'), status: "upcoming" }
                             ].map((task, i) => (
                                 <div key={i} className="flex items-start gap-4 p-3 rounded-2xl hover:bg-muted/50 transition-colors group cursor-default">
                                     <div className={`mt-1 h-2 w-2 rounded-full ${task.status === 'urgent' ? 'bg-red-500 animate-pulse' : 'bg-primary'}`} />
@@ -137,7 +133,7 @@ export default function DemoDashboardPage() {
                                     </div>
                                 </div>
                             ))}
-                            <Button variant="outline" className="w-full mt-4">Ver toda la agenda</Button>
+                            <Button variant="outline" className="w-full mt-4">{t('demo.see_agenda')}</Button>
                         </CardContent>
                     </Card>
                 </div>
@@ -147,11 +143,11 @@ export default function DemoDashboardPage() {
                         <CardContent className="pt-6">
                             <div className="flex items-center gap-4 mb-4">
                                 <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-                                    <BarChart3 className="h-5 w-5" />
+                                    <TrendingUp className="h-5 w-5" />
                                 </div>
-                                <h4 className="font-bold">Analítica</h4>
+                                <h4 className="font-bold">{t('demo.features.analytics.title')}</h4>
                             </div>
-                            <p className="text-sm text-muted-foreground mb-4">Visualiza el impacto real de cada acción con reportes automáticos.</p>
+                            <p className="text-sm text-muted-foreground mb-4">{t('demo.features.analytics.desc')}</p>
                             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                 <div className="h-full bg-blue-500 w-[75%]" />
                             </div>
@@ -164,9 +160,9 @@ export default function DemoDashboardPage() {
                                 <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-500">
                                     <Calendar className="h-5 w-5" />
                                 </div>
-                                <h4 className="font-bold">Planificador</h4>
+                                <h4 className="font-bold">{t('demo.features.planner.title')}</h4>
                             </div>
-                            <p className="text-sm text-muted-foreground mb-4">Organiza tus lanzamientos en un calendario drag-and-drop intuitivo.</p>
+                            <p className="text-sm text-muted-foreground mb-4">{t('demo.features.planner.desc')}</p>
                             <div className="flex -space-x-2">
                                 {[1, 2, 3, 4].map(i => (
                                     <div key={i} className="h-8 w-8 rounded-full border-2 border-background bg-muted overflow-hidden">
@@ -180,9 +176,9 @@ export default function DemoDashboardPage() {
                     <Card className="border-primary/20 bg-primary/5 border-dashed">
                         <CardContent className="pt-6 flex flex-col items-center text-center justify-center min-h-[160px]">
                             <Sparkles className="h-8 w-8 text-primary mb-3" />
-                            <h4 className="font-bold mb-1">Desbloquea todo</h4>
-                            <p className="text-xs text-muted-foreground mb-4">Obtén acceso a herramientas avanzadas y colaboración ilimitada.</p>
-                            <Button size="sm" className="font-bold">Subir a Pro</Button>
+                            <h4 className="font-bold mb-1">{t('demo.pro.title')}</h4>
+                            <p className="text-xs text-muted-foreground mb-4">{t('demo.pro.desc')}</p>
+                            <Button size="sm" className="font-bold">{t('demo.pro.btn')}</Button>
                         </CardContent>
                     </Card>
                 </div>

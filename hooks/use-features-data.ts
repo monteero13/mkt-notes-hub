@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { createClient } from '@/lib/supabase/client'
 import { useTeam } from './use-team'
+export { useTeam }
 import { useAuth } from './use-auth'
 
 export function useContent() {
