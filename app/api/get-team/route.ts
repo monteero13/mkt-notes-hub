@@ -20,7 +20,7 @@ export async function GET(request: Request) {
       .from('team_members')
       .select('team_id, role, teams(*)')
       .eq('user_id', userId)
-      .order('created_at', { ascending: false })
+      .order('joined_at', { ascending: false })
 
     if (memberError) throw memberError
     
