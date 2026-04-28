@@ -15,7 +15,9 @@ import {
   Loader2, 
   X, 
   UserMinus,
-  Settings2
+  Settings2,
+  Trash2,
+  LogOut
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { DashboardLayout } from '@/components/DashboardLayout'
@@ -126,17 +128,52 @@ export default function EquipoPage() {
     if (!confirm(t('equipo.kick_confirm'))) return;
 
     try {
-        const { error } = await supabase
-            .from('team_members')
-            .delete()
-            .eq('team_id', team.id)
-            .eq('user_id', userId);
+        const response = await fetch('/api/leave-team', {
+            method: 'POST',
+            body: JSON.stringify({ teamId: team.id, userId })
+        });
+        const result = await response.json();
         
-        if (error) throw error;
+        if (!response.ok) throw new Error(result.error);
+        
         toast.success(t('equipo.kick_success'));
         queryClient.invalidateQueries({ queryKey: ['team'] });
     } catch (error: any) {
         toast.error(t('common.error') + ': ' + error.message);
+    }
+  }
+
+  const handleLeaveTeam = async () => {
+    if (!confirm(t('equipo.leave_confirm', '¿Estás seguro de que quieres abandonar el equipo?'))) return;
+
+    try {
+        const response = await fetch('/api/leave-team', {
+            method: 'POST',
+            body: JSON.stringify({ teamId: team.id, userId: currentUser?.id })
+        });
+        const result = await response.json();
+        
+        if (!response.ok) throw new Error(result.error);
+        
+        toast.success(t('equipo.leave_success', 'Has abandonado el equipo con éxito.'));
+        queryClient.invalidateQueries({ queryKey: ['team'] });
+        router.refresh();
+    } catch (error: any) {
+        toast.error(error.message);
+    }
+  }
+
+  const handleDeleteTeam = async () => {
+    if (!confirm(t('equipo.delete_confirm', '¿Estás seguro? Esta acción eliminará el equipo y a todos sus miembros permanentemente.'))) return;
+
+    try {
+        const { error } = await supabase.from('teams').delete().eq('id', team.id);
+        if (error) throw error;
+        toast.success(t('equipo.delete_success', 'Equipo eliminado correctamente.'));
+        queryClient.invalidateQueries({ queryKey: ['team'] });
+        router.refresh();
+    } catch (error: any) {
+        toast.error(error.message);
     }
   }
 
@@ -308,37 +345,69 @@ export default function EquipoPage() {
             {/* Invite Section (Leader only) */}
             <div className="space-y-6">
                 {isLeader ? (
-                    <Card className="border-blue-500/50 bg-blue-50 dark:bg-blue-950/20 relative overflow-hidden">
-                        <div className="absolute -right-4 -top-4 opacity-10">
-                            <UserPlus className="h-32 w-32 text-blue-600" />
-                        </div>
-                        <CardHeader>
-                            <CardTitle className="text-blue-600 dark:text-blue-400">{t('equipo.invite_title')}</CardTitle>
-                            <p className="text-sm text-muted-foreground">{t('equipo.invite_desc')}</p>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex flex-col gap-2">
-                                <Input 
-                                    readOnly 
-                                    value={`${window.location.hostname === 'localhost' ? window.location.origin : 'https://mkt-notes-hub.vercel.app'}/join/${team.invite_code}`} 
-                                    className="bg-background text-xs font-mono"
-                                />
-                                <Button onClick={copyInviteLink} className={cn("w-full gap-2", copied ? "bg-green-600 hover:bg-green-700 text-white" : "bg-blue-600 hover:bg-blue-700")}>
-                                    {copied ? <><Check className="h-4 w-4" /> {t('equipo.copied')}</> : <><Copy className="h-4 w-4" /> {t('equipo.copy_link')}</>}
+                    <div className="space-y-6">
+                        <Card className="border-blue-500/50 bg-blue-50 dark:bg-blue-950/20 relative overflow-hidden">
+                            <div className="absolute -right-4 -top-4 opacity-10">
+                                <UserPlus className="h-32 w-32 text-blue-600" />
+                            </div>
+                            <CardHeader>
+                                <CardTitle className="text-blue-600 dark:text-blue-400">{t('equipo.invite_title')}</CardTitle>
+                                <p className="text-sm text-muted-foreground">{t('equipo.invite_desc')}</p>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex flex-col gap-2">
+                                    <Input 
+                                        readOnly 
+                                        value={`${window.location.hostname === 'localhost' ? window.location.origin : 'https://mkt-notes-hub.vercel.app'}/join/${team.invite_code}`} 
+                                        className="bg-background text-xs font-mono"
+                                    />
+                                    <Button onClick={copyInviteLink} className={cn("w-full gap-2", copied ? "bg-green-600 hover:bg-green-700 text-white" : "bg-blue-600 hover:bg-blue-700")}>
+                                        {copied ? <><Check className="h-4 w-4" /> {t('equipo.copied')}</> : <><Copy className="h-4 w-4" /> {t('equipo.copy_link')}</>}
+                                    </Button>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        
+                        <Card className="border-destructive/30 bg-destructive/5">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-bold text-destructive flex items-center gap-2">
+                                    <Trash2 className="h-4 w-4" />
+                                    {t('equipo.danger_zone', 'Zona de Peligro')}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <Button variant="destructive" className="w-full text-xs" onClick={handleDeleteTeam}>
+                                    {t('equipo.delete_team', 'Eliminar Equipo')}
                                 </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+                    </div>
                 ) : (
-                    <Card className="border-border/50 bg-card/50">
-                        <CardHeader>
-                            <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                                <Shield className="h-6 w-6 text-primary" />
-                            </div>
-                            <CardTitle>{t('equipo.role_collab')}</CardTitle>
-                            <p className="text-sm text-muted-foreground">{t('equipo.role_collab_desc')}</p>
-                        </CardHeader>
-                    </Card>
+                    <div className="space-y-6">
+                        <Card className="border-border/50 bg-card/50">
+                            <CardHeader>
+                                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
+                                    <Shield className="h-6 w-6 text-primary" />
+                                </div>
+                                <CardTitle>{t('equipo.role_collab')}</CardTitle>
+                                <p className="text-sm text-muted-foreground">{t('equipo.role_collab_desc')}</p>
+                            </CardHeader>
+                        </Card>
+
+                        <Card className="border-destructive/30 bg-destructive/5">
+                            <CardHeader>
+                                <CardTitle className="text-sm font-bold text-destructive flex items-center gap-2">
+                                    <LogOut className="h-4 w-4" />
+                                    {t('equipo.leave_team_title', 'Abandonar Equipo')}
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <Button variant="destructive" className="w-full text-xs" onClick={handleLeaveTeam}>
+                                    {t('equipo.leave_team_btn', 'Salir del Equipo')}
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </div>
                 )}
             </div>
           </div>

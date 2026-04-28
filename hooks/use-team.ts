@@ -24,6 +24,6 @@ export function useTeam() {
         return null;
       }
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 30, // 30 segundos de cache
   })
 }
