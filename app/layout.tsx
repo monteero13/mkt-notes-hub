@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import { I18nProvider } from "@/components/I18nProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -54,7 +55,9 @@ export default function RootLayout({
         <ThemeProvider>
           <QueryProvider>
             <I18nProvider>
-              <OnboardingTutorial />
+              <Suspense>
+                <OnboardingTutorial />
+              </Suspense>
               {children}
             </I18nProvider>
           </QueryProvider>
