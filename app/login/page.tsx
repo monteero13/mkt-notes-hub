@@ -156,10 +156,11 @@ function LoginContent() {
 
   const handleOAuth = async (provider: 'apple' | 'google') => {
     try {
+      const next = searchParams.get('next') || '/dashboard'
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
         },
       })
       if (error) throw error

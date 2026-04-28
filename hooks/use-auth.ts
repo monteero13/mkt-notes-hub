@@ -20,15 +20,15 @@ export function useAuth() {
         .maybeSingle();
 
       // 2. Si no hay perfil, crearlo usando nuestra API Segura (Bypass RLS)
-      if (!profile && user.user_metadata?.full_name) {
+      if (!profile && (user.user_metadata?.full_name || user.user_metadata?.name)) {
         try {
           const res = await fetch('/api/sync-profile', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               userId: user.id,
-              fullName: user.user_metadata.full_name,
-              avatarUrl: user.user_metadata.avatar_url
+              fullName: user.user_metadata.full_name || user.user_metadata.name,
+              avatarUrl: user.user_metadata.avatar_url || user.user_metadata.picture
             })
           });
           
@@ -44,8 +44,8 @@ export function useAuth() {
       // 3. Fallback Virtual si falla la API (Para que el UI no se rompa)
       const finalProfile = profile || {
         id: user.id,
-        full_name: user?.user_metadata?.full_name || user.email?.split('@')[0],
-        avatar_url: user?.user_metadata?.avatar_url || null,
+        full_name: user?.user_metadata?.full_name || user?.user_metadata?.name || user.email?.split('@')[0],
+        avatar_url: user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null,
         is_pro: false
       };
 
