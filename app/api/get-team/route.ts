@@ -15,22 +15,39 @@ export async function GET(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // 1. Obtener la membresía más reciente
+    // 1. Obtener la membresía (sin orden para evitar errores de columna)
+    console.log('>>> [API/get-team] Buscando membresías para:', userId);
     const { data: memberships, error: memberError } = await supabase
       .from('team_members')
-      .select('team_id, role, teams(*)')
+      .select('team_id, role')
       .eq('user_id', userId)
-      .order('joined_at', { ascending: false })
 
-    if (memberError) throw memberError
+    if (memberError) {
+      console.error('>>> [API/get-team] Error en team_members:', memberError);
+      throw memberError;
+    }
     
     if (!memberships || memberships.length === 0) {
+      console.log('>>> [API/get-team] No se encontraron membresías');
       return NextResponse.json({ team: null })
     }
 
     const membership = memberships[0]
+    console.log('>>> [API/get-team] Membresía encontrada:', membership);
 
-    // 2. Obtener los miembros (sin el join que falla)
+    // 2. Obtener los detalles del equipo
+    const { data: teamData, error: teamError } = await supabase
+      .from('teams')
+      .select('*')
+      .eq('id', membership.team_id)
+      .single()
+
+    if (teamError) {
+      console.error('>>> [API/get-team] Error en teams:', teamError);
+      throw teamError;
+    }
+
+    // 3. Obtener los miembros
     const { data: members, error: membersErr } = await supabase
       .from('team_members')
       .select('user_id, role')
@@ -38,7 +55,7 @@ export async function GET(request: Request) {
 
     if (membersErr) throw membersErr
 
-    // 3. Obtener los perfiles manualmente para evitar el error PGRST200
+    // 4. Obtener los perfiles manualmente
     const userIds = members.map(m => m.user_id)
     const { data: profiles, error: profilesErr } = await supabase
       .from('profiles')
@@ -47,15 +64,17 @@ export async function GET(request: Request) {
 
     if (profilesErr) throw profilesErr
 
-    // 4. Juntar los datos
+    // 5. Juntar los datos
     const fullMembers = members.map(m => ({
       ...m,
       profiles: profiles.find(p => p.id === m.user_id) || null
     }))
 
+    console.log('>>> [API/get-team] Equipo completo recuperado:', teamData.name);
+
     return NextResponse.json({
       team: {
-        ...membership.teams,
+        ...teamData,
         role: membership.role,
         members: fullMembers
       }
