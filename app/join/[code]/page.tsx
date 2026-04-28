@@ -20,17 +20,19 @@ export default function JoinTeamPage() {
 
   useEffect(() => {
     async function fetchTeam() {
-      const { data, error } = await supabase
-        .from('teams')
-        .select('*')
-        .eq('invite_code', params.code)
-        .single()
+      try {
+        const response = await fetch(`/api/invite-info?code=${params.code}`)
+        const result = await response.json()
 
-      if (error || !data) {
+        if (!response.ok || !result.team) {
+          toast.error(t('join.invalid_link'))
+          router.push('/dashboard')
+        } else {
+          setTeam(result.team)
+        }
+      } catch (error) {
         toast.error(t('join.invalid_link'))
         router.push('/dashboard')
-      } else {
-        setTeam(data)
       }
       setIsLoading(false)
     }

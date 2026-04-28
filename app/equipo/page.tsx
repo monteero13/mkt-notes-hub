@@ -89,8 +89,15 @@ export default function EquipoPage() {
 
   const handleJoinTeam = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!joinCode.trim()) return
-    router.push(`/join/${joinCode.trim()}`)
+    let code = joinCode.trim()
+    if (!code) return
+    
+    // Si meten la URL entera, extraer el código
+    if (code.includes('/join/')) {
+       code = code.split('/join/').pop() || code;
+    }
+
+    router.push(`/join/${code}`)
   }
 
   const handleUpdateName = async () => {
