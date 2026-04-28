@@ -21,10 +21,13 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    // No redirigir si es la página de demo
+    if (pathname === '/demo') return;
+    
     if (mounted && !isLoading && !user) {
       router.push('/login?mode=login');
     }
-  }, [mounted, isLoading, user, router]);
+  }, [mounted, isLoading, user, router, pathname]);
 
   if (!mounted) {
     return (
