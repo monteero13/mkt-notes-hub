@@ -1,23 +1,42 @@
-import { NextResponse, type NextRequest } from 'next/server'
-import { updateSession } from './lib/supabase/middleware'
+import { type NextRequest, NextResponse } from 'next/server'
+import { updateSession } from '@/lib/supabase/middleware'
 
 export async function proxy(request: NextRequest) {
-  // 1. Manejar el caso de "code" en la raíz (evitar que el usuario se quede atrapado en /?code=...)
-  const { searchParams, pathname, origin } = new URL(request.url)
-  const code = searchParams.get('code')
-  
-  if (code && pathname === '/') {
-    const callbackUrl = new URL('/auth/callback', origin)
-    callbackUrl.searchParams.set('code', code)
-    const next = searchParams.get('next')
-    if (next) callbackUrl.searchParams.set('next', next)
-    
-    return NextResponse.redirect(callbackUrl)
+  // 1. Actualizar sesión y obtener datos
+  const { response, user } = await updateSession(request)
+  const { pathname } = request.nextUrl
+
+  // 2. Redirección Inteligente (Landing -> Dashboard si ya está logueado)
+  if (user && (pathname === '/' || pathname === '/login')) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // 2. Actualizar la sesión normal
-  return await updateSession(request)
+  // 3. Rutas Protegidas (SaaS Completo)
+  const protectedRoutes = [
+    '/dashboard',
+    '/equipo',
+    '/perfil',
+    '/campanas',
+    '/planificador',
+    '/objetivos',
+    '/contenido',
+    '/ideas',
+    '/biblioteca'
+  ]
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
+
+  if (!user && isProtectedRoute) {
+    const redirectUrl = new URL('/login', request.url)
+    redirectUrl.searchParams.set('next', pathname)
+    return NextResponse.redirect(redirectUrl)
+  }
+
+  return response
 }
+
+// Compatibilidad total para Next.js 15/16 y convenciones personalizadas
+export default proxy;
+export { proxy as middleware };
 
 export const config = {
   matcher: [
@@ -26,8 +45,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * - api/stripe/webhook (stripe webhook)
+     * - images, logos, flags (public assets)
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api/stripe/webhook|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

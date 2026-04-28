@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { I18nProvider } from "@/components/I18nProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import QueryProvider from "@/components/QueryProvider";
 import { OnboardingTutorial } from "@/components/OnboardingTutorial";
 
 export const metadata: Metadata = {
@@ -51,10 +52,12 @@ export default function RootLayout({
       </head>
       <body className="antialiased" suppressHydrationWarning>
         <ThemeProvider>
-          <I18nProvider>
-            <OnboardingTutorial />
-            {children}
-          </I18nProvider>
+          <QueryProvider>
+            <I18nProvider>
+              <OnboardingTutorial />
+              {children}
+            </I18nProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,192 +1,210 @@
 'use client';
 
-import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { PageHeader } from "@/components/PageHeader";
-import { StatCard } from "@/components/StatCard";
-import { Target, BarChart3, FileText, CheckCircle2, Clock, TrendingUp, Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
-import { createClient } from "@/lib/supabase/client";
+import { 
+  Rocket, 
+  Target, 
+  PenTool, 
+  Lightbulb, 
+  CheckCircle2, 
+  Clock, 
+  TrendingUp, 
+  Plus, 
+  ArrowUpRight, 
+  ChevronRight,
+  Circle
+} from "lucide-react";
+import { useDashboardData } from "@/hooks/use-dashboard-data";
+import { useContent, useIdeas, useObjectives } from "@/hooks/use-features-data";
+import { CreateTaskDialog } from "@/components/CreateTaskDialog";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function DashboardPage() {
-  const { t } = useTranslation();
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [campaigns, setCampaigns] = useState<any[]>([]);
-  const supabase = createClient();
+  const { user, profile } = useAuth();
+  const { campaigns } = useDashboardData();
+  const { data: content = [] } = useContent();
+  const { data: ideas = [] } = useIdeas();
+  const { data: objectives = [] } = useObjectives();
 
-  useEffect(() => {
-    async function fetchData() {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+  // Nombre para el saludo
+  const firstName = profile?.full_name?.split(' ')[0] || 'Usuario';
 
-      if (user) {
-        // Fetch tasks
-        const { data: tasksData } = await supabase
-          .from('tasks')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
-        // Fetch campaigns
-        const { data: campaignsData } = await supabase
-          .from('campaigns')
-          .select('*')
-          .order('created_at', { ascending: false });
-
-        setTasks(tasksData || []);
-        setCampaigns(campaignsData || []);
-      }
-      setLoading(false);
-    }
-
-    fetchData();
-  }, [supabase]);
-
-  const weekDays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-
-  // Example data if DB is empty to show "Caso Real" layout
-  const displayTasks = tasks.length > 0 ? tasks : [
-    { title: "Revisar copy para campaña de Instagram", priority: t('common.high'), status: t('common.in_progress') },
-    { title: "Diseñar creatividades para TikTok", priority: t('common.medium'), status: t('common.pending') },
-    { title: "Enviar reporte mensual al cliente", priority: t('common.high'), status: t('common.pending') },
-    { title: "Programar posts de la semana", priority: t('common.low'), status: t('common.in_progress') },
+  // Onboarding Logic
+  const onboardingSteps = [
+    { id: 'camp', label: 'Lanza tu primera campaña', completed: campaigns.length > 0, link: '/campanas' },
+    { id: 'content', label: 'Planifica una pieza de contenido', completed: content.length > 0, link: '/contenido' },
+    { id: 'idea', label: 'Captura una idea creativa', completed: ideas.length > 0, link: '/ideas' },
+    { id: 'obj', label: 'Define un objetivo estratégico', completed: objectives.length > 0, link: '/objetivos' },
   ];
 
-  const displayCampaigns = campaigns.length > 0 ? campaigns : [
-    { name: "Lanzamiento Q2", channel: "Multi-canal", status: t('common.active'), progress: 65 },
-    { name: "Black Friday Early", channel: "Instagram", status: t('common.planning'), progress: 20 },
-    { name: "Newsletter Mayo", channel: "Email", status: t('common.active'), progress: 80 },
-  ];
-
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex h-[80vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </DashboardLayout>
-    );
-  }
+  const onboardingProgress = Math.round((onboardingSteps.filter(s => s.completed).length / onboardingSteps.length) * 100);
 
   return (
     <DashboardLayout>
-      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-        <PageHeader
-          title={user ? `${t('dashboard.title')}, ${user.email?.split('@')[0]}` : t('dashboard.title')}
-          description={t('dashboard.desc')}
-        />
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title={t('dashboard.active_campaigns')}
-            value={displayCampaigns.filter(c => c.status === t('common.active')).length.toString()}
-            icon={BarChart3}
-            trend={{ value: "+2 este mes", positive: true }}
-          />
-          <StatCard
-            title={t('dashboard.planned_posts')}
-            value="23"
-            subtitle={t('dashboard.this_week')}
-            icon={FileText}
-          />
-          <StatCard
-            title={t('dashboard.goals_achieved')}
-            value="7/12"
-            subtitle="Q2 2026"
-            icon={Target}
-            trend={{ value: "58%", positive: true }}
-          />
-          <StatCard
-            title={t('dashboard.pending_tasks')}
-            value={displayTasks.filter(t => t.status !== 'completed').length.toString()}
-            icon={CheckCircle2}
-            trend={{ value: "3 urgentes", positive: false }}
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          {/* Tasks */}
-          <div className="lg:col-span-2 rounded-xl border border-border bg-card p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-heading text-lg font-semibold text-card-foreground">{t('dashboard.priority_tasks')}</h2>
-              <span className="text-xs text-muted-foreground">{t('common.today')}</span>
-            </div>
-            <div className="space-y-3">
-              {displayTasks.map((task, i) => (
-                <div key={i} className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50">
-                  <div className={`h-2 w-2 rounded-full shrink-0 ${
-                    task.priority === 'high' || task.priority === t('common.high') ? "bg-destructive" : task.priority === 'medium' || task.priority === t('common.medium') ? "bg-warning" : "bg-success"
-                  }`} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-card-foreground truncate">{task.title}</p>
-                    <p className="text-xs text-muted-foreground">{task.priority} · {task.status}</p>
-                  </div>
-                  <Clock className="h-4 w-4 shrink-0 text-muted-foreground" />
-                </div>
-              ))}
-            </div>
+      <div className="space-y-10 p-4 sm:p-6 lg:p-10 max-w-[1600px] mx-auto">
+        
+        {/* Welcome Area */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-black tracking-tighter text-card-foreground">
+              ¡Hola, {firstName}! 👋
+            </h1>
+            <p className="text-muted-foreground mt-2 text-lg">Aquí tienes el pulso real de tu ecosistema de marketing.</p>
           </div>
-
-          {/* Mini calendar */}
-          <div className="rounded-xl border border-border bg-card p-5">
-            <h2 className="font-heading text-lg font-semibold text-card-foreground mb-4">{t('dashboard.current_week')}</h2>
-            <div className="grid grid-cols-7 gap-1">
-              {weekDays.map((d) => (
-                <div key={d} className="text-center text-xs font-medium text-muted-foreground py-1">{d}</div>
-              ))}
-              {[12, 13, 14, 15, 16, 17, 18].map((d) => (
-                <button
-                  key={d}
-                  className={`rounded-lg py-2 text-sm font-medium transition-colors ${
-                    d === 13
-                      ? "bg-primary text-primary-foreground"
-                      : "text-card-foreground hover:bg-muted"
-                  }`}
-                >
-                  {d}
-                </button>
-              ))}
-            </div>
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                <span className="text-card-foreground">Reunión con cliente — 10:00</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <div className="h-1.5 w-1.5 rounded-full bg-warning" />
-                <span className="text-card-foreground">Deadline campaña — 18:00</span>
-              </div>
-            </div>
+          <div className="flex gap-3">
+             <CreateTaskDialog>
+                <Button className="rounded-2xl h-14 px-8 bg-primary text-white shadow-xl shadow-primary/20 hover:scale-105 transition-all font-black uppercase text-xs tracking-widest gap-3">
+                   <Plus className="h-5 w-5" /> Nueva Misión
+                </Button>
+             </CreateTaskDialog>
           </div>
         </div>
 
-        {/* Active Campaigns */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-heading text-lg font-semibold text-card-foreground">{t('dashboard.active_campaigns')}</h2>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <div className="space-y-4">
-            {displayCampaigns.map((c, i) => (
-              <div key={i} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-card-foreground">{c.name}</p>
-                  <p className="text-xs text-muted-foreground">{c.channel} · {c.status}</p>
-                </div>
-                <div className="flex items-center gap-3 sm:w-48">
-                  <div className="flex-1 h-2 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${c.progress}%` }} />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* LEFT: Stats & Onboarding */}
+          <div className="lg:col-span-8 space-y-8">
+            
+            {/* Quick Stats Bento */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+               <div className="bg-card/50 backdrop-blur-md border border-blue-500/20 p-8 rounded-[2.5rem] flex flex-col justify-between h-[180px] hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.1)] transition-all group">
+                  <div className="flex justify-end">
+                    <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
                   </div>
-                  <span className="text-xs font-medium text-muted-foreground w-8 text-right">{c.progress}%</span>
+                  <div>
+                    <p className="text-5xl font-black text-foreground tracking-tighter group-hover:text-blue-500 transition-colors">{campaigns.length}</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Estrategias</p>
+                  </div>
+               </div>
+               
+               <div className="bg-card/50 backdrop-blur-md border border-orange-500/20 p-8 rounded-[2.5rem] flex flex-col justify-between h-[180px] hover:border-orange-500/50 hover:shadow-[0_0_30px_rgba(249,115,22,0.1)] transition-all group">
+                  <div className="flex justify-end">
+                    <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
+                  </div>
+                  <div>
+                    <p className="text-5xl font-black text-foreground tracking-tighter group-hover:text-orange-500 transition-colors">{content.length}</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Contenidos</p>
+                  </div>
+               </div>
+
+               <div className="bg-card/50 backdrop-blur-md border border-green-500/20 p-8 rounded-[2.5rem] flex flex-col justify-between h-[180px] hover:border-green-500/50 hover:shadow-[0_0_30_rgba(34,197,94,0.1)] transition-all group">
+                  <div className="flex justify-end">
+                    <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                  </div>
+                  <div>
+                    <p className="text-5xl font-black text-foreground tracking-tighter group-hover:text-green-500 transition-colors">{objectives.length}</p>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Objetivos</p>
+                  </div>
+               </div>
+            </div>
+
+            {/* Strategic Feed */}
+            <div className="bg-card border border-border/50 rounded-[3rem] p-10 shadow-sm overflow-hidden relative">
+               <div className="flex items-center justify-between mb-10">
+                  <div className="flex items-center gap-3">
+                    <Clock className="h-6 w-6 text-primary" />
+                    <h3 className="text-2xl font-black uppercase tracking-tighter">Plan de Vuelo</h3>
+                  </div>
+                  <Link href="/campanas" className="text-xs font-black uppercase tracking-widest text-primary hover:underline">Ver todo</Link>
+               </div>
+
+               <div className="space-y-6">
+                 {campaigns.length > 0 ? (
+                   campaigns.slice(0, 3).map((c: any) => (
+                     <div key={c.id} className="flex items-center justify-between p-6 bg-muted/20 border border-border/30 rounded-3xl hover:bg-muted/40 transition-all">
+                        <div className="flex items-center gap-6">
+                           <div className="h-12 w-12 bg-primary/10 rounded-2xl flex items-center justify-center font-black text-primary">
+                             {c.progress}%
+                           </div>
+                           <div>
+                             <h4 className="font-bold text-lg">{c.name}</h4>
+                             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">{c.channel || 'Canal General'}</p>
+                           </div>
+                        </div>
+                        <div className="h-2 w-32 bg-muted rounded-full overflow-hidden hidden md:block">
+                          <div className="h-full bg-primary" style={{ width: `${c.progress}%` }} />
+                        </div>
+                     </div>
+                   ))
+                 ) : (
+                    <div className="py-20 text-center">
+                      <p className="text-muted-foreground italic">No hay estrategias en curso...</p>
+                    </div>
+                 )}
+               </div>
+            </div>
+          </div>
+
+          {/* RIGHT: Onboarding & Tasks */}
+          <div className="lg:col-span-4 space-y-8">
+            
+            {/* Onboarding Checklist - Solo se muestra si no está al 100% */}
+            {onboardingProgress < 100 && (
+              <div className="p-10 rounded-[3rem] border-2 bg-primary/5 border-primary/20 transition-all">
+                <div className="flex justify-between items-center mb-8">
+                  <h3 className="text-xl font-black uppercase tracking-tighter text-foreground">Guía de Inicio</h3>
+                  <span className="text-lg font-black text-primary">{onboardingProgress}%</span>
+                </div>
+                
+                <div className="h-3 bg-muted rounded-full mb-10 overflow-hidden border border-border/30">
+                  <div 
+                    className="h-full bg-primary transition-all duration-1000" 
+                    style={{ width: `${onboardingProgress}%` }} 
+                  />
+                </div>
+
+                <div className="space-y-5">
+                  {onboardingSteps.map((step) => (
+                    <Link 
+                      key={step.id} 
+                      href={step.link}
+                      className={`flex items-center gap-4 group transition-all ${step.completed ? 'opacity-40 grayscale pointer-events-none' : 'hover:translate-x-2'}`}
+                    >
+                      {step.completed ? (
+                        <CheckCircle2 className="h-6 w-6 text-green-600 shrink-0" />
+                      ) : (
+                        <Circle className="h-6 w-6 text-primary shrink-0 group-hover:scale-110 transition-transform" />
+                      )}
+                      <span className={`text-[13px] font-bold tracking-tight ${step.completed ? 'line-through' : 'text-card-foreground'}`}>
+                        {step.label}
+                      </span>
+                      {!step.completed && <ChevronRight className="h-4 w-4 ml-auto text-primary opacity-0 group-hover:opacity-100" />}
+                    </Link>
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
+
+            {/* Capturas Creativas (Renombrado de Inspiración) */}
+            <div className={`bg-card/50 backdrop-blur-md border border-border/50 rounded-[3rem] p-10 ${onboardingProgress === 100 ? 'lg:mt-0' : ''}`}>
+               <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <Lightbulb className="h-6 w-6 text-orange-500" />
+                    <h3 className="text-xl font-black uppercase tracking-tighter text-foreground">Creatividad</h3>
+                  </div>
+                  <Link href="/ideas" className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline">Ver Banco</Link>
+               </div>
+               <p className="text-[10px] text-muted-foreground/60 mb-6 uppercase font-bold tracking-widest">Últimos conceptos capturados:</p>
+               <div className="space-y-4">
+                  {ideas.length > 0 ? (
+                    ideas.slice(0, 3).map((i: any) => (
+                      <div key={i.id} className="p-5 bg-muted/20 border border-border/20 rounded-2xl italic text-sm text-card-foreground/80 hover:bg-muted/30 transition-colors">
+                        "{i.title}"
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center bg-muted/10 rounded-2xl border border-dashed border-border/40">
+                      <p className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Sin ideas pendientes</p>
+                    </div>
+                  )}
+               </div>
+            </div>
+
           </div>
         </div>
       </div>
     </DashboardLayout>
   );
 }
-

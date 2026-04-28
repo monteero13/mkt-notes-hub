@@ -121,12 +121,21 @@ export default function LandingPage() {
                    Organiza tu estrategia con la claridad de un cuaderno y la potencia de un sistema empresarial escalable.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center gap-5">
-                   <Link href="/login?mode=signup" className="w-full sm:w-auto">
-                      <Button className="w-full sm:w-auto px-10 py-8 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/20">
-                        Digitaliza tu empresa
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </Button>
-                   </Link>
+                   {user ? (
+                     <Link href="/dashboard" className="w-full sm:w-auto">
+                        <Button className="w-full sm:w-auto px-10 py-8 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/20">
+                          Ir al Dashboard
+                          <LayoutDashboard className="ml-2 h-5 w-5" />
+                        </Button>
+                     </Link>
+                   ) : (
+                     <Link href="/login?mode=signup" className="w-full sm:w-auto">
+                        <Button className="w-full sm:w-auto px-10 py-8 text-lg font-bold rounded-2xl bg-primary hover:bg-primary/90 shadow-2xl shadow-primary/20">
+                          Digitaliza tu empresa
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </Button>
+                     </Link>
+                   )}
                    <Link href="/demo">
                       <Button variant="ghost" className="text-lg font-bold px-8 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl">
                         Ver demo interactiva
@@ -222,13 +231,21 @@ export default function LandingPage() {
               <p className="text-xl text-slate-500 dark:text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed">
                  Unete a los departamentos de marketing que ya han dado el paso hacia la organización estructural digital.
               </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-6">
-                 <Link href="/login?mode=signup">
-                    <Button className="h-16 px-12 text-lg font-bold rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-2xl shadow-slate-200 dark:shadow-none">
-                       Reservar mi Agenda Digital
-                    </Button>
-                 </Link>
-              </div>
+               <div className="flex flex-col sm:flex-row justify-center gap-6">
+                  {user ? (
+                    <Link href="/dashboard">
+                      <Button className="h-16 px-12 text-lg font-bold rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-2xl shadow-slate-200 dark:shadow-none">
+                        Ir a mi Panel de Control
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Link href="/login?mode=signup">
+                      <Button className="h-16 px-12 text-lg font-bold rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-950 hover:bg-slate-800 dark:hover:bg-slate-100 transition-all shadow-2xl shadow-slate-200 dark:shadow-none">
+                        Reservar mi Agenda Digital
+                      </Button>
+                    </Link>
+                  )}
+               </div>
            </div>
         </section>
       </main>

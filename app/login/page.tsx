@@ -11,6 +11,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Apple, Mail, KeyRound, Loader2, ArrowRight, User, Camera, X, Wand2, ArrowLeft, CheckCircle2, Info } from 'lucide-react'
 import { toast } from 'sonner'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 
 type AuthMode = 'login' | 'signup' | 'forgot-password' | 'magic-link' | 'verification-sent';
 
@@ -26,6 +28,7 @@ function LoginContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
+  const queryClient = useQueryClient()
 
   // Sincronizar estado inicial con URL
   useEffect(() => {
@@ -71,9 +74,13 @@ function LoginContent() {
       if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
-        toast.success('¡Bienvenido de nuevo!')
-        router.push('/dashboard')
-        router.refresh()
+        
+        await queryClient.invalidateQueries({ queryKey: ['user'] })
+        toast.success('Sesión iniciada correctamente')
+        
+        setTimeout(() => {
+          window.location.assign('/dashboard')
+        }, 800)
       } else if (mode === 'signup') {
         // Sign Up
         const { data: { user }, error: signUpError } = await supabase.auth.signUp({
@@ -88,29 +95,30 @@ function LoginContent() {
         })
 
         if (signUpError) throw signUpError
+        await queryClient.invalidateQueries({ queryKey: ['user'] })
 
         if (user && avatarFile) {
-          // Upload Avatar
+          // Upload Avatar via API Route (bypassing RLS during signup)
           try {
-            const fileExt = avatarFile.name.split('.').pop()
-            const fileName = `${user.id}/avatar.${fileExt}`
-            const { error: uploadError } = await supabase.storage
-              .from('avatars')
-              .upload(fileName, avatarFile, { upsert: true })
+            const formData = new FormData()
+            formData.append('file', avatarFile)
+            formData.append('userId', user.id)
 
-            if (!uploadError) {
-              const { data: { publicUrl } } = supabase.storage
-                .from('avatars')
-                .getPublicUrl(fileName)
+            const uploadRes = await fetch('/api/upload-avatar', {
+              method: 'POST',
+              body: formData,
+            })
+
+            if (uploadRes.ok) {
+              const { url: publicUrl } = await uploadRes.json()
 
               // Update user metadata with avatar URL
               await supabase.auth.updateUser({
                 data: { avatar_url: publicUrl }
               })
             } else {
-              console.error('Avatar upload error:', uploadError)
-              // No lanzamos el error aquí porque la cuenta ya se creó.
-              // El usuario podrá subir su foto después desde el dashboard.
+              const errorData = await uploadRes.json()
+              console.error('Avatar upload error:', errorData.error)
               toast.info('Tu cuenta se creó, pero la foto se subirá al confirmar tu email.')
             }
           } catch (storageError) {
@@ -134,6 +142,7 @@ function LoginContent() {
           }
         })
         if (error) throw error
+        await queryClient.invalidateQueries({ queryKey: ['user'] })
         toast.success('Magic link enviado a tu email')
         setMode('verification-sent')
       }
@@ -165,10 +174,10 @@ function LoginContent() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary mb-6 animate-bounce">
             <CheckCircle2 className="h-10 w-10" />
           </div>
-          <CardTitle className="text-2xl font-bold mb-2">¡Revisa tu bandeja de entrada!</CardTitle>
+          <CardTitle className="text-2xl font-bold mb-2">Verifica tu bandeja de entrada</CardTitle>
           <CardDescription className="text-base mb-8">
-            Hemos enviado un enlace de confirmación a <span className="font-bold text-foreground">{email}</span>.
-            Haz clic en el enlace para continuar.
+             Hemos enviado un correo de confirmación a <span className="font-bold text-foreground">{email}</span>.
+             Por favor, revisa el enlace para validar tu acceso.
           </CardDescription>
           <Button variant="outline" className="w-full" onClick={() => setMode('login')}>
             <ArrowLeft className="mr-2 h-4 w-4" />

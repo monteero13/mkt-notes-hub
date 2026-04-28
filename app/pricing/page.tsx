@@ -10,21 +10,50 @@ import Link from 'next/link'
 import { createCheckoutSession } from '@/lib/stripe'
 import { toast } from 'sonner'
 
+import { useAuth } from '@/hooks/use-auth'
+import { createClient } from '@/lib/supabase/client'
+import { useQuery } from '@tanstack/react-query'
+
 export default function PricingPage() {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const supabase = createClient();
+
+  // Fetch the user's pro status from profiles
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const isPro = profile?.is_pro;
 
   const handleCheckout = async () => {
+    if (!user) {
+      toast.error('Debes iniciar sesión para suscribirte');
+      return;
+    }
+    
     setIsLoading(true);
     try {
       const priceId = process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID;
       if (!priceId) {
         throw new Error('Stripe Price ID is not configured');
       }
-      // Note: createCheckoutSession will redirect on success
+      
+      // Pass the userId in metadata so the webhook knows who paid
       await createCheckoutSession(priceId);
     } catch (error: any) {
-      // If redirect happens, this might still catch but Next.js handle redirects by throwing a special error
       if (error.message !== 'NEXT_REDIRECT') {
         toast.error(error.message || 'Error al procesar el pago');
         setIsLoading(false);
@@ -107,16 +136,20 @@ export default function PricingPage() {
           </CardContent>
           <CardFooter>
             <Button
-              className="w-full h-11 bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
+              className={`w-full h-11 font-bold shadow-lg transition-all ${
+                isPro ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-primary text-primary-foreground shadow-primary/25 hover:shadow-xl hover:shadow-primary/30'
+              }`}
               onClick={handleCheckout}
-              disabled={isLoading}
+              disabled={isLoading || isPro}
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : isPro ? (
+                <Shield className="h-4 w-4 mr-2" />
               ) : (
                 <Sparkles className="h-4 w-4 mr-2" />
               )}
-              {t('pricing.get_pro')}
+              {isPro ? 'Suscrito (Plan Pro)' : t('pricing.get_pro')}
             </Button>
           </CardFooter>
         </Card>

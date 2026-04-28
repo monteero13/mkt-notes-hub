@@ -13,8 +13,6 @@ import {
   BarChart3,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
-  Crown,
   Globe,
   Sun,
   Moon,
@@ -30,6 +28,7 @@ import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { useAuth } from "@/hooks/use-auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,7 +40,7 @@ import {
 import { toast } from "sonner";
 
 const navItems = [
-  { id: "dashboard", to: "/", icon: LayoutDashboard },
+  { id: "dashboard", to: "/dashboard", icon: LayoutDashboard },
   { id: "planificador", to: "/planificador", icon: Calendar },
   { id: "contenido", to: "/contenido", icon: FileText },
   { id: "campanas", to: "/campanas", icon: BarChart3, isPro: true },
@@ -55,35 +54,16 @@ export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState<any>(null);
   const pathname = usePathname();
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const supabase = createClient();
-
-  const [isPro, setIsPro] = useState(false);
+  
+  const { user, profile, isLoading } = useAuth();
 
   useEffect(() => {
     setMounted(true);
-
-    async function fetchData() {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('is_pro')
-          .eq('id', user.id)
-          .single();
-        
-        if (profile) {
-          setIsPro(profile.is_pro);
-        }
-      }
-    }
-    fetchData();
-  }, [supabase]);
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -101,28 +81,23 @@ export function AppSidebar() {
     i18n.changeLanguage(nextLang);
   };
 
-  if (!mounted) {
+  if (!mounted || isLoading) {
     return (
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-30 hidden md:flex flex-col transition-all duration-300",
-          "bg-sidebar/95 backdrop-blur-xl border-r border-border/50 shadow-2xl",
-          collapsed ? "w-16" : "w-64"
-        )}
-      >
-        <div className={cn("flex h-20 items-center px-6", collapsed ? "justify-center px-0" : "justify-between")}>
-          <div className="flex items-center gap-3">
-            <div className={cn(
-              "relative flex shrink-0 items-center justify-center transition-all duration-300",
-              collapsed ? "h-11 w-11 mx-auto" : "h-14 w-14"
-            )}>
-              <div className="h-full w-full bg-muted rounded-lg animate-pulse" />
-            </div>
-          </div>
+      <aside className={cn(
+        "fixed inset-y-0 left-0 z-30 hidden md:flex flex-col transition-all duration-300",
+        "bg-sidebar/95 backdrop-blur-xl border-r border-border/50 shadow-2xl",
+        collapsed ? "w-16" : "w-64"
+      )}>
+        <div className="flex h-20 items-center px-6">
+          <div className="h-10 w-10 bg-muted animate-pulse rounded-lg" />
         </div>
       </aside>
     );
   }
+
+  // Lógica de Fallback Extrema
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Usuario';
+  const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || null;
 
   return (
     <aside
@@ -141,7 +116,7 @@ export function AppSidebar() {
 
       {/* Logo */}
       <div className={cn("flex h-20 items-center px-6", collapsed ? "justify-center px-0" : "justify-between")}>
-        <div className="flex items-center gap-3">
+        <Link href="/dashboard" className="flex items-center gap-3" title="Volver al Dashboard">
           <div className="relative">
             <div className={cn(
               "relative flex shrink-0 items-center justify-center transition-all duration-300",
@@ -165,7 +140,7 @@ export function AppSidebar() {
               <span className="text-[9px] font-bold text-primary tracking-[0.2em] uppercase opacity-80 -mt-1">Marketing Hub</span>
             </div>
           )}
-        </div>
+        </Link>
       </div>
 
       {/* Nav */}
@@ -208,7 +183,6 @@ export function AppSidebar() {
 
       {/* User & Settings */}
       <div className="mt-auto p-3 space-y-2 border-t border-border/40">
-        {/* User Profile */}
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -216,19 +190,19 @@ export function AppSidebar() {
                 "flex items-center gap-3 w-full p-2 rounded-xl hover:bg-sidebar-accent transition-all duration-300 group",
                 collapsed ? "justify-center" : ""
               )}>
-                <Avatar className="h-8 w-8 border border-border/50 group-hover:border-primary/50 transition-all">
-                  <AvatarImage src={user.user_metadata?.avatar_url} />
+                <Avatar className="h-8 w-8 border border-border/50 group-hover:border-primary/50 transition-all shadow-sm">
+                  <AvatarImage src={avatarUrl || undefined} />
                   <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-bold">
-                    {user.email?.charAt(0).toUpperCase()}
+                    {displayName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 {!collapsed && (
                   <div className="flex flex-col items-start min-w-0">
                     <span className="text-xs font-bold text-foreground truncate w-full">
-                      {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                      {displayName}
                     </span>
                     <span className="text-[10px] text-muted-foreground truncate w-full">
-                      {t('common.active_session')}
+                      {profile?.is_pro ? (i18n.language === 'es' ? 'Plan Pro Activo' : 'Pro Plan Active') : (i18n.language === 'es' ? 'Sesión Iniciada' : 'Active Session')}
                     </span>
                   </div>
                 )}
@@ -239,9 +213,11 @@ export function AppSidebar() {
                 Mi Cuenta
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-border/40" />
-              <DropdownMenuItem className="focus:bg-primary/10 focus:text-primary transition-colors cursor-pointer py-2 px-3">
-                <User className="mr-2 h-4 w-4" />
-                <span className="text-xs font-semibold">Perfil</span>
+              <DropdownMenuItem asChild className="focus:bg-primary/10 focus:text-primary transition-colors cursor-pointer py-2 px-3">
+                <Link href="/perfil" className="flex items-center w-full">
+                   <User className="mr-2 h-4 w-4" />
+                   <span className="text-xs font-semibold">Perfil</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/40" />
               <DropdownMenuItem 
@@ -307,7 +283,6 @@ export function AppSidebar() {
         </div>
       </div>
 
-      {/* Signature */}
       <DeveloperSignature collapsed={collapsed} />
     </aside>
   );

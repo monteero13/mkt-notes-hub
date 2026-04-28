@@ -57,6 +57,7 @@
       "planning": "Planificación"
     },
     "dashboard": {
+      "welcome": "Bienvenido",
       "title": "Dashboard",
       "desc": "Resumen de tu actividad de marketing",
       "active_campaigns": "Campañas activas",

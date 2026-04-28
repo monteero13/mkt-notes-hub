@@ -2,48 +2,95 @@
 
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PageHeader } from "@/components/PageHeader";
-import { Lightbulb, Plus, TrendingUp } from "lucide-react";
-
-const ideas = [
-  { title: "Meme sobre SEO vs SEM", trend: "SEO Trends", format: "Imagen", platform: "Instagram", color: "bg-chart-1" },
-  { title: "Storytelling de marca personal", trend: "Personal branding", format: "Carrusel", platform: "LinkedIn", color: "bg-chart-2" },
-  { title: "Tutorial Google Analytics 4", trend: "GA4 Migration", format: "Video", platform: "YouTube", color: "bg-chart-3" },
-  { title: "POV: cuando el cliente cambia el brief", trend: "Memes agencia", format: "Reel", platform: "TikTok", color: "bg-chart-4" },
-  { title: "Checklist para lanzar campaña", trend: "Marketing ops", format: "Infografía", platform: "Instagram", color: "bg-chart-5" },
-  { title: "Comparativa herramientas email mkt", trend: "Email marketing", format: "Post", platform: "LinkedIn", color: "bg-chart-1" },
-  { title: "Trend jacking con evento tech", trend: "Eventos tech", format: "Short", platform: "TikTok", color: "bg-chart-2" },
-  { title: "Caso de éxito: de 0 a 10K", trend: "Growth", format: "Hilo", platform: "LinkedIn", color: "bg-chart-3" },
-];
+import { Lightbulb, Plus, MoreHorizontal, Loader2, Trash2, Tag, Layers } from "lucide-react";
+import { useIdeas } from "@/hooks/use-features-data";
+import { CreateIdeaDialog } from "@/components/CreateIdeaDialog";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export default function IdeasPage() {
+  const { data: ideas = [], isLoading } = useIdeas();
+  const queryClient = useQueryClient();
+  const supabase = createClient();
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('¿Eliminar esta idea del banco?')) return;
+    try {
+      const { error } = await supabase.from('ideas').delete().eq('id', id);
+      if (error) throw error;
+      toast.success('Idea eliminada');
+      queryClient.invalidateQueries({ queryKey: ['ideas'] });
+    } catch (error: any) {
+      toast.error('Error: ' + error.message);
+    }
+  };
+
+  if (isLoading) return (
+    <DashboardLayout>
+      <div className="flex h-[70vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    </DashboardLayout>
+  )
+
   return (
     <DashboardLayout>
-      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-        <PageHeader title="Banco de Ideas" description="Captura ideas rápidas para tu contenido">
-          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
-            <Plus className="h-4 w-4" />
-            Nueva idea
-          </button>
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+        <PageHeader title="Banco de Ideas" description="Captura tendencias y conceptos creativos antes de que se escapen.">
+          <CreateIdeaDialog />
         </PageHeader>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {ideas.map((idea, i) => (
-            <div key={i} className="group rounded-xl border border-border bg-card p-4 transition-all hover:shadow-sm hover:-translate-y-0.5">
-              <div className={`inline-flex rounded-lg p-2 ${idea.color}/10`}>
-                <Lightbulb className={`h-4 w-4 text-primary`} />
-              </div>
-              <h3 className="mt-3 text-sm font-semibold text-card-foreground leading-snug">{idea.title}</h3>
-              <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3" />
-                <span>{idea.trend}</span>
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">{idea.format}</span>
-                <span className="text-[10px] font-medium text-muted-foreground">{idea.platform}</span>
-              </div>
+        {ideas.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-32 bg-card/40 border-2 border-dashed border-border/60 rounded-[3rem] text-center px-4 shadow-inner shadow-black/[0.02]">
+            <div className="h-24 w-24 bg-primary/10 rounded-[2rem] flex items-center justify-center mb-10 rotate-3 transition-transform">
+               <Lightbulb className="h-12 w-12 text-primary" />
             </div>
-          ))}
-        </div>
+            <h3 className="text-3xl font-heading font-bold mb-4 uppercase tracking-tighter">Sin ideas capturadas</h3>
+            <p className="text-muted-foreground max-w-md mb-12 text-base leading-relaxed">
+              El Banco de Ideas es tu espacio para la creatividad sin filtros. Captura aquí cualquier concepto para futuras campañas.
+            </p>
+            
+            <CreateIdeaDialog>
+              <Button size="lg" className="rounded-2xl px-12 h-14 font-black uppercase tracking-widest text-xs shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+                Capturar primera idea
+              </Button>
+            </CreateIdeaDialog>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {ideas.map((idea: any) => (
+              <div key={idea.id} className="group p-8 bg-card border border-border/50 rounded-[2.5rem] hover:shadow-2xl hover:bg-muted/10 transition-all relative">
+                <div className="absolute top-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={() => handleDelete(idea.id)}
+                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                <div className="flex items-center gap-2 mb-6 text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+                  <Tag className="h-3 w-3" />
+                  {idea.category || 'Creatividad'}
+                </div>
+
+                <h3 className="text-2xl font-black text-card-foreground leading-tight mb-8 pr-10">{idea.title}</h3>
+                
+                <div className="flex flex-wrap gap-4 items-center justify-between pt-6 border-t border-border/20">
+                   <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">
+                     <Layers className="h-3.5 w-3.5" />
+                     {idea.format || 'Multiformato'}
+                   </div>
+                   <span className="text-[10px] font-medium text-muted-foreground/30">{new Date(idea.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

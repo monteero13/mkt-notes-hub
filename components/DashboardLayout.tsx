@@ -1,18 +1,32 @@
-// Este es el código que debes usar:
 'use client';
 
 import { AppSidebar, MobileNav } from "./AppSidebar";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return <div className="min-h-screen bg-background" />;
+  useEffect(() => {
+    if (mounted && !isLoading && !user) {
+      router.push('/login?mode=login');
+    }
+  }, [mounted, isLoading, user, router]);
+
+  if (!mounted || isLoading || !user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary opacity-20" />
+      </div>
+    );
   }
 
   return (
