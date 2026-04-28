@@ -33,7 +33,7 @@ import { useTeam } from "@/hooks/use-team";
 
 export default function AnalisisAvanzadoPage() {
     const { t } = useTranslation();
-    const { profile, user, loading } = useAuth();
+    const { profile, user, isLoading } = useAuth();
     const { data: team } = useTeam();
     const supabase = createClient();
 
@@ -55,7 +55,7 @@ export default function AnalisisAvanzadoPage() {
         }
     });
 
-    if (loading || analyticsLoading) {
+    if (isLoading || analyticsLoading) {
         return (
             <DashboardLayout>
                 <div className="p-8 min-h-[calc(100vh-12rem)] flex items-center justify-center">
