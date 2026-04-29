@@ -35,6 +35,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { toast } from "sonner";
+import { Plus } from "lucide-react";
 
 const navItems = [
   { id: "dashboard", to: "/dashboard", icon: LayoutDashboard },
@@ -55,7 +56,7 @@ export function AppSidebar() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const supabase = createClient();
-  
+
   const { user, profile, isLoading } = useAuth();
 
   useEffect(() => {
@@ -157,7 +158,7 @@ export function AppSidebar() {
                 "group flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-bold transition-all duration-200",
                 `tour-item-${item.id}`,
                 isActive
-                   ? "bg-primary/10 text-primary"
+                  ? "bg-primary/10 text-primary"
                   : "text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/30"
               )}
             >
@@ -217,12 +218,12 @@ export function AppSidebar() {
               <DropdownMenuSeparator className="bg-border/40" />
               <DropdownMenuItem asChild className="focus:bg-primary/10 focus:text-primary transition-colors cursor-pointer py-2 px-3">
                 <Link href="/perfil" className="flex items-center w-full">
-                   <User className="mr-2 h-4 w-4" />
-                   <span className="text-xs font-semibold">{t('sidebar.profile')}</span>
+                  <User className="mr-2 h-4 w-4" />
+                  <span className="text-xs font-semibold">{t('sidebar.profile')}</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-border/40" />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={handleSignOut}
                 className="focus:bg-destructive/10 focus:text-destructive transition-colors cursor-pointer py-2 px-3 text-destructive"
               >
@@ -235,9 +236,9 @@ export function AppSidebar() {
 
         {/* Toggles */}
         <div className="flex flex-col gap-2">
-           <button
+          <button
             onClick={toggleTheme}
-             className="flex items-center gap-3 rounded-2xl border border-sidebar-border bg-sidebar-accent/50 p-2 px-3 transition-all hover:bg-sidebar-accent hover:border-sidebar-border w-full"
+            className="flex items-center gap-3 rounded-2xl border border-sidebar-border bg-sidebar-accent/50 p-2 px-3 transition-all hover:bg-sidebar-accent hover:border-sidebar-border w-full"
           >
             <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
               {theme === 'dark' ? <Sun className="h-3 w-3" /> : <Moon className="h-3 w-3" />}
