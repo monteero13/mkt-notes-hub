@@ -38,7 +38,7 @@ export default function DashboardPage() {
 
   const handleToggleTask = async (taskId: string, completed: boolean) => {
     try {
-      const { error } = await supabase.from('tasks').update({ completed }).eq('id', taskId);
+      const { error } = await supabase.from('tasks').update({ status: completed ? 'completed' : 'pending' }).eq('id', taskId);
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
     } catch (e: any) {
@@ -52,10 +52,10 @@ export default function DashboardPage() {
     { label: t('dashboard.active_campaigns'), value: campaigns.length.toString() || "0", trend: { value: t('dashboard.current_month'), positive: true }, icon: BarChart3 },
     { label: t('dashboard.planned_posts'), value: content.length.toString() || "0", trend: { value: t('dashboard.this_week'), positive: true }, icon: FileText },
     { label: t('dashboard.goals_achieved'), value: objectives.length > 0 ? `${objectives.filter(o => o.progress === 100).length}/${objectives.length}` : "0/0", trend: { value: "Q2 2026", positive: true }, icon: Target },
-    { label: t('dashboard.pending_tasks'), value: tasks.filter(t => !t.completed).length.toString() || "0", trend: { value: t('dashboard.urgent_count', { count: tasks.filter(tk => !tk.completed && tk.priority === 'high').length }), positive: false }, icon: CheckSquare },
+    { label: t('dashboard.pending_tasks'), value: tasks.filter(t => t.status !== 'completed').length.toString() || "0", trend: { value: t('dashboard.urgent_count', { count: tasks.filter(tk => tk.status !== 'completed' && tk.priority === 'high').length }), positive: false }, icon: CheckSquare },
   ];
 
-  const displayTasks = tasks.length > 0 ? tasks.filter(t => !t.completed).slice(0, 4) : [
+  const displayTasks = tasks.length > 0 ? tasks.filter(t => t.status !== 'completed').slice(0, 4) : [
     { id: '1', title: t('dashboard.mock_task_1'), priority: "Alta", status: "Pendiente", category_color: "red", due_date: t('dashboard.mock_date_tomorrow') },
     { id: '2', title: t('dashboard.mock_task_2'), priority: "Media", status: "Pendiente", category_color: "purple", due_date: t('dashboard.mock_date_today') },
   ];
@@ -75,7 +75,7 @@ export default function DashboardPage() {
             />
             <CreateTaskDialog>
                 <Button className="gap-2 font-bold tour-item-new-action">
-                    <Plus className="h-4 w-4" /> {t('common.new')} {t('planificador.categories.strategy')}
+                    <Plus className="h-4 w-4" /> {t('dialogs.task.title')}
                 </Button>
             </CreateTaskDialog>
         </div>

@@ -149,8 +149,8 @@ export default function CampanasPage() {
                 {campaignTasks.length > 0 ? campaignTasks.map((t) => (
                   <div key={t.id} className="p-3 bg-background border border-border/50 rounded-lg flex items-center justify-between group/task hover:border-border transition-colors">
                     <div className="flex items-center gap-3">
-                      <CheckCircle2 className={cn("h-4 w-4", t.completed ? "text-green-500" : "text-muted-foreground/30")} />
-                      <span className={cn("text-sm font-medium", t.completed && "line-through text-muted-foreground")}>{t.title}</span>
+                      <CheckCircle2 className={cn("h-4 w-4", t.status === 'completed' ? "text-green-500" : "text-muted-foreground/30")} />
+                      <span className={cn("text-sm font-medium", t.status === 'completed' && "line-through text-muted-foreground")}>{t.title}</span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover/task:text-muted-foreground transition-colors" />
                   </div>

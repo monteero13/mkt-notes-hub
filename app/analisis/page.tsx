@@ -77,7 +77,7 @@ export default function AnalisisAvanzadoPage() {
                         <p className="text-muted-foreground mb-8 text-sm">
                             Obtén una visión profunda del rendimiento de tus campañas, alcance de audiencia y tasas de conversión con las herramientas de análisis de Mkt.Notes PRO.
                         </p>
-                        <Button className="bg-primary text-primary-foreground font-bold hover:scale-105 transition-transform" onClick={() => window.location.href = 'mailto:albamuli05@gmail.com'}>
+                        <Button className="bg-primary text-primary-foreground font-bold hover:scale-105 transition-transform" onClick={() => window.location.href = '/pricing'}>
                             Actualizar a PRO
                         </Button>
                     </div>

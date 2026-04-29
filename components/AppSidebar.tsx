@@ -146,9 +146,11 @@ export function AppSidebar() {
             <div className="absolute -right-4 -top-4 h-16 w-16 bg-primary/20 rounded-full blur-2xl group-hover:bg-primary/30 transition-all" />
             <p className="text-xs font-bold text-primary uppercase tracking-widest">{t('sidebar.premium_access')}</p>
             <p className="text-[10px] text-muted-foreground leading-relaxed">{t('sidebar.premium_desc')}</p>
-            <Button size="sm" className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl text-[10px] font-bold h-8">
-              {t('sidebar.upgrade_now')}
-            </Button>
+            <Link href="/pricing" className="block w-full">
+              <Button size="sm" className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl text-[10px] font-bold h-8">
+                {t('sidebar.upgrade_now')}
+              </Button>
+            </Link>
           </div>
         )}
 

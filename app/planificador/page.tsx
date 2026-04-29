@@ -55,7 +55,7 @@ export default function PlanificadorPage() {
         user_id: user.id,
         title: newTaskTitle,
         due_date: dateStr,
-        completed: false,
+        status: 'pending',
         priority: newTaskCategory.color === 'red' ? 'high' : 'medium',
         category_name: newTaskCategory.name,
         category_color: newTaskCategory.color,
