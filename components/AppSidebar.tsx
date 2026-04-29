@@ -94,7 +94,7 @@ export function AppSidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden md:flex flex-col bg-sidebar border-r border-sidebar-border shadow-2xl w-64">
       {/* Logo */}
-      <div className="flex h-24 items-center px-6 justify-between">
+      <div className="flex h-24 items-center px-6 justify-between shrink-0">
         <Link href="/dashboard" className="flex items-center gap-3">
           <div className="h-10 w-10 flex items-center justify-center shrink-0">
             <div className="h-9 w-9 bg-black dark:bg-white rounded-lg flex items-center justify-center text-white dark:text-black font-black text-xs">
@@ -106,6 +106,42 @@ export function AppSidebar() {
             <span className="text-[7px] font-black text-primary uppercase tracking-[0.4em] mt-0.5 ml-0.5">{t('sidebar.marketing_hub')}</span>
           </div>
         </Link>
+      </div>
+
+      {/* Global Action Button */}
+      <div className="px-4 mb-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-bold gap-2 shadow-lg shadow-primary/20">
+              <Plus className="h-4 w-4" />
+              {t('common.new', 'Nuevo')}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56 bg-card/95 backdrop-blur-xl border-border/50">
+            <DropdownMenuLabel className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-3 py-2">
+              {t('sidebar.quick_actions', 'Acciones Rápidas')}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator className="bg-border/40" />
+            <DropdownMenuItem asChild>
+              <Link href="/planificador" className="flex items-center w-full py-2 cursor-pointer">
+                <Calendar className="mr-2 h-4 w-4 text-blue-500" />
+                <span className="text-xs font-bold">{t('dialogs.task.title')}</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/objetivos" className="flex items-center w-full py-2 cursor-pointer">
+                <Target className="mr-2 h-4 w-4 text-orange-500" />
+                <span className="text-xs font-bold">{t('dialogs.objective.title')}</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href="/campanas" className="flex items-center w-full py-2 cursor-pointer">
+                <BarChart3 className="mr-2 h-4 w-4 text-purple-500" />
+                <span className="text-xs font-bold">{t('dialogs.campaign.title')}</span>
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Nav */}

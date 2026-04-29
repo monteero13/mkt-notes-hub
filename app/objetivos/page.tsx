@@ -4,6 +4,7 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Target, Plus, TrendingUp, Loader2, Trash2, Calendar } from "lucide-react";
 import { useObjectives } from "@/hooks/use-features-data";
 import { CreateObjectiveDialog } from "@/components/CreateObjectiveDialog";
+import { CreateTaskDialog } from "@/components/CreateTaskDialog";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -90,13 +91,19 @@ export default function ObjetivosPage() {
                     <Progress value={progress} className="h-3 rounded-full" />
                   </div>
 
-                  <div className="flex items-center gap-6 pt-4 border-t border-border/5">
+                  <div className="flex items-center justify-between pt-4 border-t border-border/5">
                     <div className="flex items-center gap-2">
                       <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">
                         {new Date(obj.deadline).toLocaleDateString(i18n.language === 'es' ? 'es-ES' : 'en-US', { day: 'numeric', month: 'short' })}
                       </span>
                     </div>
+                    <CreateTaskDialog>
+                        <Button variant="outline" size="sm" className="h-8 rounded-xl text-[10px] font-bold uppercase tracking-widest gap-2">
+                            <Plus className="h-3 w-3" />
+                            {t('campanas.add_task', 'Añadir Tarea')}
+                        </Button>
+                    </CreateTaskDialog>
                   </div>
                 </div>
               );
