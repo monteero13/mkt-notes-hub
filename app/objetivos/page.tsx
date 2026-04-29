@@ -4,6 +4,7 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Target, Plus, TrendingUp, Loader2, Trash2, Calendar } from "lucide-react";
 import { useObjectives } from "@/hooks/use-features-data";
 import { CreateObjectiveDialog } from "@/components/CreateObjectiveDialog";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { CreateTaskDialog } from "@/components/CreateTaskDialog";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
@@ -19,7 +20,6 @@ export default function ObjetivosPage() {
   const supabase = createClient();
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t('objetivos.delete_confirm'))) return;
     try {
       const { error } = await supabase.from('objectives').delete().eq('id', id);
       if (error) throw error;
@@ -70,14 +70,19 @@ export default function ObjetivosPage() {
                       </div>
                       <h3 className="text-2xl font-bold tracking-tight">{obj.title}</h3>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => handleDelete(obj.id)}
-                      className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    <DeleteConfirmDialog 
+                      onConfirm={() => handleDelete(obj.id)}
+                      title={t('objetivos.delete_confirm_title', '¿Eliminar objetivo?')}
+                      description={t('objetivos.delete_confirm_desc', '¿Estás seguro de que quieres eliminar este objetivo estratégico?')}
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </DeleteConfirmDialog>
                   </div>
 
                   <div className="space-y-4">

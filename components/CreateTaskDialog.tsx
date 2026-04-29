@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,13 +15,28 @@ export function CreateTaskDialog({ children, defaultCampaignId, defaultDate, tas
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [title, setTitle] = useState(task?.title || '')
-  const [campaignId, setCampaignId] = useState(task?.campaign_id || defaultCampaignId || '')
-  const [dueDate, setDueDate] = useState(task?.due_date || defaultDate || '')
-  
+  const [title, setTitle] = useState('')
+  const [campaignId, setCampaignId] = useState('')
+  const [dueDate, setDueDate] = useState('')
+
   const { campaigns } = useDashboardData()
   const queryClient = useQueryClient()
   const supabase = createClient()
+
+  // Sincronizar estados cuando cambia la tarea o los valores por defecto
+  useEffect(() => {
+    if (open) {
+      if (task) {
+        setTitle(task.title || '')
+        setCampaignId(task.campaign_id || '')
+        setDueDate(task.due_date || '')
+      } else {
+        setTitle('')
+        setCampaignId(defaultCampaignId || '')
+        setDueDate(defaultDate || '')
+      }
+    }
+  }, [open, task, defaultCampaignId, defaultDate])
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,6 +46,9 @@ export function CreateTaskDialog({ children, defaultCampaignId, defaultDate, tas
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error(t('pricing.login_required'))
+
+      const { data: profile } = await supabase.from('profiles').select('is_pro').eq('id', user.id).single()
+      const { data: member } = await supabase.from('team_members').select('team_id').eq('user_id', user.id).single()
 
       if (task?.id) {
         // Update
@@ -45,6 +63,7 @@ export function CreateTaskDialog({ children, defaultCampaignId, defaultDate, tas
         // Insert
         const { error } = await supabase.from('tasks').insert([{
           user_id: user.id,
+          team_id: member?.team_id || null,
           title,
           campaign_id: campaignId || null,
           due_date: dueDate || null,
@@ -70,19 +89,7 @@ export function CreateTaskDialog({ children, defaultCampaignId, defaultDate, tas
   }
 
   return (
-    <Dialog open={open} onOpenChange={(val) => {
-      setOpen(val)
-      if (val) {
-        if (task) {
-          setTitle(task.title)
-          setCampaignId(task.campaign_id || '')
-          setDueDate(task.due_date || '')
-        } else {
-          if (defaultCampaignId) setCampaignId(defaultCampaignId)
-          if (defaultDate) setDueDate(defaultDate)
-        }
-      }
-    }}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children || (
           <Button className="gap-2 rounded-xl">

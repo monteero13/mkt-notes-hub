@@ -4,6 +4,7 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Lightbulb, Plus, Loader2, Trash2, Layers } from "lucide-react";
 import { useIdeas } from "@/hooks/use-features-data";
 import { CreateIdeaDialog } from "@/components/CreateIdeaDialog";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -17,7 +18,6 @@ export default function IdeasPage() {
   const supabase = createClient();
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t('ideas.delete_confirm'))) return;
     try {
       const { error } = await supabase.from('ideas').delete().eq('id', id);
       if (error) throw error;
@@ -59,14 +59,19 @@ export default function IdeasPage() {
             {ideas.map((idea: any) => (
               <div key={idea.id} className="bg-card border border-border/50 rounded-[2rem] p-8 flex flex-col justify-between hover:border-border/30 transition-all group relative">
                 <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(idea.id)}
-                    className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg"
+                  <DeleteConfirmDialog 
+                    onConfirm={() => handleDelete(idea.id)}
+                    title={t('ideas.delete_confirm_title', '¿Eliminar idea?')}
+                    description={t('ideas.delete_confirm_desc', '¿Estás seguro de que quieres eliminar esta idea creativa?')}
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </DeleteConfirmDialog>
                 </div>
 
                 <div className="space-y-6">

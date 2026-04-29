@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Loader2, Plus } from 'lucide-react'
 import { useTeam } from '@/hooks/use-team'
+import { useAuth } from '@/hooks/use-auth'
 import { useTranslation } from 'react-i18next'
 
 export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
@@ -21,9 +22,13 @@ export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
   const queryClient = useQueryClient()
   const supabase = createClient()
 
+  const { profile } = useAuth()
+  const { data: ideas = [] } = useQueryClient().getQueryData(['ideas']) as any || { data: [] }
+  const isLimitReached = !profile?.is_pro && Array.isArray(ideas) && ideas.length >= 5;
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim()) return
+    if (!title.trim() || isLimitReached) return
 
     setIsSubmitting(true)
     try {
@@ -69,29 +74,50 @@ export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] rounded-[1.5rem] border-2">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight">{t('dialogs.idea.title')}</DialogTitle>
-          <DialogDescription className="text-muted-foreground/80">{t('dialogs.idea.desc')}</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleCreate} className="space-y-6 py-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.idea.label_title')}</label>
-            <Input 
-              placeholder={t('dialogs.idea.placeholder_title')} 
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="h-12 rounded-xl"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.idea.label_category')}</label>
-            <Input placeholder={t('dialogs.idea.placeholder_category')} value={category} onChange={(e) => setCategory(e.target.value)} className="h-12 rounded-xl" />
-          </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95">
-            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('dialogs.idea.submit')}
-          </Button>
-        </form>
+        {isLimitReached ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight text-primary">Límite Alcanzado</DialogTitle>
+              <DialogDescription className="text-muted-foreground/80">
+                El plan gratuito permite guardar hasta 5 ideas creativas. Desbloquea ideas ilimitadas y herramientas de IA con el plan PRO.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-6 flex justify-center">
+               <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
+                  <div className="text-3xl">💡</div>
+               </div>
+            </div>
+            <Button className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95 bg-primary text-white" onClick={() => window.location.href = '/pricing'}>
+               Actualizar a PRO
+            </Button>
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight">{t('dialogs.idea.title')}</DialogTitle>
+              <DialogDescription className="text-muted-foreground/80">{t('dialogs.idea.desc')}</DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleCreate} className="space-y-6 py-4">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.idea.label_title')}</label>
+                <Input 
+                  placeholder={t('dialogs.idea.placeholder_title')} 
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="h-12 rounded-xl"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.idea.label_category')}</label>
+                <Input placeholder={t('dialogs.idea.placeholder_category')} value={category} onChange={(e) => setCategory(e.target.value)} className="h-12 rounded-xl" />
+              </div>
+              <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95">
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('dialogs.idea.submit')}
+              </Button>
+            </form>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useContent } from "@/hooks/use-features-data";
 import { Button } from "@/components/ui/button";
 import { CreateContentDialog } from "@/components/CreateContentDialog";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { createClient } from "@/lib/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -39,7 +40,6 @@ export default function ContenidoPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t('contenido.delete_confirm'))) return;
     try {
       const { error } = await supabase.from('content').delete().eq('id', id);
       if (error) throw error;
@@ -155,14 +155,19 @@ export default function ContenidoPage() {
 
                   {/* Hover Delete Action */}
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => handleDelete(item.id)}
-                      className="h-7 w-7 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg"
+                    <DeleteConfirmDialog 
+                      onConfirm={() => handleDelete(item.id)}
+                      title={t('contenido.delete_confirm_title', '¿Eliminar contenido?')}
+                      description={t('contenido.delete_confirm_desc', '¿Estás seguro de que quieres eliminar esta pieza de contenido?')}
                     >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 rounded-lg"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </DeleteConfirmDialog>
                   </div>
                 </div>
               );

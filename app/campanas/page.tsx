@@ -5,6 +5,7 @@ import { Plus, Loader2, Trash2, CheckCircle2, ChevronRight, X, User } from "luci
 import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { CreateCampaignDialog } from "@/components/CreateCampaignDialog";
 import { CreateTaskDialog } from "@/components/CreateTaskDialog";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { createClient } from '@/lib/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
@@ -24,7 +25,6 @@ export default function CampanasPage() {
   const supabase = createClient();
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t('campanas.delete_confirm'))) return;
     try {
       const { error } = await supabase.from('campaigns').delete().eq('id', id);
       if (error) throw error;
@@ -99,14 +99,19 @@ export default function CampanasPage() {
                          <div className="h-8 w-8 flex items-center justify-center rounded-md bg-muted border border-border">
                            <User className="h-4 w-4 text-muted-foreground" />
                          </div>
-                         <Button 
-                           variant="ghost" 
-                           size="icon" 
-                           onClick={(e) => { e.stopPropagation(); handleDelete(c.id); }}
-                           className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                         >
-                           <Trash2 className="h-4 w-4" />
-                         </Button>
+                          <DeleteConfirmDialog 
+                            onConfirm={() => handleDelete(c.id)}
+                            title={t('campanas.delete_confirm_title', '¿Eliminar campaña?')}
+                            description={t('campanas.delete_confirm_desc', '¿Estás seguro de que quieres eliminar esta campaña y todas sus tareas asociadas?')}
+                          >
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </DeleteConfirmDialog>
                        </div>
                     </td>
                   </tr>
@@ -138,7 +143,7 @@ export default function CampanasPage() {
             </div>
 
             <div className="space-y-4">
-              <CreateTaskDialog defaultCampaignId={selectedCampaign.id}>
+              <CreateTaskDialog key={selectedCampaign.id} defaultCampaignId={selectedCampaign.id}>
                 <Button variant="outline" className="w-full gap-2 border-dashed border-2">
                   <Plus className="h-4 w-4" />
                   {t('campanas.add_task')}

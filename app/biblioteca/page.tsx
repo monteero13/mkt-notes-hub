@@ -4,6 +4,7 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { BookOpen, Trash2, ExternalLink, ImageIcon, FileText, Video as VideoIcon, Globe, Loader2, Plus } from "lucide-react";
 import { useContent } from "@/hooks/use-features-data";
 import { CreateResourceDialog } from "@/components/CreateResourceDialog";
+import { DeleteConfirmDialog } from "@/components/DeleteConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { createClient } from '@/lib/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
@@ -17,7 +18,6 @@ export default function BibliotecaPage() {
   const supabase = createClient();
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t('biblioteca.delete_confirm'))) return;
     try {
       const { error } = await supabase.from('content').delete().eq('id', id);
       if (error) throw error;
@@ -92,12 +92,17 @@ export default function BibliotecaPage() {
                           <ExternalLink className="h-4 w-4" />
                         </button>
                       )}
-                      <button 
-                        onClick={() => handleDelete(res.id)}
-                        className="h-10 w-10 bg-red-600 text-white rounded-xl flex items-center justify-center hover:scale-110 transition-all"
+                      <DeleteConfirmDialog 
+                        onConfirm={() => handleDelete(res.id)}
+                        title={t('biblioteca.delete_confirm_title', '¿Eliminar recurso?')}
+                        description={t('biblioteca.delete_confirm_desc', '¿Estás seguro de que quieres eliminar este recurso de tu biblioteca?')}
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                        <button 
+                          className="h-10 w-10 bg-red-600 text-white rounded-xl flex items-center justify-center hover:scale-110 transition-all"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </DeleteConfirmDialog>
                    </div>
                 </div>
 
