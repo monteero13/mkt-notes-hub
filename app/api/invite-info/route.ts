@@ -1,54 +1,58 @@
-import { createClient } from '@supabase/supabase-js'
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { handleApiError } from "@/lib/auth/api-guard";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const code = searchParams.get('code')
+    const { searchParams } = new URL(request.url);
+    const token = searchParams.get("code");
 
-    if (!code) {
-      return NextResponse.json({ error: 'Falta código de invitación' }, { status: 400 })
+    if (!token) {
+      return NextResponse.json({ error: "Missing invite token" }, { status: 400 });
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = createSupabaseAdminClient();
+    
+    // 1. Try to find a specific invite by token
+    const { data: invite, error: inviteError } = await supabase
+      .from("workspace_invites")
+      .select("id, workspace_id, email, role, status, expires_at, workspace:workspaces(id, name, slug)")
+      .eq("token", token)
+      .maybeSingle();
 
-    // Bypass RLS para obtener el equipo por código de invitación
-    // Como el código real puede ser simplemente el inicio del UUID (ej. 63d6c6ad),
-    // probamos buscando por id si el código no está en una columna invite_code.
-    
-    // Primero, verificamos si existe la columna invite_code
-    let teamData = null;
-    
-    const { data: inviteData, error: inviteError } = await supabase
-      .from('teams')
-      .select('id, name, invite_code')
-      .eq('invite_code', code)
-      .single()
-      
-    if (!inviteError && inviteData) {
-      teamData = inviteData;
-    } else {
-      // Si falla (probablemente porque invite_code no existe), buscamos por ID truncado.
-      // Ya que no podemos hacer .ilike() directo sobre un tipo UUID en PostgREST sin castear.
-      const { data: allTeams, error: allTeamsError } = await supabase
-        .from('teams')
-        .select('id, name')
-        
-      if (!allTeamsError && allTeams) {
-        teamData = allTeams.find(t => t.id.startsWith(code));
+    if (inviteError) throw inviteError;
+
+    if (invite) {
+      if (invite.status !== "pending") {
+        return NextResponse.json({ error: "This invite has already been used or revoked" }, { status: 410 });
       }
+      if (new Date(invite.expires_at) < new Date()) {
+        return NextResponse.json({ error: "This invite link has expired" }, { status: 410 });
+      }
+      return NextResponse.json({ team: invite.workspace, invite: { id: invite.id, email: invite.email, role: invite.role } });
     }
 
-    if (!teamData) {
-      return NextResponse.json({ error: 'Enlace inválido o equipo no encontrado' }, { status: 404 })
+    // 2. If not found, try to find a workspace by short ID (8 chars)
+    // Note: In production, you'd want a dedicated join_code column for security and collisions.
+    const { data: workspace, error: wsError } = await supabase
+      .from("workspaces")
+      .select("id, name, slug")
+      .ilike("id", `${token}%`)
+      .maybeSingle();
+
+    if (wsError) throw wsError;
+
+    if (workspace) {
+      return NextResponse.json({ 
+        team: workspace, 
+        invite: { id: 'general', email: 'general', role: 'admin' } 
+      });
     }
 
-    return NextResponse.json({ team: teamData })
-  } catch (error: any) {
-    console.error('Error en invite-info API:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: "Invalid or expired invite link" }, { status: 404 });
+  } catch (error) {
+    return handleApiError(error);
   }
 }

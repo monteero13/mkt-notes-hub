@@ -1,0 +1,42 @@
+
+> mkt-notes-hub@ build /home/alberto/Documentos/Proyectos/mkt-notes-hub
+> next build
+
+   ▲ Next.js 15.1.0
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/27) ...
+   Generating static pages (6/27) 
+Error occurred prerendering page "/ideas". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: useWorkspace must be used within a WorkspaceProvider
+    at p (/home/alberto/Documentos/Proyectos/mkt-notes-hub/.next/server/chunks/302.js:4:306)
+    at n (/home/alberto/Documentos/Proyectos/mkt-notes-hub/.next/server/app/ideas/page.js:7:4534)
+    at N (/home/alberto/Documentos/Proyectos/mkt-notes-hub/.next/server/app/ideas/page.js:1:6789)
+    at nO (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:45959)
+    at nI (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:47734)
+    at nL (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:65533)
+    at nN (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:63164)
+    at n$ (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:46311)
+    at nI (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:47780)
+    at nI (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:62515)
+Export encountered an error on /ideas/page: /ideas, exiting the build.
+Error occurred prerendering page "/clientes". Read more: https://nextjs.org/docs/messages/prerender-error
+Error: useWorkspace must be used within a WorkspaceProvider
+    at p (/home/alberto/Documentos/Proyectos/mkt-notes-hub/.next/server/chunks/302.js:4:306)
+    at /home/alberto/Documentos/Proyectos/mkt-notes-hub/.next/server/app/clientes/page.js:1:2757
+    at D (/home/alberto/Documentos/Proyectos/mkt-notes-hub/.next/server/app/clientes/page.js:1:2988)
+    at nO (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:45959)
+    at nI (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:47734)
+    at nL (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:65533)
+    at nN (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:63164)
+    at n$ (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:46311)
+    at nI (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:47780)
+    at nI (/home/alberto/Documentos/Proyectos/mkt-notes-hub/node_modules/.pnpm/next@15.1.0_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:20:62515)
+Export encountered an error on /clientes/page: /clientes, exiting the build.
+ ⨯ Static worker exited with code: 1 and signal: null
+ ELIFECYCLE  Command failed with exit code 1.

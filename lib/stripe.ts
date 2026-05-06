@@ -1,70 +1,103 @@
-'use server';
+import Stripe from "stripe";
+import { createClient } from "./supabase/server";
+import { redirect } from "next/navigation";
 
-import Stripe from 'stripe';
-import { createClient } from './supabase/server';
-import { redirect } from 'next/navigation';
-
-// Instantiate Stripe only if the secret key is provided
 const stripe = process.env.STRIPE_SECRET_KEY
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2025-01-27.acacia' as any,
-  })
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
   : null;
 
-/**
- * Server action to create a Stripe Checkout Session.
- */
 export async function createCheckoutSession(priceId: string) {
-  if (!stripe) {
-    throw new Error('Stripe is not configured on the server');
-  }
+  if (!stripe) throw new Error("Stripe is not configured on the server");
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login?mode=signup&plan=pro&next=/pricing");
 
-  if (!user) {
-    // If not logged in, redirect to login with the plan pre-selected
-    redirect(`/login?mode=signup&plan=pro&next=/pricing`);
-  }
+  // Get the user's active workspace to tie the subscription to it
+  const { data: membership } = await supabase
+    .from("workspace_members")
+    .select("workspace_id")
+    .eq("user_id", user.id)
+    .eq("is_active", true)
+    .order("joined_at")
+    .limit(1)
+    .maybeSingle();
 
-  const host = process.env.NEXT_PUBLIC_APP_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  const workspaceId = membership?.workspace_id;
+  if (!workspaceId) redirect("/onboarding");
 
-  let session;
+  const host =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
   try {
-    session = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
+    const session = await stripe.checkout.sessions.create({
+      line_items: [{ price: priceId, quantity: 1 }],
+      mode: "subscription",
       success_url: `${host}/dashboard?success=true`,
       cancel_url: `${host}/pricing?canceled=true`,
       customer_email: user.email,
-      subscription_data: {
-        metadata: {
-          userId: user.id
-        }
-      }
+      metadata: { workspaceId },
+      subscription_data: { metadata: { workspaceId, userId: user.id } },
     });
 
-  } catch (error: any) {
-    console.error('Stripe Error:', error);
-    throw new Error(error.message);
-  }
-
-  if (session?.url) {
-    redirect(session.url);
+    if (session?.url) redirect(session.url);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Stripe error";
+    console.error("Stripe Error:", error);
+    throw new Error(msg);
   }
 }
 
-/**
- * Helper to check if the user is Pro.
- */
-export async function isUserPro(userId: string): Promise<boolean> {
+export async function createPortalSession() {
+  if (!stripe) throw new Error("Stripe is not configured on the server");
+
   const supabase = await createClient();
-  const { data, error } = await supabase.from('profiles').select('is_pro').eq('id', userId).single();
-  if (error || !data) return false;
-  return !!data.is_pro;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { data: membership } = await supabase
+    .from("workspace_members")
+    .select("workspace_id")
+    .eq("user_id", user.id)
+    .eq("is_active", true)
+    .order("joined_at")
+    .limit(1)
+    .maybeSingle();
+
+  if (!membership?.workspace_id) redirect("/pricing");
+
+  const { data: subscription } = await supabase
+    .from("subscriptions")
+    .select("stripe_customer_id")
+    .eq("workspace_id", membership.workspace_id)
+    .maybeSingle();
+
+  if (!subscription?.stripe_customer_id) redirect("/pricing");
+
+  const host =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: subscription.stripe_customer_id,
+      return_url: `${host}/billing`,
+    });
+    if (session.url) redirect(session.url);
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Stripe error";
+    console.error("Portal Error:", error);
+    throw new Error(msg);
+  }
+}
+
+export async function isWorkspacePro(workspaceId: string): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("subscriptions")
+    .select("plan, status")
+    .eq("workspace_id", workspaceId)
+    .maybeSingle();
+  return data?.plan === "pro" && data?.status === "active";
 }

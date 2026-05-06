@@ -11,9 +11,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
-import { useTranslation } from "react-i18next"
-
 interface DeleteConfirmDialogProps {
   children: React.ReactNode
   onConfirm: () => void
@@ -21,37 +18,35 @@ interface DeleteConfirmDialogProps {
   description?: string
 }
 
-export function DeleteConfirmDialog({ 
-  children, 
-  onConfirm, 
-  title, 
-  description 
+export function DeleteConfirmDialog({
+  children,
+  onConfirm,
+  title,
+  description
 }: DeleteConfirmDialogProps) {
-  const { t } = useTranslation()
-
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         {children}
       </AlertDialogTrigger>
-      <AlertDialogContent className="rounded-[2rem] border-2 p-8">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-2xl font-black uppercase tracking-tight">
-            {title || t('common.delete_confirm_title', '¿Estás seguro?')}
+      <AlertDialogContent className="rounded-sm border border-border bg-background shadow-2xl p-8 max-w-md">
+        <AlertDialogHeader className="mb-8 text-left">
+          <AlertDialogTitle className="text-xl font-black tracking-tighter uppercase text-foreground">
+            {title || "¿Estás seguro?"}
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-sm font-medium text-muted-foreground/80">
-            {description || t('common.delete_confirm_desc', 'Esta acción no se puede deshacer. Esto eliminará permanentemente el elemento.')}
+          <AlertDialogDescription className="text-[10px] technical-label opacity-60 uppercase mt-1">
+            {description || "Esta acción no se puede deshacer."}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="mt-6 gap-3">
-          <AlertDialogCancel className="rounded-xl font-bold border-none bg-muted hover:bg-muted/80">
-            {t('common.cancel', 'Cancelar')}
+        <AlertDialogFooter className="flex items-center gap-3">
+          <AlertDialogCancel className="h-10 rounded-sm px-4 technical-label text-[10px] border-border hover:bg-white/5 m-0 flex-1 uppercase">
+            Cancelar
           </AlertDialogCancel>
-          <AlertDialogAction 
+          <AlertDialogAction
             onClick={onConfirm}
-            className="rounded-xl font-bold bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-600/20"
+            className="h-10 rounded-sm px-4 technical-label text-[10px] font-black bg-destructive text-white hover:opacity-90 shadow-lg shadow-destructive/10 flex-1 m-0 uppercase"
           >
-            {t('common.delete', 'Eliminar')}
+            Eliminar
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

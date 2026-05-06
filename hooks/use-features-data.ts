@@ -1,79 +1,71 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query'
-import { createClient } from '@/lib/supabase/client'
-import { useTeam } from './use-team'
-export { useTeam }
-import { useAuth } from './use-auth'
+import { useQuery } from '@tanstack/react-query';
+import { createClient } from '@/lib/supabase/client';
+import { useWorkspace } from './use-workspace';
+import { ContentItem } from '@/types';
+
+export { useTeam } from './use-team';
 
 export function useContent() {
-  const supabase = createClient()
-  const { data: team } = useTeam()
-  const { user } = useAuth()
+  const supabase = createClient();
+  const { activeWorkspace } = useWorkspace();
 
   return useQuery({
-    queryKey: ['content', user?.id, team?.id || 'all'],
-    enabled: !!user,
+    queryKey: ['content', activeWorkspace?.id],
+    enabled: !!activeWorkspace?.id,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('content')
+        .from('content_items')
         .select('*')
-        .order('created_at', { ascending: false })
+        .eq('workspace_id', activeWorkspace!.id)
+        .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Error fetching content:", error)
-        throw error
-      }
-      return data || []
+      if (error) throw error;
+      return (data || []) as ContentItem[];
     },
-    staleTime: 1000 * 5 
-  })
+    staleTime: 1000 * 60 * 3,
+  });
 }
 
 export function useIdeas() {
-  const supabase = createClient()
-  const { data: team } = useTeam()
-  const { user } = useAuth()
+  const supabase = createClient();
+  const { activeWorkspace } = useWorkspace();
 
   return useQuery({
-    queryKey: ['ideas', user?.id, team?.id || 'all'],
-    enabled: !!user,
+    queryKey: ['ideas', activeWorkspace?.id],
+    enabled: !!activeWorkspace?.id,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('ideas')
+        .from('marketing_ideas')
         .select('*')
-        .order('created_at', { ascending: false })
+        .eq('workspace_id', activeWorkspace!.id)
+        .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Error fetching ideas:", error)
-        throw error
-      }
-      return data || []
+      if (error) throw error;
+      return data || [];
     },
-    staleTime: 1000 * 5
-  })
+    staleTime: 1000 * 60 * 3,
+  });
 }
 
 export function useObjectives() {
-  const supabase = createClient()
-  const { data: team } = useTeam()
-  const { user } = useAuth()
+  const supabase = createClient();
+  const { activeWorkspace } = useWorkspace();
 
   return useQuery({
-    queryKey: ['objectives', user?.id, team?.id || 'all'],
-    enabled: !!user,
+    queryKey: ['objectives', activeWorkspace?.id],
+    enabled: !!activeWorkspace?.id,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('objectives')
         .select('*')
-        .order('created_at', { ascending: false })
+        .eq('workspace_id', activeWorkspace!.id)
+        .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error("Error fetching objectives:", error)
-        throw error
-      }
-      return data || []
+      if (error) throw error;
+      return data || [];
     },
-    staleTime: 1000 * 5
-  })
+    staleTime: 1000 * 60 * 3,
+  });
 }

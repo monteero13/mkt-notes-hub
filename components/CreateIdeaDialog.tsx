@@ -1,47 +1,42 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Loader2, Plus } from 'lucide-react'
-import { useTeam } from '@/hooks/use-team'
+import { useWorkspace } from '@/hooks/use-workspace'
 import { useAuth } from '@/hooks/use-auth'
-import { useTranslation } from 'react-i18next'
+import { PremiumLimitModal } from './PremiumLimitModal'
+import { useTranslations } from 'next-intl'
 
 export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
-  const { t } = useTranslation()
+  const t = useTranslations('ideas.dialog')
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('')
-  const { data: team } = useTeam()
+  const { activeWorkspace } = useWorkspace()
   const queryClient = useQueryClient()
-  const supabase = createClient()
 
-  const { profile } = useAuth()
+  const { isPro } = useAuth()
   const { data: ideas = [] } = useQueryClient().getQueryData(['ideas']) as any || { data: [] }
-  const isLimitReached = !profile?.is_pro && Array.isArray(ideas) && ideas.length >= 5;
+  const isLimitReached = !isPro && Array.isArray(ideas) && ideas.length >= 5;
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim() || isLimitReached) return
+    if (!title.trim() || isLimitReached || !activeWorkspace) return
 
     setIsSubmitting(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error(t('pricing.login_required'))
-
       const response = await fetch('/api/create-entity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'idea',
-          userId: user.id,
-          teamId: team?.id || null,
+          workspaceId: activeWorkspace.id,
           data: {
             title,
             category
@@ -50,13 +45,13 @@ export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
       })
 
       const result = await response.json()
-      if (!response.ok) throw new Error(result.error || t('dialogs.idea.error'))
+      if (!response.ok) throw new Error(result.error || t('error'))
 
-      toast.success(t('dialogs.idea.success'))
-      await queryClient.refetchQueries({ queryKey: ['ideas'] })
+      toast.success(t('success'))
       setOpen(false)
       setTitle('')
       setCategory('')
+      queryClient.invalidateQueries({ queryKey: ['ideas'] })
     } catch (error: any) {
       toast.error(error.message)
     } finally {
@@ -68,55 +63,49 @@ export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children || (
-          <Button className="gap-2 rounded-xl">
-            <Plus className="h-4 w-4" /> {t('ideas.new')}
+          <Button className="h-8 rounded-sm bg-brand px-4 technical-label text-[10px] text-white hover:opacity-90">
+            <Plus className="h-4 w-4 mr-2" /> {t('new_idea')}
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] rounded-[1.5rem] border-2">
+      <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden border border-border bg-background shadow-2xl rounded-sm">
         {isLimitReached ? (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight text-primary">Límite Alcanzado</DialogTitle>
-              <DialogDescription className="text-muted-foreground/80">
-                El plan gratuito permite guardar hasta 5 ideas creativas. Desbloquea ideas ilimitadas y herramientas de IA con el plan PRO.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-6 flex justify-center">
-               <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
-                  <div className="text-3xl">💡</div>
-               </div>
-            </div>
-            <Button className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95 bg-primary text-white" onClick={() => window.location.href = '/pricing'}>
-               Actualizar a PRO
-            </Button>
-          </>
+          <PremiumLimitModal
+            title={t('limit_title')}
+            description={t('limit_desc')}
+            onClose={() => setOpen(false)}
+          />
         ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight">{t('dialogs.idea.title')}</DialogTitle>
-              <DialogDescription className="text-muted-foreground/80">{t('dialogs.idea.desc')}</DialogDescription>
+          <div className="p-8">
+            <DialogHeader className="mb-8 text-left">
+              <DialogTitle className="text-2xl font-light tracking-tight text-foreground" style={{ fontFamily: "var(--font-clash), sans-serif" }}>{t('title')}</DialogTitle>
+              <DialogDescription className="text-[10px] technical-label opacity-60 mt-1 uppercase">{t('desc')}</DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleCreate} className="space-y-6 py-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.idea.label_title')}</label>
-                <Input 
-                  placeholder={t('dialogs.idea.placeholder_title')} 
+            <form onSubmit={handleCreate} className="space-y-6">
+              <div className="space-y-2 group">
+                <label className="technical-label text-[10px] text-foreground opacity-60">{t('fields.title')}</label>
+                <Input
+                  placeholder={t('fields.title_ph')}
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="h-12 rounded-xl"
+                  className="h-12 rounded-sm border-border bg-background focus:border-brand transition-all text-sm font-medium px-4"
                   required
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.idea.label_category')}</label>
-                <Input placeholder={t('dialogs.idea.placeholder_category')} value={category} onChange={(e) => setCategory(e.target.value)} className="h-12 rounded-xl" />
+              <div className="space-y-2 group">
+                <label className="technical-label text-[10px] text-foreground opacity-60">{t('fields.category')}</label>
+                <Input
+                  placeholder={t('fields.category_ph')}
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="h-12 rounded-sm border-border bg-background focus:border-brand transition-all text-sm font-medium px-4"
+                />
               </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95">
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('dialogs.idea.submit')}
+              <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-sm font-black uppercase tracking-[0.2em] text-[10px] mt-4 bg-brand text-white shadow-lg shadow-brand/10 hover:opacity-90">
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('submit')}
               </Button>
             </form>
-          </>
+          </div>
         )}
       </DialogContent>
     </Dialog>

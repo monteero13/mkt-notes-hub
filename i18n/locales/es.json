@@ -1,5 +1,50 @@
 {
   "translation": {
+    "onboarding": {
+      "title": "Configura tu espacio",
+      "subtitle": "Para empezar, necesitamos darle un nombre a tu agencia o equipo de trabajo.",
+      "label": "Nombre de tu Agencia",
+      "placeholder": "Ej. Agencia Marketing Hub",
+      "button": "Crear Espacio de Trabajo",
+      "footer": "Todo listo para comenzar tu estrategia.",
+      "success": "Espacio autorizado. Entrando al centro de mando..."
+    },
+    "layout": {
+      "topbar": {
+        "search_placeholder": "Buscar en todo el sistema...",
+        "active_members": "DESPLIEGUE ACTIVO",
+        "session_encrypted": "SESIÓN PROTEGIDA",
+        "user_menu": {
+          "profile": "Perfil y Cuenta",
+          "billing": "Facturación y Plan",
+          "logout": "Cerrar Sesión"
+        }
+      },
+      "command_palette": {
+        "placeholder": "Escribe un comando o busca...",
+        "empty": "No se han encontrado resultados.",
+        "groups": {
+          "suggestions": "Sugerencias",
+          "navigation": "Navegación Rápida",
+          "actions": "Acciones Directas",
+          "settings": "Ajustes"
+        },
+        "items": {
+          "dashboard": "Panel de Control",
+          "clients": "Clientes",
+          "campaigns": "Campañas",
+          "calendar": "Calendario Estratégico",
+          "new_campaign": "Nueva Campaña",
+          "new_task": "Nueva Tarea",
+          "add_client": "Añadir Cliente",
+          "emoji": "Buscar Emoji",
+          "calculator": "Calculadora",
+          "profile": "Perfil de Operador",
+          "billing": "Facturación y Plan",
+          "settings": "Ajustes del Sistema"
+        }
+      }
+    },
     "sidebar": {
       "dashboard": "Dashboard",
       "planificador": "Planificador",
@@ -9,6 +54,7 @@
       "objetivos": "Objetivos",
       "ideas": "Ideas",
       "biblioteca": "Biblioteca",
+      "clientes": "Clientes",
       "equipo": "Equipo",
       "pro": "Pro",
       "premium_access": "Acceso Premium",
@@ -22,7 +68,15 @@
       "logout_success": "Sesión cerrada correctamente",
       "marketing_hub": "MARKETING HUB",
       "section": "SECCIÓN",
-      "personal_hub": "HUB PERSONAL"
+      "personal_hub": "HUB PERSONAL",
+      "notifications": "Notificaciones",
+      "billing": "Facturación",
+      "settings": "Ajustes",
+      "nav_hub": "Módulos",
+      "nav_admin": "Administración",
+      "scale_op": "Acceso Authority",
+      "scale_desc": "Activa analítica avanzada y sincronización Authority Pro.",
+      "get_pro": "Elevar a Pro"
     },
     "tutorial": {
       "next": "Siguiente",
@@ -84,6 +138,10 @@
       "no_data": "No hay datos disponibles",
       "more": "más",
       "of": "de",
+      "general": "General",
+      "no_type": "Sin tipo",
+      "operator": "Operador",
+      "active_agent": "Agente Activo",
       "developed_by": "Desarrollado por",
       "link": "Enlace",
       "local_file": "Archivo Local",
@@ -99,26 +157,164 @@
         "fri": "Vie",
         "sat": "Sab",
         "sun": "Dom"
+      },
+      "days_full": [
+        "Lunes",
+        "Martes",
+        "Miércoles",
+        "Jueves",
+        "Viernes",
+        "Sábado",
+        "Domingo"
+      ]
+    },
+    "planner": {
+      "header": {
+        "title": "Programador de Timeline",
+        "subtitle": "Planificador Estratégico"
+      },
+      "calendar": {
+        "units": "Unidades",
+        "more_units": "+{count} UNIDADES DEL SISTEMA"
+      },
+      "side_panel": {
+        "title": "Despliegue de Objetivo",
+        "empty": "Sin Eventos Estratégicos",
+        "add": {
+          "objective_label": "Objetivo Operacional",
+          "objective_placeholder": "Título de la misión...",
+          "category_label": "Categoría Estratégica",
+          "submit": "Desplegar Unidad"
+        },
+        "task": {
+          "default_category": "GENERAL",
+          "time": "T-09:00 Despliegue"
+        }
+      },
+      "toast": {
+        "success": "Tarea asignada"
+      }
+    },
+    "content_manager": {
+      "header": {
+        "title": "Motor de Contenido",
+        "subtitle": "Operaciones",
+        "matrix": "Matriz de Contenido",
+        "add": "Autorizar Publicación"
+      },
+      "inventory": {
+        "title": "Inventario de Contenido",
+        "subtitle": "Cuadrícula de Ejecución",
+        "loading": "Ingiriendo Feed de Publicaciones...",
+        "empty": "Cero entradas de publicación detectadas."
+      },
+      "filters": {
+        "all": "Todos"
+      },
+      "statuses": {
+        "drafting": "Borrador",
+        "in_review": "En proceso",
+        "published": "Publicado"
+      },
+      "actions": {
+        "delete_confirm": "Purgar Entrada",
+        "toast": {
+          "success": "Contenido actualizado",
+          "deleted": "Contenido eliminado",
+          "updated": "Estado actualizado"
+        }
       }
     },
     "dashboard": {
-      "welcome": "Bienvenido",
-      "title": "Dashboard",
-      "desc": "Resumen de tu actividad de marketing",
-      "active_campaigns": "Campañas activas",
-      "planned_posts": "Posts planificados",
-      "this_week": "Esta semana",
-      "goals_achieved": "Objetivos cumplidos",
-      "pending_tasks": "Tareas pendientes",
-      "priority_tasks": "Tareas prioritarias",
-      "current_week": "Semana actual",
-      "current_month": "Este mes",
-      "urgent_count": "{{count}} urgentes",
-      "view_full_agenda": "Ver toda la agenda",
-      "mock_task_1": "Revisar copy para campaña de Instagram",
-      "mock_task_2": "Invita a tu equipo al hub",
-      "mock_date_tomorrow": "Mañana, 09:00",
-      "mock_date_today": "Hoy, 14:00"
+      "header": {
+        "title": "Centro de Mando",
+        "subtitle": "Vista General",
+        "actions": {
+          "audit": "Generar Auditoría"
+        }
+      },
+      "welcome": {
+        "badge": "Sistema Listo",
+        "title": "Bienvenido, {name}"
+      },
+      "stats": {
+        "active_campaigns": "Campañas Activas",
+        "pending_tasks": "Tareas Pendientes",
+        "posts_week": "Posts esta semana",
+        "active_clients": "Clientes Activos",
+        "change_positive": "+{value} este mes",
+        "change_negative": "Requiere atención",
+        "change_neutral": "Programado"
+      },
+      "campaigns": {
+        "title": "Campañas activas",
+        "live_badge": "En Vivo",
+        "table": {
+          "campaign": "Campaña",
+          "owner": "Responsable",
+          "status": "Estado",
+          "progress": "Avance",
+          "health": "Salud"
+        },
+        "empty": "No se detectan iniciativas activas.",
+        "view_all": "Ver todas las campañas"
+      },
+      "activity": {
+        "title": "Logs Operacionales",
+        "empty": "No hay actividad registrada aún.",
+        "live_feed": "Feed en Vivo",
+        "syncing": "Sincronizando logs...",
+        "view_history": "Ver historial de auditoría",
+        "operator": "Operador",
+        "actions": {
+          "created": "creó",
+          "updated": "actualizó",
+          "deleted": "eliminó",
+          "commented": "comentó en"
+        }
+      },
+      "tasks": {
+        "title": "Misiones Críticas",
+        "pending_actions": "Acciones Pendientes",
+        "audit_all": "Auditar Todo",
+        "zero_actions": "Cero acciones pendientes.",
+        "overdue": "Vencido",
+        "due": "Vence",
+        "priority_queue": "Cola de Prioridad",
+        "view_all": "Ver tareas",
+        "priorities": {
+          "urgent": "Urgente",
+          "high": "Alta",
+          "medium": "Media",
+          "low": "Baja"
+        }
+      },
+      "quick_actions": {
+        "trigger": "Nueva Iniciativa",
+        "hub_title": "Centro de Acción Global",
+        "campaign": "Nueva Campaña",
+        "client": "Nuevo Cliente",
+        "task": "Nueva Tarea",
+        "content": "Nuevo Contenido"
+      },
+      "content": {
+        "title": "Calendario de Contenido",
+        "calendar_view": "Vista Calendario",
+        "no_assets": "No hay activos en cola.",
+        "init_node": "Inicializar Nodo de Contenido",
+        "outlook": "Perspectiva de 7 Días",
+        "channels": {
+          "instagram": "Instagram",
+          "youtube": "YouTube",
+          "linkedin": "LinkedIn",
+          "email": "Email",
+          "blog": "Blog",
+          "twitter": "Twitter",
+          "tiktok": "TikTok",
+          "facebook": "Facebook",
+          "other": "Otro"
+        }
+      }
     },
     "pricing": {
       "badge": "Planes y Precios",
@@ -157,46 +353,159 @@
       "desc": "Captura conceptos creativos rápidamente",
       "new": "Nueva",
       "delete_confirm": "¿Eliminar esta idea del banco?",
-      "delete_success": "Idea eliminada",
+      "delete_success": "Idea eliminada correctamente",
       "empty": "No hay ideas capturadas",
       "category_default": "Creatividad",
-      "format_default": "Trend"
+      "format_default": "Trend",
+      "standard": "ESTÁNDAR",
+      "innovation_lab": "Laboratorio de Innovación",
+      "ideation": "Ideación",
+      "concept_sandbox": "Sandbox de Conceptos",
+      "ingest_concept": "Ingresar Concepto",
+      "analyzing_signals": "Analizando Señales...",
+      "creative_intelligence": "Inteligencia Creativa",
+      "idea_lab": "Laboratorio de Ideas",
+      "sandbox_empty": "El Sandbox está actualmente vacío",
+      "general": "General",
+      "purge_concept": "Purgar Concepto",
+      "dialog": {
+        "title": "Nueva Idea Creativa",
+        "desc": "No dejes que se escape. Anota cualquier concepto o tendencia que te inspire.",
+        "fields": {
+          "title": "Título de la idea",
+          "title_ph": "Ej: Serie de Reels sobre IA",
+          "category": "Categoría",
+          "category_ph": "Trend, Concepto, etc."
+        },
+        "submit": "Capturar Idea",
+        "limit_title": "Límite Alcanzado",
+        "limit_desc": "El plan gratuito permite guardar hasta 5 ideas creativas. Desbloquea ideas ilimitadas con el plan PRO.",
+        "new_idea": "Nueva Idea",
+        "success": "Idea capturada",
+        "error": "Error al capturar idea"
+      }
     },
-    "biblioteca": {
-      "title": "Biblioteca",
+    "library": {
+      "library": "Biblioteca",
       "desc": "Tus activos y formación centralizada",
       "add": "Añadir",
       "delete_confirm": "¿Estás seguro de que deseas eliminar este recurso?",
       "delete_success": "Recurso eliminado",
-      "empty": "No hay recursos en la biblioteca"
+      "empty": "No hay recursos en la biblioteca",
+      "asset_repository": "Repositorio de Activos",
+      "resource_vault": "Bóveda de Recursos",
+      "ingest_asset": "Ingestar Activo",
+      "decrypting_vault": "Desencriptando Bóveda...",
+      "knowledge_management": "Gestión del Conocimiento",
+      "vault_empty": "La Bóveda está actualmente vacía.",
+      "purge_asset": "Purgar Activo",
+      "id_label": "ID"
+    },
+    "notifications": {
+      "signal_monitor": "Signal Monitor",
+      "activity_feed": "Activity Feed",
+      "mark_all_read": "Marcar todo como leído",
+      "unread": "sin leer",
+      "signal_intelligence": "Signal Intelligence",
+      "notification_center": "Centro de Notificaciones",
+      "incoming_signals": "Señales Entrantes",
+      "scanning_signals": "Escaneando señales...",
+      "no_signals": "No se detectan señales",
+      "audit_log": "Audit Log",
+      "pro_feature": "Función Pro",
+      "audit_log_desc": "Historial completo de auditoría disponible en el plan Pro",
+      "upgrade": "Mejorar Plan",
+      "loading_audit": "Cargando rastro de auditoría...",
+      "no_activity": "No hay actividad registrada",
+      "operator": "Operador"
+    },
+    "settings": {
+      "title": "Ajustes de Cuenta",
+      "desc": "Gestiona tu identidad y configuración personal.",
+      "identity_management": "Identity Management",
+      "account": "Cuenta",
+      "profile_credentials": "Profile Credentials",
+      "secure_session": "SESIÓN SEGURA ACTIVA",
+      "personnel_profile": "Personnel Profile",
+      "neural_identity": "Neural Identity",
+      "biometric_data": "Datos Biométricos y Personales",
+      "neural_photo": "Neural Identifier Photo",
+      "neural_photo_desc": "Representación en todo el sistema para todos los nodos de autoridad.",
+      "full_legal_name": "Nombre Legal Completo",
+      "verified_email": "Dirección de Email Verificada",
+      "update_protocol": "Actualizar Protocolo",
+      "security_credentials": "Security Credentials",
+      "rotation_keys": "Rotación de claves de autenticación",
+      "reset_access_keys": "Resetear Claves de Acceso",
+      "verification_tier": "Nivel de Verificación",
+      "enterprise_elite": "Enterprise Elite",
+      "standard_tier": "Nivel Estándar",
+      "pro_status_desc": "Autoridad total concedida. Sincronización multi-workspace y analíticas ejecutivas activadas.",
+      "free_status_desc": "Acceso operacional estándar. Capacidades de gobernanza de equipo restringidas.",
+      "elevate_tier": "Elevar Nivel",
+      "workspace": {
+        "title": "Ajustes del Workspace",
+        "identity": "Workspace Identity",
+        "danger_zone": "Zona de Peligro",
+        "danger_zone_desc": "Acciones irreversibles que afectan a todo el espacio de trabajo.",
+        "termination": "Workspace Termination",
+        "delete_desc": "Al eliminar el workspace, se purgarán todos los datos, campañas, clientes y archivos asociados de forma permanente.",
+        "delete_confirm": "Esta acción no se puede deshacer.",
+        "placeholder": "Escribe el nombre del workspace para confirmar",
+        "terminating": "Terminando...",
+        "execute": "Ejecutar Terminación"
+      }
     },
     "equipo": {
       "title": "Mi Equipo",
       "desc": "Gestiona tus colaboradores, asigna roles y centraliza la estrategia.",
-      "settings": "Ajustes de Equipo",
-      "create_title": "Funda tu equipo",
-      "create_desc": "Invita a colaboradores para centralizar el trabajo y coordinar campañas en tiempo real.",
-      "name_placeholder": "Nombre del equipo",
-      "create_btn": "Fundar",
-      "create_success": "¡Equipo fundado correctamente!",
-      "update_success": "Nombre actualizado",
-      "kick_self_error": "No puedes expulsarte a ti mismo",
-      "kick_confirm": "¿Seguro que quieres expulsar a este miembro?",
+      "management": "Gestión de Equipo",
+      "structure": "Estructura",
+      "governance": "Gobernanza",
+      "active_spaces": "ESPACIOS ACTIVOS",
+      "change_space": "Cambiar Espacio",
+      "syncing": "Sincronizando equipo...",
+      "members_title": "Gestión de Miembros",
+      "active_members": "Miembros Activos",
+      "verified": "Verificados",
+      "joined_at": "Unido el",
+      "invite_title": "Invitar Miembros",
+      "invite_desc": "Añade colaboradores a tu equipo.",
+      "pro_required": "La colaboración multi-usuario requiere una suscripción PRO.",
+      "upgrade_pro": "Actualizar a Pro",
+      "create_new": "Crear Nuevo Equipo",
+      "space_name": "Nombre del Espacio",
+      "create_btn": "Crear Espacio",
+      "no_connection": "Sin espacio seleccionado. Establece una conexión.",
+      "kick": "Expulsar",
+      "role_updated": "Rol actualizado",
+      "delete_ws": "Eliminar Espacio",
+      "role_owner": "Propietario",
+      "role_admin": "Administrador",
+      "role_manager": "Gestor",
+      "role_editor": "Editor",
+      "role_viewer": "Lector",
+      "role_client_guest": "Cliente Invitado",
+      "you": "Tú",
+      "create_success": "Espacio creado correctamente",
       "kick_success": "Miembro expulsado",
       "copy_success": "Enlace copiado",
-      "members": "Colaboradores",
-      "active_members": "miembros activos",
-      "you": "(Tú)",
-      "role_owner": "Líder",
-      "role_member": "Experto",
-      "online": "Online",
-      "kick": "Expulsar",
-      "invite_title": "Invita a tu equipo",
-      "invite_desc": "Comparte este enlace para que se unan.",
       "copied": "Copiado",
       "copy_link": "Copiar Enlace",
-      "role_collab": "Rol: Colaborador",
-      "role_collab_desc": "Tienes acceso a las herramientas. Solo el administrador gestiona invitaciones."
+      "connection_code": "Código de Conexión",
+      "code_copied": "Código copiado",
+      "invite_link": "Enlace de Invitación",
+      "pending_invites": "Invitaciones Pendientes",
+      "pending": "Pendiente",
+      "revoke": "Revocar",
+      "delete_desc": "Elimina permanentemente este espacio y todos los datos asociados.",
+      "delete_confirm_title": "Confirmar Eliminación Total",
+      "delete_confirm_desc": "Esta acción es irreversible. Todas las campañas, clientes y tareas asociadas a este espacio serán purgadas.",
+      "confirm_delete": "PURGAR ESPACIO",
+      "delete_success": "Espacio eliminado correctamente",
+      "cancel": "Cancelar",
+      "sign_out": "Cerrar Sesión",
+      "no_invites": "No hay invitaciones pendientes"
     },
     "planificador": {
       "title": "Planificador",
@@ -207,13 +516,25 @@
       "save_task": "Guardar Tarea",
       "task_assigned": "Tarea asignada",
       "no_events": "No hay eventos",
-      "days": ["LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM"],
+      "days": [
+        "LUN",
+        "MAR",
+        "MIE",
+        "JUE",
+        "VIE",
+        "SAB",
+        "DOM"
+      ],
       "categories": {
         "content": "Contenido",
         "meeting": "Reunión",
         "strategy": "Estrategia",
         "urgent": "Urgente"
-      }
+      },
+      "new_task": "Nueva Tarea",
+      "label_title": "Título de la Tarea",
+      "label_type": "Tipo de Tarea",
+      "no_categories": "Sin categorías definidas"
     },
     "contenido": {
       "title": "Calendario de Contenido",
@@ -243,9 +564,58 @@
         "actions": "Acciones"
       },
       "empty": "No hay campañas activas",
+      "empty_desc": "Crea tu primera campaña para comenzar",
       "tasks_associated": "tareas asociadas",
       "add_task": "Añadir Tarea",
-      "no_tasks": "Sin tareas pendientes"
+      "no_tasks": "Sin tareas pendientes",
+      "status_all": "Todas",
+      "status_active": "Activa",
+      "status_draft": "Borrador",
+      "status_paused": "Pausada",
+      "status_completed": "Completada",
+      "dialog": {
+        "title": "Inicializar Iniciativa Estratégica",
+        "initialize_btn": "Inicializar Campaña",
+        "label_name": "Nombre en Clave Operacional",
+        "placeholder_name": "IDENTIFICADOR DE CAMPAÑA",
+        "label_status": "Estado Inicial",
+        "label_platform": "Plataforma de Despliegue",
+        "placeholder_platform": "NIVEL DE SISTEMA",
+        "label_client": "Socio Objetivo",
+        "placeholder_client": "NINGUNO ASIGNADO",
+        "label_budget": "Asignación de Capital (EUR)",
+        "label_start_date": "Ventana de Inicio",
+        "label_objective": "Objetivo Estratégico",
+        "placeholder_objective": "RESULTADOS CLAVE...",
+        "label_description": "Descripción de la Iniciativa",
+        "placeholder_description": "RESUMEN TÁCTICO...",
+        "abort_btn": "Abortar",
+        "submit_btn": "Inicializar Estrategia",
+        "success_msg": "Nodo estratégico inicializado",
+        "error_name_required": "El nombre es obligatorio"
+      },
+      "card": {
+        "delete_confirm": "¿Terminar esta iniciativa estratégica?",
+        "delete_success": "Campaña purgada",
+        "audit_strategy": "Auditar Estrategia",
+        "terminate_node": "Terminar Nodo",
+        "capital_allocation": "Asignación de Capital",
+        "operational_window": "Ventana Operativa",
+        "view_intel": "Ver Inteligencia"
+      },
+      "platforms": {
+        "instagram": "Instagram",
+        "tiktok": "TikTok",
+        "youtube": "YouTube",
+        "linkedin": "LinkedIn",
+        "facebook": "Facebook",
+        "twitter": "Twitter",
+        "email": "Email",
+        "blog": "Blog",
+        "google_ads": "Google Ads",
+        "meta_ads": "Meta Ads",
+        "other": "Otro"
+      }
     },
     "objetivos": {
       "title": "Objetivos Estratégicos",
@@ -278,42 +648,7 @@
       "pro_active": "Pro Activo",
       "pro_desc": "Tienes acceso total a todas las herramientas corporativas.",
       "free_desc": "Pásate a Pro para desbloquear equipos y campañas ilimitadas.",
-      "upgrade_btn": "Mejorar Cuenta"
-    },
-    "landing": {
-      "solutions": "Soluciones",
-      "demo": "Demo",
-      "plans": "Planes",
-      "login": "LOGIN",
-      "start": "Comenzar",
-      "digital_trans": "Transformación Digital 2026",
-      "hero_title": "De la agenda física a la",
-      "hero_title_accent": "eficiencia digital.",
-      "hero_desc": "Organiza tu estrategia con la claridad de un cuaderno y la potencia de un sistema empresarial escalable.",
-      "go_dashboard": "Ir al Dashboard",
-      "digitalize_now": "Digitaliza tu empresa",
-      "interactive_demo": "Ver demo interactiva",
-      "digital_solutions": "Soluciones Digitales",
-      "smart_processes": "Procesos inteligentes para empresas modernas",
-      "corp_module": "Módulo Corporativo",
-      "digitalize_btn": "Digitalizar ahora",
-      "ready": "¿Listo para el cambio?",
-      "ready_desc": "Unete a los departamentos de marketing que ya han dado el paso hacia la organización estructural digital.",
-      "book_agenda": "Reservar mi Agenda Digital",
-      "footer_terms": "Términos",
-      "footer_privacy": "Privacidad",
-      "footer_contact": "Contacto",
-      "footer_copy": "© 2026 mkt.notes. Digital Transformation.",
-      "features": {
-        "org_title": "Organización Total",
-        "org_desc": "Reemplaza el caos de las agendas físicas por un sistema centralizado. Todo tu marketing en un solo lugar.",
-        "collab_title": "Sincronización de Equipos",
-        "collab_desc": "Coordina a tu equipo sin fricciones. Asigna tareas y mantén a todos alineados con los objetivos.",
-        "analytics_title": "Análisis de Impacto",
-        "analytics_desc": "Lo que no se mide no se mejora. Obtén informes visuales críticos sobre el rendimiento.",
-        "security_title": "Seguridad y Nube",
-        "security_desc": "Tus datos están protegidos con cifrado de grado empresarial. Copias de seguridad automáticas."
-      }
+      "upgrade_btn": "Actualizar Cuenta"
     },
     "login": {
       "title_login": "Inicia sesión en mkt.notes",
@@ -383,10 +718,22 @@
       "chart_desc": "Alcance semanal proyectado",
       "tasks_title": "Tareas Pendientes",
       "tasks": {
-        "item1": { "title": "Review de copys Instagram", "time": "Hoy, 14:00" },
-        "item2": { "title": "Aprobar presupuesto TikTok", "time": "Mañana, 09:00" },
-        "item3": { "title": "Reporte mensual clientes", "time": "Viernes, 10:00" },
-        "item4": { "title": "Briefing nueva colección", "time": "Lunes, 11:30" }
+        "item1": {
+          "title": "Review de copys Instagram",
+          "time": "Hoy, 14:00"
+        },
+        "item2": {
+          "title": "Aprobar presupuesto TikTok",
+          "time": "Mañana, 09:00"
+        },
+        "item3": {
+          "title": "Reporte mensual clientes",
+          "time": "Viernes, 10:00"
+        },
+        "item4": {
+          "title": "Briefing nueva colección",
+          "time": "Lunes, 11:30"
+        }
       },
       "see_agenda": "Ver toda la agenda",
       "features": {
@@ -414,6 +761,68 @@
       "already_member": "Ya eres miembro de este equipo",
       "success": "Te has unido a {{team}}"
     },
+    "analisis": {
+      "title": "Analítica Avanzada",
+      "subtitle": "Visión ejecutiva de inteligencia estratégica y rendimiento de activos.",
+      "desc": "Visión general del rendimiento de tus campañas y equipo.",
+      "pro_badge": "PRO",
+      "restricted_title": "Acceso de Inteligencia Restringido",
+      "restricted_desc": "Los protocolos estándar no incluyen analítica neural avanzada. Actualiza a Authority Pro para sincronización de mercado en tiempo real.",
+      "restricted_btn": "Elevar Nivel de Acceso",
+      "filter_period": "Periodo",
+      "filter_7d": "Últimos 7 días",
+      "filter_30d": "Últimos 30 días",
+      "filter_all": "Todo el tiempo",
+      "export_csv": "Exportar CSV",
+      "export_pdf": "Exportar PDF",
+      "metric_mrr": "Ingresos Mensuales",
+      "metric_nodes": "Nodos Activos",
+      "metric_capital": "Asignación de Capital",
+      "metric_tasks": "Completados Tácticos",
+      "tabs": {
+        "overview": "General",
+        "social": "Social",
+        "paid": "Paid",
+        "business": "Negocio",
+        "team": "Equipo"
+      },
+      "empty_title": "Datos Neurales Ausentes",
+      "empty_desc": "Conecta cuentas operacionales o ingiere registros de rendimiento manuales para generar visualizaciones de inteligencia.",
+      "chart_reach_title": "VOLUMEN DE ALCANCE E IMPRESIONES",
+      "chart_reach_subtitle": "CICLO OPERACIONAL DE 30 DÍAS",
+      "chart_financial_title": "UTILIZACIÓN DE CAPITAL VS INGRESOS",
+      "chart_financial_subtitle": "AUDITORÍA DE RATIO FINANCIERO",
+      "chart_spend": "Gasto en Ads",
+      "chart_revenue": "Ingresos Brutos",
+      "matrix_partner_title": "MATRIZ DE INGRESOS POR SOCIO",
+      "matrix_partner_subtitle": "PORCENTAJE DE ASIGNACIÓN",
+      "matrix_active": "ACTIVO",
+      "team_velocity_title": "VELOCIDAD DE OPERADOR — ÚLTIMOS 30 DÍAS",
+      "team_velocity_subtitle": "TAREAS COMPLETADAS",
+      "team_empty": "No hay tareas completadas en los últimos 30 días.",
+      "team_top": "TOP",
+      "team_tasks": "tareas",
+      "dialog": {
+        "trigger": "Añadir Datos",
+        "title": "Ingerir Datos de Rendimiento",
+        "campaign": "Campaña",
+        "platform": "Plataforma",
+        "date": "Fecha *",
+        "metrics": "Métricas",
+        "impressions": "Impresiones",
+        "reach": "Alcance",
+        "engagement": "Engagement %",
+        "spend": "Gasto en Ads ($)",
+        "revenue": "Ingresos ($)",
+        "conversions": "Conversiones",
+        "submit": "Registrar Datos",
+        "cancel": "Cancelar",
+        "all_placeholder": "Todas",
+        "select_placeholder": "Seleccionar",
+        "error_date": "Fecha requerida",
+        "success": "Snapshot de datos registrado"
+      }
+    },
     "dialogs": {
       "common": {
         "cancel": "Cancelar",
@@ -427,6 +836,7 @@
         "placeholder_name": "Ej: Lanzamiento Verano 2026",
         "label_channel": "Canal Principal",
         "placeholder_channel": "Ej: Instagram Ads, Email, TikTok...",
+        "label_end_date": "Fecha de Finalización",
         "submit": "Lanzar Campaña",
         "success": "Campaña lanzada con éxito",
         "error": "Error al crear la campaña"
@@ -492,6 +902,366 @@
         "submit": "Crear Tarea",
         "success": "Tarea creada correctamente",
         "error": "Error al crear tarea"
+      }
+    },
+    "categories": {
+      "title": "Tipos de Tarea",
+      "desc_leader": "Gestiona las categorías de tareas para tu equipo.",
+      "desc_member": "Lista de categorías disponibles.",
+      "placeholder": "Nueva categoría...",
+      "add_success": "Categoría añadida",
+      "delete_success": "Categoría eliminada",
+      "empty": "No hay categorías configuradas.",
+      "config": "Configurar tipos",
+      "view": "Ver tipos",
+      "label_name_error": "Indica un nombre para la categoría"
+    },
+    "clientes": {
+      "title": "Gestión de Clientes",
+      "desc": "Directorio de clientes, retenciones y estado de cuenta.",
+      "new": "Nuevo Cliente",
+      "empty": "No hay clientes registrados",
+      "delete_confirm": "¿Eliminar este cliente?",
+      "delete_success": "Cliente eliminado",
+      "status": {
+        "prospect": "Prospecto",
+        "active": "Activo",
+        "churned": "Baja",
+        "inactive": "Inactivo"
+      },
+      "table": {
+        "name": "Cliente",
+        "organization": "Organización",
+        "industry": "Nicho / Sector",
+        "sector": "Sector de Mercado",
+        "retainer": "Retainer",
+        "status": "Estado de Autoridad",
+        "link": "Enlace Neural",
+        "modify_dossier": "Modificar Dossier",
+        "neural_link": "Enlace Web",
+        "terminate": "Terminar Contrato",
+        "terminate_confirm": "¿Terminar alianza estratégica?",
+        "terminate_success": "Alianza terminada",
+        "search_placeholder": "Buscar socios por nombre o sector...",
+        "empty_state": "No se detectan socios estratégicos en la autoridad actual."
+      },
+      "dialog": {
+        "trigger": "Establecer Alianza",
+        "title": "Iniciar Dossier de Alianza Estratégica",
+        "name_label": "Nombre de Entidad Legal *",
+        "name_placeholder": "CORP ESTRATÉGICA ACME",
+        "contact_label": "Punto de Contacto",
+        "contact_placeholder": "LÍDER OPERATIVO",
+        "status_label": "Estado de Autoridad",
+        "email_label": "Enlace de Comunicación",
+        "email_placeholder": "protocolo@entidad.com",
+        "phone_label": "Línea Segura",
+        "phone_placeholder": "+00 000 000 000",
+        "website_label": "Enlace Neural (Sitio Web)",
+        "website_placeholder": "https://entidad.com",
+        "sector_label": "Sector de Mercado",
+        "sector_placeholder": "SECTOR CORE",
+        "retainer_label": "Asignación de Capital (EUR)",
+        "notes_label": "Parámetros Estratégicos",
+        "notes_placeholder": "Voz, tono, protocolos operativos...",
+        "abort": "Abortar",
+        "submit": "Finalizar Dossier",
+        "edit_title": "Editar Dossier de Socio",
+        "edit_desc": "Modificar parámetros de la alianza estratégica.",
+        "commit_changes": "Confirmar Cambios",
+        "success": "Alianza estratégica establecida",
+        "update_success": "Dossier de cliente actualizado",
+        "error_name": "Nombre de entidad requerido",
+        "error_email": "Email no válido",
+        "error_url": "URL no válida"
+      }
+    },
+    "billing": {
+      "title": "Suscripción y Facturación",
+      "subtitle": "Gestión de Plan de Agencia",
+      "header": {
+        "title": "Administración",
+        "breadcrumb": "Facturación",
+        "encryption": "Transacciones Protegidas"
+      },
+      "current_plan": {
+        "title": "Tu Plan Actual",
+        "active_badge": "Activo",
+        "standard_badge": "Plan Estándar",
+        "pro_badge": "Plan Enterprise",
+        "status_label": "Estado de la Cuenta",
+        "status_pro": "Acceso total a todos los módulos.",
+        "status_free": "Límites operativos aplicados.",
+        "manage_btn": "Gestionar Suscripción",
+        "upgrade_btn": "Mejorar Plan",
+        "features": {
+          "campaigns": "Capacidad de Campañas",
+          "team": "Miembros del Equipo",
+          "storage": "Almacenamiento de Datos",
+          "support": "Prioridad de Soporte",
+          "unlimited": "Ilimitado",
+          "nodes": "Miembros",
+          "support_247": "Soporte Ejecutivo 24/7",
+          "support_standard": "Soporte Estándar"
+        }
+      },
+      "perks": {
+        "title": "Ventajas de tu Plan",
+        "items": {
+          "content": "Contenido Ilimitado",
+          "analytics": "Analítica Avanzada",
+          "brand": "Sincronización de Marca",
+          "governance": "Gobernanza Multiusuario",
+          "ai": "IA Creativa Avanzada"
+        }
+      },
+      "support": {
+        "title": "Asistencia Facturación",
+        "desc": "Consultas técnicas sobre pagos y facturas."
+      }
+    },
+    "landing": {
+      "navbar": {
+        "features": "Funcionalidades",
+        "pricing": "Precios",
+        "infrastructure": "Infraestructura",
+        "login": "Iniciar Sesión",
+        "signup": "Registrarse"
+      },
+      "hero": {
+        "badge": "Ya disponible: Suite de Operaciones Inteligentes V4.0",
+        "title_before": "El centro de mando para agencias",
+        "title_highlight": "de élite",
+        "title_after": ".",
+        "subtitle": "Domina clientes, campañas y contenido con una interfaz de alta precisión. La herramienta definitiva para equipos que exigen organización y resultados.",
+        "cta_primary": "Empezar ahora gratis",
+        "cta_secondary": "Ver funcionalidades",
+        "pills": [
+          {
+            "label": "CRM de Clientes"
+          },
+          {
+            "label": "Campañas"
+          },
+          {
+            "label": "Calendario de Contenido"
+          },
+          {
+            "label": "Analíticas"
+          },
+          {
+            "label": "Gestor de Tareas"
+          },
+          {
+            "label": "Lab de Brainstorm"
+          }
+        ],
+        "stats": [
+          {
+            "label": "Equipos de marketing",
+            "value": "2.400+"
+          },
+          {
+            "label": "Campañas gestionadas",
+            "value": "18.000+"
+          },
+          {
+            "label": "Horas ahorradas / mes",
+            "value": "12h"
+          }
+        ]
+      },
+      "features": {
+        "label": "Protocolo 01: Operaciones Unificadas",
+        "title_before": "Construido para la",
+        "title_highlight": "agencia moderna",
+        "title_after": "",
+        "subtitle": "MKT.NOTES reúne toda tu operación para que tu equipo pueda centrarse en la ejecución, no en la administración.",
+        "cta_primary": "Empezar ahora gratis",
+        "items": [
+          {
+            "title": "CRM de Socios",
+            "description": "Centraliza cada relación con clientes. Rastrea contactos, retenciones, notas de marca y campañas vinculadas en una vista unificada."
+          },
+          {
+            "title": "Control de Campañas",
+            "description": "Planifica, rastrea y ejecuta campañas de la idea a los resultados. Establece objetivos KPI, asigna responsables y monitoriza el estado en tiempo real."
+          },
+          {
+            "title": "Línea de Tiempo de Marketing",
+            "description": "Visualiza tu calendario de contenido en todos los canales. Vistas mensuales, semanales y de agenda con programación de arrastrar y soltar."
+          },
+          {
+            "title": "Gestor de Ejecución",
+            "description": "Tableros Kanban, prioridades, fechas de entrega, asignados y comentarios. Cada tarea rastreada desde el backlog hasta completada."
+          },
+          {
+            "title": "Lab de Ideación",
+            "description": "Tableros colaborativos con categorías, votación y comentarios. Donde los grandes conceptos nacen sistemáticamente."
+          },
+          {
+            "title": "Ingesta de Contenido",
+            "description": "Planifica contenido para Instagram, TikTok, LinkedIn, YouTube, email y blog con texto completo, CTA, hashtags y flujos de aprobación."
+          },
+          {
+            "title": "Bóveda de Recursos",
+            "description": "Almacenamiento seguro de activos organizado por workspace, cliente y campaña. Siempre encuentra lo que necesitas."
+          },
+          {
+            "title": "Auditoría Ejecutiva",
+            "description": "Métricas sociales, de anuncios pagados, de negocio y de equipo en dashboards pulidos. De ROAS a LTV, ve lo que realmente funciona."
+          }
+        ]
+      },
+      "pricing": {
+        "label": "Protocolo 02: Asignación de Recursos",
+        "title_before": "Arquitectura",
+        "title_highlight": "Fiscal",
+        "title_after": "Transparente",
+        "toggle_monthly": "MENSUAL",
+        "toggle_yearly": "ANUAL (ahorra 11€)",
+        "per_month": "/ MES",
+        "per_year": "/ AÑO",
+        "custom": "PERSONALIZADO",
+        "plans": [
+          {
+            "name": "ESTÁNDAR",
+            "description": "Operaciones individuales y exploración inicial.",
+            "cta": "Elegir Plan",
+            "features": [
+              "1 WORKSPACE ACTIVO",
+              "3 NODOS DE EQUIPO",
+              "3 CLIENTES SOCIOS",
+              "1 GB ALMACENAMIENTO",
+              "CENTRO DE ANALÍTICAS",
+              "TABLERO DE EJECUCIÓN",
+              "MATRIZ DE CONTENIDO",
+              "MARCA MKT.NOTES"
+            ]
+          },
+          {
+            "name": "ENTERPRISE PRO",
+            "description": "Kit operativo completo para agencias.",
+            "cta": "Empezar Pro",
+            "badge": "Más popular",
+            "features": [
+              "NODOS DE EQUIPO ILIMITADOS",
+              "CLIENTES ILIMITADOS",
+              "100 GB ALMACENAMIENTO",
+              "ANALÍTICAS EJECUTIVAS",
+              "PROTOCOLOS DE APROBACIÓN",
+              "DESPLIEGUE WHITE LABEL",
+              "GENERACIÓN IA DE CONCEPTOS",
+              "EXPORTAR DATOS (PDF/CSV)",
+              "SOPORTE 24/7 EJECUTIVO"
+            ]
+          },
+          {
+            "name": "COMMAND",
+            "description": "Gobernanza personalizada multi-workspace.",
+            "cta": "Contactar Command",
+            "features": [
+              "STACK ENTERPRISE COMPLETO",
+              "CLUSTERS MULTI-WORKSPACE",
+              "ARQUITECTURA SSO",
+              "LOGS DE AUDITORÍA",
+              "1 TB+ ALMACENAMIENTO",
+              "ONBOARDING DEDICADO",
+              "GARANTÍAS SLA",
+              "INTEGRACIONES API CUSTOM"
+            ]
+          }
+        ]
+      },
+      "testimonials": {
+        "label": "Protocolo 03: Informes de Campo",
+        "title_before": "Confiado por",
+        "title_highlight": "Unidades",
+        "title_after": "Globales",
+        "items": [
+          {
+            "name": "Sofia Martins",
+            "role": "Fundadora, Amplitude Agency",
+            "avatar": "SM",
+            "content": "MKT.NOTES reemplazó cinco herramientas diferentes para nosotros. El equipo se incorporó en un día y los informes de clientes ahora son algo que espero con ganas."
+          },
+          {
+            "name": "Jake Oduya",
+            "role": "Head of Marketing, Velox SaaS",
+            "avatar": "JO",
+            "content": "El lab de ideación por sí solo vale la pena. Realizamos todas nuestras sesiones de campaña allí y el sistema de votación nos ayuda a decidir rápido sin debates interminables."
+          },
+          {
+            "name": "Camille Rousseau",
+            "role": "Directora Creativa, Nuance Studio",
+            "avatar": "CR",
+            "content": "Bonita, rápida y realmente agradable de usar. Pasamos del caos de las hojas de cálculo a campañas estructuradas en una semana. Mi equipo no volvería atrás."
+          },
+          {
+            "name": "David Chen",
+            "role": "Marketing Manager, GrowthBase",
+            "avatar": "DC",
+            "content": "Analytics PRO es genuinamente útil. Finalmente puedo ver ROAS, tasa de engagement y rendimiento del equipo en un dashboard en lugar de cambiar entre 4 plataformas."
+          },
+          {
+            "name": "Priya Nair",
+            "role": "Lead de Redes Sociales, Sprout Digital",
+            "avatar": "PN",
+            "content": "La matriz de contenido es la mejor que he usado. La programación de arrastrar y soltar, los filtros de canal y el flujo de aprobación significan que nada se publica sin aprobación."
+          },
+          {
+            "name": "Marcus Webb",
+            "role": "Propietario, Webb & Co.",
+            "avatar": "MW",
+            "content": "El white labeling fue decisivo para nosotros. Los clientes inician sesión y ven nuestra marca, no una herramienta de terceros. Se siente premium y genera confianza."
+          }
+        ]
+      },
+      "faq": {
+        "label": "Protocolo 04: Base de Conocimiento General",
+        "title_before": "Resolución de",
+        "title_highlight": "Consultas",
+        "items": [
+          {
+            "question": "¿Hay un plan gratuito disponible?",
+            "answer": "Sí. Mantenemos un nivel gratuito permanente para operadores individuales y exploraciones iniciales. Gestiona hasta 3 clientes y 3 miembros del equipo sin costo."
+          },
+          {
+            "question": "¿Puedo cancelar mi suscripción Pro en cualquier momento?",
+            "answer": "Absolutamente. La cancelación puede ejecutarse directamente desde el libro de finanzas. El acceso permanece activo hasta el final del ciclo de facturación actual."
+          },
+          {
+            "question": "¿Mis datos son seguros y están aislados?",
+            "answer": "La seguridad es una directiva primaria. Utilizamos aislamiento de grado empresarial para cada workspace, aplicado por los protocolos RLS (Row Level Security) de Supabase."
+          },
+          {
+            "question": "¿Ofrecen white-labeling?",
+            "answer": "Sí. Los niveles Pro y Enterprise incluyen capacidades completas de white-labeling, permitiendo eliminar los identificadores de MKT.NOTES y desplegar la marca personalizada de la agencia."
+          },
+          {
+            "question": "¿El sistema incluye automatización de IA?",
+            "answer": "Actualmente estamos desplegando análisis de contenido impulsado por IA y reportes automatizados. Los operadores del nivel Pro reciben acceso prioritario a estos módulos."
+          }
+        ]
+      },
+      "footer": {
+        "tagline": "El sistema operativo de alta precisión para agencias de marketing y unidades profesionales. Ejecución unificada para comando global.",
+        "copyright": "MKT.NOTES AUTHORITY. TODOS LOS DERECHOS RESERVADOS.",
+        "status": "ESTADO DE DESPLIEGUE: OPERACIONAL",
+        "cat_product": "Producto",
+        "cat_authority": "Autoridad",
+        "cat_governance": "Gobernanza",
+        "link_features": "Funcionalidades",
+        "link_pricing": "Precios",
+        "link_changelog": "Registro de Ejecución",
+        "link_roadmap": "Hoja de Ruta Estratégica",
+        "link_company": "Empresa",
+        "link_blog": "Inteligencia",
+        "link_careers": "Personal",
+        "link_contact": "Comunicaciones",
+        "link_privacy": "Protocolo de Privacidad",
+        "link_terms": "Términos de Acceso",
+        "link_cookies": "Política de Cifrado"
       }
     }
   }

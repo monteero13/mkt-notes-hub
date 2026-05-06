@@ -1,19 +1,77 @@
 import type { Metadata, Viewport } from "next";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
+import localFont from "next/font/local";
 import { Suspense } from "react";
 import "./globals.css";
-import { I18nProvider } from "@/components/I18nProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import QueryProvider from "@/components/QueryProvider";
-import { OnboardingTutorial } from "@/components/OnboardingTutorial";
+import { WorkspaceProvider } from "@/components/layout/workspace-provider";
+import { Toaster } from "sonner";
+
+const clashGrotesk = localFont({
+  src: "../public/fonts/ClashGrotesk-Bold.otf",
+  variable: "--font-clash",
+  weight: "700",
+});
+
+const satoshi = localFont({
+  src: "../public/fonts/Satoshi-Medium.otf",
+  variable: "--font-satoshi",
+  weight: "500",
+});
+
+const switzer = localFont({
+  src: "../public/fonts/Switzer-Black.otf",
+  variable: "--font-switzer",
+  weight: "900",
+});
 
 export const metadata: Metadata = {
-  title: "mkt.notes — Agenda Digital para Marketing",
-  description: "Agenda digital interactiva para profesionales del marketing. Planifica campañas, organiza contenido y colabora con tu equipo.",
-  authors: [{ name: "mkt.notes" }],
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://mktnotes.com"
+  ),
+  title: {
+    default: "MKT.NOTES — Marketing OS for Agencies & Teams",
+    template: "%s | MKT.NOTES",
+  },
+  description:
+    "The all-in-one operating system for marketing agencies. Manage clients, campaigns, content calendars, tasks, analytics and your entire team — in one beautiful platform.",
+  keywords: [
+    "marketing agency software",
+    "content calendar",
+    "campaign management",
+    "marketing CRM",
+    "social media planning",
+    "marketing analytics",
+  ],
+  authors: [{ name: "MKT.NOTES" }],
+  creator: "MKT.NOTES",
   openGraph: {
-    title: "mkt.notes — Agenda Digital para Marketing",
-    description: "Planifica campañas, organiza contenido y colabora con tu equipo.",
     type: "website",
+    locale: "en_US",
+    url: "https://mktnotes.com",
+    title: "MKT.NOTES — Marketing OS for Agencies & Teams",
+    description:
+      "The all-in-one platform for marketing agencies. Clients, campaigns, content, tasks and analytics — unified.",
+    siteName: "MKT.NOTES",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MKT.NOTES — Marketing OS",
+    description: "All-in-one platform for marketing agencies and teams.",
+    creator: "@mktnotes",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
   icons: {
     icon: "/favicon.svg",
@@ -24,42 +82,31 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#ffffff",
+  themeColor: "#f5f2f0",
 };
-
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  const originalError = console.error;
-  console.error = (...args) => {
-    const msg = args[0]?.toString() || '';
-    if (msg.includes('React does not recognize the') &&
-      (msg.includes('borderRadius') || msg.includes('boxShadow'))) {
-      return;
-    }
-    originalError(...args);
-  };
-}
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className="antialiased" suppressHydrationWarning>
-        <ThemeProvider>
+    <html
+      lang="en"
+      className={`${GeistSans.variable} ${GeistMono.variable} ${clashGrotesk.variable} ${satoshi.variable} ${switzer.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-screen bg-background font-sans antialiased" suppressHydrationWarning>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          disableTransitionOnChange
+        >
           <QueryProvider>
-            <I18nProvider>
-              <Suspense>
-                <OnboardingTutorial />
-              </Suspense>
+            <WorkspaceProvider>
               {children}
-            </I18nProvider>
+              <Toaster richColors closeButton position="bottom-right" />
+            </WorkspaceProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>

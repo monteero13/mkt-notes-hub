@@ -2,61 +2,72 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
+import { Profile, WorkspaceWithMembership } from '@/types';
 
 export function useAuth() {
   const supabase = createClient();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['user'],
+    queryKey: ['auth-user'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return { user: null, profile: null };
+      if (!user) return { user: null, profile: null, workspaces: [], subscription: null };
 
       // 1. Obtener el perfil de la DB
-      let { data: profile } = await supabase
+      const { data: profile } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .maybeSingle();
 
-      // 2. Si no hay perfil, crearlo usando nuestra API Segura (Bypass RLS)
-      if (!profile && (user.user_metadata?.full_name || user.user_metadata?.name)) {
-        try {
-          const res = await fetch('/api/sync-profile', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              userId: user.id,
-              fullName: user.user_metadata.full_name || user.user_metadata.name,
-              avatarUrl: user.user_metadata.avatar_url || user.user_metadata.picture
-            })
-          });
-          
-          if (res.ok) {
-            const result = await res.json();
-            profile = result.profile;
-          }
-        } catch (e) {
-          console.error('Error auto-sync profile:', e);
-        }
-      }
+      // 2. Obtener los workspaces del usuario con sus planes
+      const { data: memberships } = await supabase
+        .from('workspace_members')
+        .select(`
+          role,
+          workspace:workspaces (
+            *,
+            subscription:subscriptions (
+              plan,
+              status
+            )
+          )
+        `)
+        .eq('user_id', user.id)
+        .eq('is_active', true);
 
-      // 3. Fallback Virtual si falla la API (Para que el UI no se rompa)
-      const finalProfile = profile || {
-        id: user.id,
-        full_name: user?.user_metadata?.full_name || user?.user_metadata?.name || user.email?.split('@')[0],
-        avatar_url: user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null,
-        is_pro: false
+      const workspaces: WorkspaceWithMembership[] = (memberships || []).map((m: any) => {
+        const workspace = m.workspace as any;
+        const subscription = workspace.subscription?.[0] || workspace.subscription || null;
+
+        return {
+          ...workspace,
+          role: m.role,
+          plan: ["active", "trialing"].includes(subscription?.status ?? "") ? subscription.plan : 'free',
+          subscription: subscription
+        };
+      });
+
+      // 3. Subscription status is already derived per-workspace in step 2.
+      // If we need a global "isPro" for the user, we can check if they own ANY pro workspace
+      const hasAnyProWorkspace = workspaces.some(w => ["pro", "enterprise"].includes(w.plan || "free"));
+
+      return {
+        user,
+        profile: profile as Profile | null,
+        workspaces,
+        subscription: hasAnyProWorkspace ? { plan: 'pro', status: 'active' } : null
       };
-
-      return { user, profile: finalProfile };
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 10, // 10 min: reduces waterfall re-triggers on navigation
   });
 
   return {
     user: data?.user ?? null,
     profile: data?.profile ?? null,
+    workspaces: data?.workspaces ?? [],
+    subscription: data?.subscription ?? null,
+    isPro: data?.workspaces.some(w => ["pro", "enterprise"].includes(w.plan || "free")),
     isLoading,
     isAuthenticated: !!data?.user,
     error,

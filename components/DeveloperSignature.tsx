@@ -1,14 +1,14 @@
 'use client';
 
 import { Instagram } from "lucide-react";
-import { useTranslation } from 'react-i18next';
+import { useTranslations } from "next-intl";
 
 interface DeveloperSignatureProps {
   collapsed?: boolean;
 }
 
 export function DeveloperSignature({ collapsed }: DeveloperSignatureProps) {
-  const { t } = useTranslation();
+  const t = useTranslations("common");
 
   if (collapsed) {
     return (
@@ -28,7 +28,7 @@ export function DeveloperSignature({ collapsed }: DeveloperSignatureProps) {
         rel="noopener noreferrer"
         className="group flex flex-col items-center gap-1 rounded-xl p-2 transition-all"
       >
-        <span className="text-[9px] text-muted-foreground/40 font-medium uppercase tracking-[0.2em]">{t('common.developed_by', 'Desarrollado por')}</span>
+        <span className="text-[9px] text-muted-foreground/40 font-medium uppercase tracking-[0.2em]">{t('developed_by')}</span>
         <div className="flex items-center gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
           <Instagram className="h-3 w-3 text-foreground" />
           <span className="text-[10px] text-foreground font-bold">

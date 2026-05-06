@@ -1,86 +1,57 @@
-import { createClient } from '@supabase/supabase-js'
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
+import { requireUser, handleApiError } from "@/lib/auth/api-guard";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get('userId')
+    const { user } = await requireUser();
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
 
-    if (!userId) {
-      return NextResponse.json({ error: 'Falta userId' }, { status: 400 })
+    if (!userId || userId !== user.id) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = createSupabaseAdminClient();
 
-    // 1. Obtener la membresía (sin orden para evitar errores de columna)
-    console.log('>>> [API/get-team] Buscando membresías para:', userId);
     const { data: memberships, error: memberError } = await supabase
-      .from('team_members')
-      .select('team_id, role')
-      .eq('user_id', userId)
+      .from("workspace_members")
+      .select("workspace_id, role")
+      .eq("user_id", userId)
+      .eq("is_active", true);
 
-    if (memberError) {
-      console.error('>>> [API/get-team] Error en team_members:', memberError);
-      throw memberError;
-    }
-    
+    if (memberError) throw memberError;
     if (!memberships || memberships.length === 0) {
-      console.log('>>> [API/get-team] No se encontraron membresías');
-      return NextResponse.json({ team: null })
+      return NextResponse.json({ team: null });
     }
 
-    const membership = memberships[0]
-    console.log('>>> [API/get-team] Membresía encontrada:', membership);
+    const membership = memberships[0]!;
 
-    // 2. Obtener los detalles del equipo
-    const { data: teamData, error: teamError } = await supabase
-      .from('teams')
-      .select('*')
-      .eq('id', membership.team_id)
-      .single()
+    const [{ data: workspaceData, error: wsErr }, { data: members, error: membersErr }] = await Promise.all([
+      supabase.from("workspaces").select("*").eq("id", membership.workspace_id).single(),
+      supabase.from("workspace_members").select("user_id, role").eq("workspace_id", membership.workspace_id),
+    ]);
 
-    if (teamError) {
-      console.error('>>> [API/get-team] Error en teams:', teamError);
-      throw teamError;
-    }
+    if (wsErr) throw wsErr;
+    if (membersErr) throw membersErr;
 
-    // 3. Obtener los miembros
-    const { data: members, error: membersErr } = await supabase
-      .from('team_members')
-      .select('user_id, role')
-      .eq('team_id', membership.team_id)
-
-    if (membersErr) throw membersErr
-
-    // 4. Obtener los perfiles manualmente
-    const userIds = members.map(m => m.user_id)
+    const userIds = (members ?? []).map((m) => m.user_id);
     const { data: profiles, error: profilesErr } = await supabase
-      .from('profiles')
-      .select('id, full_name, avatar_url')
-      .in('id', userIds)
+      .from("profiles")
+      .select("id, full_name, avatar_url, email")
+      .in("id", userIds);
 
-    if (profilesErr) throw profilesErr
+    if (profilesErr) throw profilesErr;
 
-    // 5. Juntar los datos
-    const fullMembers = members.map(m => ({
+    const fullMembers = (members ?? []).map((m) => ({
       ...m,
-      profiles: profiles.find(p => p.id === m.user_id) || null
-    }))
+      profile: (profiles ?? []).find((p) => p.id === m.user_id) ?? null,
+    }));
 
-    console.log('>>> [API/get-team] Equipo completo recuperado:', teamData.name);
-
-    return NextResponse.json({
-      team: {
-        ...teamData,
-        role: membership.role,
-        members: fullMembers
-      }
-    })
-  } catch (error: any) {
-    console.error('Error en Get Team API Reparada:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ team: { ...workspaceData, role: membership.role, members: fullMembers } });
+  } catch (error) {
+    return handleApiError(error);
   }
 }

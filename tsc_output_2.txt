@@ -1,0 +1,8 @@
+app/analisis/page.tsx(194,70): error TS2532: Object is possibly 'undefined'.
+app/analisis/page.tsx(254,54): error TS2304: Cannot find name 'Badge'.
+app/analisis/page.tsx(254,151): error TS2304: Cannot find name 'Badge'.
+app/api/get-team/route.ts(42,17): error TS18048: 'membership' is possibly 'undefined'.
+app/api/get-team/route.ts(54,22): error TS18048: 'membership' is possibly 'undefined'.
+app/api/get-team/route.ts(78,15): error TS18048: 'membership' is possibly 'undefined'.
+app/contenido/page.tsx(139,78): error TS2532: Object is possibly 'undefined'.
+components/CreateTaskDialog.tsx(129,39): error TS2367: This comparison appears to be unintentional because the types 'WorkspaceRole' and '"leader"' have no overlap.

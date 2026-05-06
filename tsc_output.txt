@@ -1,0 +1,94 @@
+app/analisis/page.tsx(31,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/analisis/page.tsx(194,70): error TS2532: Object is possibly 'undefined'.
+app/analisis/page.tsx(254,54): error TS2304: Cannot find name 'Badge'.
+app/analisis/page.tsx(254,151): error TS2304: Cannot find name 'Badge'.
+app/api/get-team/route.ts(42,17): error TS18048: 'membership' is possibly 'undefined'.
+app/api/get-team/route.ts(54,22): error TS18048: 'membership' is possibly 'undefined'.
+app/api/get-team/route.ts(78,15): error TS18048: 'membership' is possibly 'undefined'.
+app/biblioteca/page.tsx(12,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/campanas/page.tsx(18,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/campanas/page.tsx(137,49): error TS2339: Property 'progress' does not exist on type 'Campaign'.
+app/campanas/page.tsx(138,71): error TS2339: Property 'progress' does not exist on type 'Campaign'.
+app/campanas/page.tsx(187,58): error TS2339: Property 'progress' does not exist on type 'Campaign'.
+app/campanas/page.tsx(188,78): error TS2339: Property 'progress' does not exist on type 'Campaign'.
+app/campanas/page.tsx(205,122): error TS2367: This comparison appears to be unintentional because the types '"canceled" | "backlog" | "todo" | "in_review" | "done"' and '"review"' have no overlap.
+app/campanas/page.tsx(205,147): error TS2367: This comparison appears to be unintentional because the types '"canceled" | "backlog" | "todo" | "in_review" | "done"' and '"completed"' have no overlap.
+app/campanas/page.tsx(241,94): error TS2367: This comparison appears to be unintentional because the types 'TaskStatus' and '"completed"' have no overlap.
+app/campanas/page.tsx(256,86): error TS2367: This comparison appears to be unintentional because the types 'TaskStatus' and '"pending"' have no overlap.
+app/campanas/page.tsx(269,47): error TS2339: Property 'category_name' does not exist on type 'Task'.
+app/campanas/page.tsx(270,163): error TS2339: Property 'category_color' does not exist on type 'Task'.
+app/campanas/page.tsx(270,195): error TS2339: Property 'category_color' does not exist on type 'Task'.
+app/campanas/page.tsx(271,51): error TS2339: Property 'category_name' does not exist on type 'Task'.
+app/clientes/page.tsx(20,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/contenido/page.tsx(20,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/contenido/page.tsx(98,48): error TS2532: Object is possibly 'undefined'.
+app/contenido/page.tsx(124,27): error TS18048: 'status' is possibly 'undefined'.
+app/contenido/page.tsx(126,28): error TS18048: 'status' is possibly 'undefined'.
+app/contenido/page.tsx(139,78): error TS2532: Object is possibly 'undefined'.
+app/contenido/page.tsx(139,78): error TS2532: Object is possibly 'undefined'.
+app/contenido/page.tsx(140,30): error TS2532: Object is possibly 'undefined'.
+app/dashboard/page.tsx(25,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/demo/page.tsx(27,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/equipo/page.tsx(29,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/ideas/page.tsx(12,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/join/[code]/page.tsx(10,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/layout.tsx(102,11): error TS2322: Type '{ children: Element; attribute: string; defaultTheme: string; enableSystem: true; disableTransitionOnChange: true; }' is not assignable to type 'IntrinsicAttributes & { children: ReactNode; }'.
+  Property 'attribute' does not exist on type 'IntrinsicAttributes & { children: ReactNode; }'.
+app/login/page.tsx(15,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/objetivos/page.tsx(14,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/perfil/page.tsx(15,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/perfil/page.tsx(39,23): error TS18048: 'file' is possibly 'undefined'.
+app/perfil/page.tsx(45,27): error TS2345: Argument of type 'File | undefined' is not assignable to parameter of type 'FileBody'.
+  Type 'undefined' is not assignable to type 'FileBody'.
+app/perfil/page.tsx(218,54): error TS2339: Property 'is_pro' does not exist on type 'Profile'.
+app/perfil/page.tsx(222,29): error TS2339: Property 'is_pro' does not exist on type 'Profile'.
+app/perfil/page.tsx(227,29): error TS2339: Property 'is_pro' does not exist on type 'Profile'.
+app/perfil/page.tsx(229,54): error TS2339: Property 'is_pro' does not exist on type 'Profile'.
+app/perfil/page.tsx(230,29): error TS2339: Property 'is_pro' does not exist on type 'Profile'.
+app/perfil/page.tsx(233,26): error TS2339: Property 'is_pro' does not exist on type 'Profile'.
+app/planificador/page.tsx(25,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+app/planificador/page.tsx(33,20): error TS2367: This comparison appears to be unintentional because the types 'WorkspaceRole | undefined' and '"member"' have no overlap.
+app/pricing/page.tsx(8,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/AppSidebar.tsx(23,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/CreateCampaignDialog.tsx(12,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/CreateContentDialog.tsx(14,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/CreateIdeaDialog.tsx(13,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/CreateIdeaDialog.tsx(27,36): error TS2339: Property 'is_pro' does not exist on type 'Profile'.
+components/CreateObjectiveDialog.tsx(14,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/CreateObjectiveDialog.tsx(31,36): error TS2339: Property 'is_pro' does not exist on type 'Profile'.
+components/CreateResourceDialog.tsx(13,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/CreateResourceDialog.tsx(31,36): error TS2339: Property 'is_pro' does not exist on type 'Profile'.
+components/CreateTaskDialog.tsx(12,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/CreateTaskDialog.tsx(129,20): error TS2304: Cannot find name 'team'.
+components/CreateTaskDialog.tsx(129,28): error TS2304: Cannot find name 'team'.
+components/CreateTaskDialog.tsx(129,54): error TS2304: Cannot find name 'team'.
+components/CreateTaskDialog.tsx(129,79): error TS2304: Cannot find name 'team'.
+components/DashboardLayout.tsx(11,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/DeleteConfirmDialog.tsx(15,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/DeveloperSignature.tsx(4,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/I18nProvider.tsx(3,33): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/ManageCategoriesDialog.tsx(15,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/ManageCategoriesDialog.tsx(70,20): error TS2367: This comparison appears to be unintentional because the types 'WorkspaceRole | undefined' and '"member"' have no overlap.
+components/OnboardingTutorial.tsx(4,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/OnboardingTutorial.tsx(6,24): error TS2307: Cannot find module 'react-joyride' or its corresponding type declarations.
+components/OnboardingTutorial.tsx(24,10): error TS2307: Cannot find module 'react-joyride' or its corresponding type declarations.
+components/PremiumLimitModal.tsx(7,32): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+components/layout/workspace-provider.tsx(29,28): error TS2532: Object is possibly 'undefined'.
+components/layout/workspace-provider.tsx(37,34): error TS2339: Property 'plan' does not exist on type 'WorkspaceWithMembership'.
+components/layout/workspace-provider.tsx(37,69): error TS2339: Property 'plan' does not exist on type 'WorkspaceWithMembership'.
+components/ui/resizable.tsx(2,10): error TS2305: Module '"react-resizable-panels"' has no exported member 'Group'.
+components/ui/resizable.tsx(2,24): error TS2305: Module '"react-resizable-panels"' has no exported member 'Separator'.
+hooks/use-workspace.ts(16,28): error TS2532: Object is possibly 'undefined'.
+i18n/config.ts(1,18): error TS2307: Cannot find module 'i18next' or its corresponding type declarations.
+i18n/config.ts(2,34): error TS2307: Cannot find module 'react-i18next' or its corresponding type declarations.
+i18n/config.ts(3,30): error TS2307: Cannot find module 'i18next-browser-languagedetector' or its corresponding type declarations.
+lib/supabase/server.ts(15,16): error TS7006: Parameter 'cookiesToSet' implicitly has an 'any' type.
+lib/supabase/server.ts(17,37): error TS7031: Binding element 'name' implicitly has an 'any' type.
+lib/supabase/server.ts(17,43): error TS7031: Binding element 'value' implicitly has an 'any' type.
+lib/supabase/server.ts(17,50): error TS7031: Binding element 'options' implicitly has an 'any' type.
+middleware.ts(28,16): error TS7006: Parameter 'cookiesToSet' implicitly has an 'any' type.
+middleware.ts(29,35): error TS7031: Binding element 'name' implicitly has an 'any' type.
+middleware.ts(29,41): error TS7031: Binding element 'value' implicitly has an 'any' type.
+middleware.ts(33,35): error TS7031: Binding element 'name' implicitly has an 'any' type.
+middleware.ts(33,41): error TS7031: Binding element 'value' implicitly has an 'any' type.
+middleware.ts(33,48): error TS7031: Binding element 'options' implicitly has an 'any' type.

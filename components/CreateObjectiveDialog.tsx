@@ -7,13 +7,13 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Loader2, Plus } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { Loader2, Plus, Target, BarChart } from 'lucide-react'
 import { useTeam } from '@/hooks/use-team'
 import { useAuth } from '@/hooks/use-auth'
-import { useTranslation } from 'react-i18next'
+import { PremiumLimitModal } from './PremiumLimitModal'
 
 export function CreateObjectiveDialog({ children }: { children?: React.ReactNode }) {
-  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [title, setTitle] = useState('')
@@ -25,7 +25,7 @@ export function CreateObjectiveDialog({ children }: { children?: React.ReactNode
 
   const { data: objectives = [] } = useQueryClient().getQueryData(['objectives']) as any || { data: [] }
   const { profile } = useAuth()
-  
+
   const isLimitReached = !profile?.is_pro && Array.isArray(objectives) && objectives.length >= 5;
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -35,7 +35,7 @@ export function CreateObjectiveDialog({ children }: { children?: React.ReactNode
     setIsSubmitting(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error(t('pricing.login_required'))
+      if (!user) throw new Error('Debes iniciar sesión para suscribirte')
 
       const response = await fetch('/api/create-entity', {
         method: 'POST',
@@ -49,15 +49,15 @@ export function CreateObjectiveDialog({ children }: { children?: React.ReactNode
             kpi,
             target_value: parseFloat(targetValue) || 0,
             current_value: 0,
-            deadline: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split('T')[0] // 3 months default
+            deadline: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split('T')[0]
           }
         })
       })
 
       const result = await response.json()
-      if (!response.ok) throw new Error(result.error || t('dialogs.objective.error'))
+      if (!response.ok) throw new Error(result.error || 'Error al crear objetivo')
 
-      toast.success(t('dialogs.objective.success'))
+      toast.success('Objetivo fijado con éxito')
       await queryClient.refetchQueries({ queryKey: ['objectives'] })
       setOpen(false)
       setTitle('')
@@ -74,62 +74,69 @@ export function CreateObjectiveDialog({ children }: { children?: React.ReactNode
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {children || (
-          <Button className="gap-2 rounded-xl">
-            <Plus className="h-4 w-4" /> {t('objetivos.new')}
+          <Button className="gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all active:scale-95 rounded-2xl px-6 h-12 font-bold uppercase tracking-widest text-[10px]">
+            <Plus className="h-4 w-4" /> Nuevo
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] rounded-[1.5rem] border-2">
-        {isLimitReached ? (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight text-primary">Límite Alcanzado</DialogTitle>
-              <DialogDescription className="text-muted-foreground/80">
-                El plan gratuito permite gestionar hasta 5 objetivos estratégicos. Desbloquea objetivos ilimitados y análisis avanzado con el plan PRO.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-6 flex justify-center">
-               <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
-                  <div className="text-3xl">🎯</div>
-               </div>
-            </div>
-            <Button className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95 bg-primary text-white" onClick={() => window.location.href = '/pricing'}>
-               Actualizar a PRO
-            </Button>
-          </>
-        ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-2xl font-heading font-bold uppercase tracking-tight">{t('dialogs.objective.title')}</DialogTitle>
-              <DialogDescription className="text-muted-foreground/80">{t('dialogs.objective.desc')}</DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleCreate} className="space-y-6 py-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.objective.label_title')}</label>
-                <Input 
-                  placeholder={t('dialogs.objective.placeholder_title')} 
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="h-12 rounded-xl"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.objective.label_kpi')}</label>
-                  <Input placeholder={t('dialogs.objective.placeholder_kpi')} value={kpi} onChange={(e) => setKpi(e.target.value)} className="h-12 rounded-xl" />
+      <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl rounded-[3rem]">
+        <div className="bg-background/95 backdrop-blur-2xl p-10 bg-gradient-to-br from-primary/10 via-transparent to-transparent">
+          {isLimitReached ? (
+            <PremiumLimitModal
+              title="Límite Alcanzado"
+              description="El plan gratuito permite gestionar hasta 5 objetivos estratégicos. Desbloquea objetivos ilimitados y análisis avanzado con el plan PRO."
+              onClose={() => setOpen(false)}
+            />
+          ) : (
+            <>
+              <DialogHeader className="mb-10 text-center">
+                <DialogTitle className="text-4xl font-heading font-black uppercase tracking-tighter bg-gradient-to-br from-foreground to-foreground/50 bg-clip-text text-transparent flex items-center justify-center gap-4">
+                  <Target className="h-10 w-10 text-primary" />
+                  Nuevo Objetivo Estratégico
+                </DialogTitle>
+                <DialogDescription className="text-muted-foreground font-medium mt-2">Define una meta clara y medible para tu estrategia de marketing.</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleCreate} className="space-y-8">
+                <div className="space-y-3 group">
+                  <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-2 group-focus-within:text-primary transition-colors">Qué quieres conseguir</label>
+                  <Input
+                    placeholder="Ej: Incrementar leads en Q3"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="h-16 rounded-[1.5rem] border-none bg-primary/5 focus:bg-primary/10 transition-all text-base font-bold px-8 shadow-inner"
+                    required
+                  />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{t('dialogs.objective.label_target')}</label>
-                  <Input type="number" placeholder="Ej: 500" value={targetValue} onChange={(e) => setTargetValue(e.target.value)} className="h-12 rounded-xl" />
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-3 group">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-2 flex items-center gap-2">
+                      <BarChart className="h-3 w-3" /> KPI a medir
+                    </label>
+                    <Input
+                      placeholder="Conversiones, Alcance, etc."
+                      value={kpi}
+                      onChange={(e) => setKpi(e.target.value)}
+                      className="h-16 rounded-[1.5rem] border-none bg-primary/5 focus:bg-primary/10 transition-all text-base font-bold px-8 shadow-inner"
+                    />
+                  </div>
+                  <div className="space-y-3 group">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 ml-2">Valor objetivo</label>
+                    <Input
+                      type="number"
+                      placeholder="Ej: 500"
+                      value={targetValue}
+                      onChange={(e) => setTargetValue(e.target.value)}
+                      className="h-16 rounded-[1.5rem] border-none bg-primary/5 focus:bg-primary/10 transition-all text-base font-bold px-8 shadow-inner"
+                    />
+                  </div>
                 </div>
-              </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-xl font-bold uppercase tracking-widest text-xs shadow-lg shadow-primary/20 transition-all active:scale-95">
-                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('dialogs.objective.submit')}
-              </Button>
-            </form>
-          </>
-        )}
+                <Button type="submit" disabled={isSubmitting} className="w-full h-16 rounded-[1.5rem] font-black uppercase tracking-[0.2em] text-[11px] shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all active:scale-[0.97] mt-6 bg-primary text-primary-foreground">
+                  {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Fijar Objetivo'}
+                </Button>
+              </form>
+            </>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   )

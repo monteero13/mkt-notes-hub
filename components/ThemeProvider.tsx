@@ -1,14 +1,11 @@
 "use client";
 
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { type ThemeProviderProps } from "next-themes";
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
     return (
-        <NextThemesProvider
-            attribute="class"
-            defaultTheme="system" // 👈 Esto activa el seguimiento del dispositivo
-            enableSystem={true}
-        >
+        <NextThemesProvider defaultTheme="light" {...props}>
             {children}
         </NextThemesProvider>
     );

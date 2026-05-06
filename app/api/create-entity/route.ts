@@ -1,62 +1,48 @@
-import { createClient } from '@supabase/supabase-js'
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
+import { requireUser, requireMember, handleApiError } from "@/lib/auth/api-guard";
+import { assertWithinLimit, PlanLimitError } from "@/lib/limits/plan-limits";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
-// Usamos la Service Role Key para asegurar que la creación nunca falle por RLS en el primer guardado
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+export const dynamic = "force-dynamic";
+
+const ENTITY_TABLE: Record<string, { table: string; resource: "campaigns" | "ideas" | "content" | "objectives" }> = {
+  campaign: { table: "campaigns", resource: "campaigns" },
+  content: { table: "content_items", resource: "content" },
+  idea: { table: "marketing_ideas", resource: "ideas" },
+  objective: { table: "objectives", resource: "objectives" },
+};
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
-    const { type, data, userId, teamId } = body
+    const { user } = await requireUser();
+    const body = await req.json();
+    const { type, data, workspaceId } = body;
 
-    let table = ''
-    let insertData = { ...data, user_id: userId, team_id: teamId }
-
-    switch (type) {
-      case 'campaign': table = 'campaigns'; break;
-      case 'content': table = 'content'; break;
-      case 'idea': table = 'ideas'; break;
-      case 'objective': table = 'objectives'; break;
-      default: throw new Error('Tipo de entidad no válido');
+    if (!workspaceId || !type) {
+      return NextResponse.json({ error: "Missing workspaceId or type" }, { status: 400 });
     }
 
-    console.log(`>>> [API Service] Creando ${type} para usuario ${userId}`);
-
-    // Validación de plan gratuito para campañas
-    if (type === 'campaign') {
-      const { data: profile } = await supabaseAdmin
-        .from('profiles')
-        .select('is_pro')
-        .eq('id', userId)
-        .single()
-
-      if (!profile?.is_pro) {
-        const { count, error: countError } = await supabaseAdmin
-          .from('campaigns')
-          .select('*', { count: 'exact', head: true })
-          .eq('user_id', userId)
-
-        if (count && count >= 1) {
-          console.log(`>>> [API Service] Límite de campaña alcanzado para usuario gratuito: ${userId}`);
-          return NextResponse.json({ error: 'Límite alcanzado. Actualiza a PRO para crear más campañas.' }, { status: 403 })
-        }
-      }
+    const entityConfig = ENTITY_TABLE[type as string];
+    if (!entityConfig) {
+      return NextResponse.json({ error: "Invalid entity type" }, { status: 400 });
     }
 
-    const { data: created, error } = await supabaseAdmin
-      .from(table)
-      .insert(insertData)
+    await requireMember(workspaceId, user.id, ["owner", "admin", "manager", "editor"]);
+    await assertWithinLimit(workspaceId, entityConfig.resource);
+
+    const supabase = createSupabaseAdminClient();
+    const { data: created, error } = await supabase
+      .from(entityConfig.table)
+      .insert({ ...data, workspace_id: workspaceId })
       .select()
-      .single()
+      .single();
 
-    if (error) throw error
-
-    return NextResponse.json({ success: true, item: created })
-  } catch (error: any) {
-    console.error('>>> [API Service] ERROR:', error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error) throw error;
+    return NextResponse.json({ success: true, item: created });
+  } catch (error) {
+    if (error instanceof PlanLimitError) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: 402 });
+    }
+    return handleApiError(error);
   }
 }
