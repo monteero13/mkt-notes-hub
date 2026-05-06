@@ -162,14 +162,14 @@ function LoginContent() {
             <CheckCircle2 className="h-8 w-8 text-brand" />
           </div>
           <div className="space-y-2">
-            <h2 className="text-2xl font-black tracking-tighter uppercase leading-none">Authorization Sent</h2>
+            <h2 className="text-2xl font-black tracking-tighter uppercase leading-none">{t('verification.title')}</h2>
             <p className="technical-label text-[9px] tracking-widest opacity-40">
-              Credentials dispatched to <span className="text-foreground">{email}</span>. Verify link to proceed.
+              {t('verification.desc_prefix')} <span className="text-foreground">{email}</span>. {t('verification.desc_suffix')}
             </p>
           </div>
           <Button variant="outline" className="w-full h-10 rounded-sm technical-label text-[9px] hover:bg-brand/10 hover:text-brand transition-all" onClick={() => setMode('login')}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Access Terminal
+            {t('verification.back_btn')}
           </Button>
         </div>
       </div>
@@ -191,13 +191,13 @@ function LoginContent() {
           </div>
           <div className="space-y-1">
             <h1 className="text-3xl font-black tracking-tighter uppercase leading-none">
-              {mode === 'login' && 'Access Terminal'}
-              {mode === 'signup' && 'Deploy Instance'}
-              {mode === 'forgot-password' && 'Key Recovery'}
-              {mode === 'magic-link' && 'Magic Authentication'}
+              {mode === 'login' && t('terminal_title_login')}
+              {mode === 'signup' && t('terminal_title_signup')}
+              {mode === 'forgot-password' && t('terminal_title_forgot')}
+              {mode === 'magic-link' && t('terminal_title_magic')}
             </h1>
             <div className="flex items-center justify-center gap-2">
-              <span className="technical-label text-[8px] opacity-40 uppercase tracking-widest">Secure Gateway Protocol</span>
+              <span className="technical-label text-[8px] opacity-40 uppercase tracking-widest">{t('secure_gateway')}</span>
               <div className="h-1 w-1 rounded-full bg-brand" />
               <span className="technical-label text-[8px] text-brand">v4.0.0</span>
             </div>
@@ -211,7 +211,7 @@ function LoginContent() {
                 <div className="grid grid-cols-2 gap-4">
                   <Button variant="outline" className="h-10 rounded-sm technical-label text-[9px] transition-all hover:bg-brand/5 hover:text-brand hover:border-brand" onClick={() => handleOAuth('apple')}>
                     <Apple className="mr-2 h-4 w-4" />
-                    Apple ID
+                    {t('apple_id')}
                   </Button>
                   <Button variant="outline" className="h-10 rounded-sm technical-label text-[9px] transition-all hover:bg-brand/5 hover:text-brand hover:border-brand" onClick={() => handleOAuth('google')}>
                     <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -220,7 +220,7 @@ function LoginContent() {
                       <path fill="currentColor" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" />
                       <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                     </svg>
-                    Google
+                    {t('google_id')}
                   </Button>
                 </div>
                 <div className="relative">
@@ -228,7 +228,7 @@ function LoginContent() {
                     <span className="w-full border-t border-border" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-4 technical-label text-[8px] opacity-20 whitespace-nowrap">OR CREDENTIAL AUTH</span>
+                    <span className="bg-card px-4 technical-label text-[8px] opacity-20 whitespace-nowrap">{t('or_credential_auth')}</span>
                   </div>
                 </div>
               </div>
@@ -255,30 +255,30 @@ function LoginContent() {
                         </button>
                       )}
                     </div>
-                    <span className="technical-label text-[8px] opacity-20 uppercase tracking-widest">Personnel Photo (OPTIONAL)</span>
+                    <span className="technical-label text-[8px] opacity-20 uppercase tracking-widest">{t('personnel_photo')} ({t('optional')})</span>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="technical-label text-[8px] opacity-40 ml-1">Full Personnel Name</label>
-                    <Input placeholder="John Doe" className="h-10 border-border bg-card rounded-sm text-[11px] font-bold" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+                    <label className="technical-label text-[8px] opacity-40 ml-1">{t('full_personnel_name')}</label>
+                    <Input placeholder={t('full_name_placeholder')} className="h-10 border-border bg-card rounded-sm text-[11px] font-bold" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
                   </div>
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <label className="technical-label text-[8px] opacity-40 ml-1">Communication Endpoint (Email)</label>
+                <label className="technical-label text-[8px] opacity-40 ml-1">{t('email_endpoint')}</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/30" />
-                  <Input type="email" placeholder="agent@mktnotes.com" className="pl-9 h-10 border-border bg-card rounded-sm text-[11px] font-bold" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                  <Input type="email" placeholder={t('email_placeholder')} className="pl-9 h-10 border-border bg-card rounded-sm text-[11px] font-bold" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 </div>
               </div>
 
               {(mode === 'login' || mode === 'signup') && (
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between ml-1">
-                    <label className="technical-label text-[8px] opacity-40">Encryption Key (Password)</label>
+                    <label className="technical-label text-[8px] opacity-40">{t('password_key')}</label>
                     {mode === 'login' && (
                       <button type="button" onClick={() => setMode('forgot-password')} className="technical-label text-[8px] text-brand hover:underline">
-                        Lost Key?
+                        {t('lost_key')}
                       </button>
                     )}
                   </div>
@@ -295,10 +295,10 @@ function LoginContent() {
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <div className="flex items-center gap-2">
-                      {mode === 'login' && 'Authorize Session'}
-                      {mode === 'signup' && 'Deploy Identity'}
-                      {mode === 'forgot-password' && 'Recover Keys'}
-                      {mode === 'magic-link' && 'Summon Access'}
+                      {mode === 'login' && t('authorize_session')}
+                      {mode === 'signup' && t('deploy_identity')}
+                      {mode === 'forgot-password' && t('recover_keys')}
+                      {mode === 'magic-link' && t('summon_access')}
                       <ArrowRight size={14} />
                     </div>
                   )}
@@ -307,7 +307,7 @@ function LoginContent() {
                 {mode === 'login' && (
                   <Button type="button" variant="outline" className="w-full h-10 border-dashed technical-label text-[9px] hover:bg-brand/5 hover:text-brand" onClick={() => setMode('magic-link')}>
                     <Wand2 className="mr-2 h-4 w-4 text-brand" />
-                    Summon Magic Link
+                    {t('summon_magic_link')}
                   </Button>
                 )}
               </div>
@@ -317,22 +317,22 @@ function LoginContent() {
           <div className="bg-accent/5 p-6 border-t border-border flex items-center justify-center gap-4">
             <div className="flex items-center gap-2 opacity-40">
               <ShieldCheck size={12} />
-              <span className="technical-label text-[8px]">END-TO-END ENCRYPTED</span>
+              <span className="technical-label text-[8px]">{t('end_to_end_encrypted')}</span>
             </div>
             <div className="h-3 w-[1px] bg-border/20" />
             <button onClick={() => setMode(mode === 'login' ? 'signup' : 'login')} className="technical-label text-[9px] text-brand hover:underline">
-               {mode === 'login' ? 'DEPLOY NEW IDENTITY' : 'ACCESS EXISTING NODE'}
+               {mode === 'login' ? t('deploy_new_identity') : t('access_existing_node')}
             </button>
           </div>
         </div>
 
         <div className="text-center space-y-4">
           <p className="technical-label text-[8px] opacity-20 uppercase tracking-[0.2em] max-w-xs mx-auto">
-            By proceeding, you agree to the Neural Governance Protocols and Privacy Encryption.
+            {t('terms_agreement')}
           </p>
           <Link href="/" className="inline-flex items-center gap-2 technical-label text-[9px] opacity-40 hover:opacity-100 transition-opacity">
             <ArrowLeft size={12} />
-            Back to Public Domain
+            {t('back_to_public')}
           </Link>
         </div>
       </div>
