@@ -7,7 +7,14 @@
       "placeholder": "Ej. Agencia Marketing Hub",
       "button": "Crear Espacio de Trabajo",
       "footer": "Todo listo para comenzar tu estrategia.",
-      "success": "Espacio autorizado. Entrando al centro de mando..."
+      "success": "Espacio autorizado. Entrando al centro de mando...",
+      "title_join": "Únete a un equipo",
+      "subtitle_join": "Introduce el código de conexión para unirte a tu agencia.",
+      "label_join": "Código de Conexión",
+      "placeholder_join": "Ej. 4a8b2c1d...",
+      "button_join": "Unirse al Equipo",
+      "toggle_join": "¿Tienes un código de invitación? Únete a un equipo",
+      "toggle_create": "¿Prefieres crear un nuevo equipo? Crear Espacio"
     },
     "layout": {
       "topbar": {
@@ -476,6 +483,10 @@
       "create_new": "Crear Nuevo Equipo",
       "space_name": "Nombre del Espacio",
       "create_btn": "Crear Espacio",
+      "join_space": "Unirse a un Equipo",
+      "join_desc": "Usa un código de conexión para unirte a un equipo existente.",
+      "connection_code_placeholder": "Ej. 4a8b2c1d...",
+      "join_btn": "Unirse al Espacio",
       "no_connection": "Sin espacio seleccionado. Establece una conexión.",
       "kick": "Expulsar",
       "role_updated": "Rol actualizado",

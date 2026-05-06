@@ -12,7 +12,7 @@ import { WorkspaceRole } from '@/types';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useWorkspace } from '@/hooks/use-workspace';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { useRole } from '@/hooks/use-role';
 import { useState } from 'react';
@@ -127,16 +127,29 @@ export default function EquipoPage() {
   const router = useRouter();
   const supabase = createClient();
 
+  const params = useParams();
+  const locale = params?.locale || "es";
+
   const [newWsName, setNewWsName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const [joinCode, setJoinCode] = useState("");
+  const [isJoining, setIsJoining] = useState(false);
+
   async function handleSignOut() {
     await supabase.auth.signOut();
     router.push("/login");
   }
+
+  const handleJoinWorkspace = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!joinCode.trim()) return;
+    setIsJoining(true);
+    router.push(`/${locale}/join/${joinCode.trim()}`);
+  };
 
   const queryClient = useQueryClient();
 
@@ -317,14 +330,14 @@ export default function EquipoPage() {
                               </div>
 
                               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                {isAdmin && !isMe && role !== 'owner' && isPro && (
+                                {isAdmin && !isMe && role !== 'owner' && (
                                   <ChangeRoleDropdown
                                     currentRole={role}
                                     userId={member.user_id}
                                     workspaceId={activeWorkspace.id}
                                   />
                                 )}
-                                {isAdmin && !isMe && role !== 'owner' && isPro && (
+                                {isAdmin && !isMe && role !== 'owner' && (
                                   <button
                                     className="p-2 text-muted-foreground/40 hover:text-error transition-colors"
                                     onClick={() => handleKickMember(member.user_id)}
@@ -437,21 +450,34 @@ export default function EquipoPage() {
                           <div className="space-y-1.5">
                             <h3 className="text-xs font-semibold text-brand">{t('invite_title')}</h3>
                             <p className="text-sm text-brand/60">{t('invite_desc')}</p>
-                          </div>
-                          {!isPro ? (
+                          </div>                           {!isPro && (members.length + invites.length >= 3) ? (
                             <div className="space-y-4">
-                              <p className="text-xs font-medium text-muted-foreground">{t('pro_required')}</p>
+                              <p className="text-xs font-medium text-muted-foreground">
+                                {locale === 'es' 
+                                  ? 'Has alcanzado el límite de 3 miembros en el plan gratuito.' 
+                                  : 'You have reached the limit of 3 members on the free plan.'}
+                                <br />
+                                <span className="opacity-80 text-[11px]">{t('pro_required')}</span>
+                              </p>
                               <Button asChild className="w-full h-10 rounded-sm bg-brand text-white text-xs font-medium">
                                 <Link href="/billing">{t('upgrade_pro')}</Link>
                               </Button>
                             </div>
                           ) : (
                           <div className="space-y-4">
+                            {!isPro && (
+                              <p className="text-[11px] font-semibold text-brand bg-brand/5 border border-brand/10 p-2 rounded-sm leading-snug">
+                                {locale === 'es'
+                                  ? `Plan Gratuito: ${members.length + invites.length}/3 miembros utilizados.`
+                                  : `Free Plan: ${members.length + invites.length}/3 members used.`}
+                              </p>
+                            )}
                             <div className="space-y-2">
                               <label className="text-xs font-medium text-muted-foreground/60 ml-1">{t('connection_code') || "CÓDIGO DE CONEXIÓN"}</label>
                               <div className="h-10 bg-muted/30 border border-brand/10 rounded-md flex items-center justify-between px-4 font-mono text-sm text-brand overflow-hidden group/code">
                                 <span className="tracking-widest uppercase">{activeWorkspace?.id.split('-')[0]}</span>
                                 <button
+                                  type="button"
                                   onClick={() => {
                                     navigator.clipboard.writeText(activeWorkspace?.id.split('-')[0] || '');
                                     toast.success(t('code_copied') || "Código copiado");
@@ -468,7 +494,7 @@ export default function EquipoPage() {
                                 {`join/${activeWorkspace?.id.split('-')[0]}`}
                               </div>
                             </div>
-                            <Button onClick={copyInviteLink} className={cn("w-full h-10 rounded-sm text-xs font-medium transition-all", copied ? "bg-success text-white" : "bg-brand text-white")}>
+                            <Button type="button" onClick={copyInviteLink} className={cn("w-full h-10 rounded-sm text-xs font-medium transition-all", copied ? "bg-success text-white" : "bg-brand text-white")}>
                               {copied ? <><Check size={14} className="mr-2" /> {t('copied')}</> : <><Copy size={14} className="mr-2" /> {t('copy_link')}</>}
                             </Button>
                           </div>
@@ -491,6 +517,26 @@ export default function EquipoPage() {
                         </div>
                         <Button type="submit" disabled={isCreating} className="w-full h-10 rounded-sm bg-accent/5 border border-border text-xs font-medium text-foreground hover:bg-brand/10 hover:text-brand transition-all">
                           {isCreating ? <Loader2 className="h-4 w-4 animate-spin" /> : t('create_btn')}
+                        </Button>
+                      </form>
+                    </div>
+
+                    <div className="border border-border bg-card p-4 sm:p-6 lg:p-8 rounded-xl shadow-sm space-y-4 sm:space-y-6">
+                      <h3 className="text-xs font-semibold text-foreground">{t('join_space')}</h3>
+                      <p className="text-xs text-muted-foreground leading-snug">{t('join_desc')}</p>
+                      <form onSubmit={handleJoinWorkspace} className="space-y-4">
+                        <div className="space-y-1.5">
+                          <label className="text-xs font-medium text-muted-foreground/60 ml-1">{t('connection_code')}</label>
+                          <Input
+                            placeholder={t('connection_code_placeholder')}
+                            value={joinCode}
+                            onChange={(e) => setJoinCode(e.target.value)}
+                            className="h-10 border-border bg-card rounded-sm text-sm uppercase"
+                            required
+                          />
+                        </div>
+                        <Button type="submit" disabled={isJoining} className="w-full h-10 rounded-sm bg-accent/5 border border-border text-xs font-medium text-foreground hover:bg-brand/10 hover:text-brand transition-all">
+                          {isJoining ? <Loader2 className="h-4 w-4 animate-spin" /> : t('join_btn')}
                         </Button>
                       </form>
                     </div>

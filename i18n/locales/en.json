@@ -7,7 +7,14 @@
       "placeholder": "E.g. Marketing Hub Agency",
       "button": "Create Workspace",
       "footer": "Everything is ready to start your strategy.",
-      "success": "Workspace authorized. Launching command center..."
+      "success": "Workspace authorized. Launching command center...",
+      "title_join": "Join a team",
+      "subtitle_join": "Enter the connection code to join your agency.",
+      "label_join": "Connection Code",
+      "placeholder_join": "E.g. 4a8b2c1d...",
+      "button_join": "Join Team",
+      "toggle_join": "Have an invite code? Join an existing team",
+      "toggle_create": "Prefer to create a new team? Create Workspace"
     },
     "layout": {
       "topbar": {
@@ -460,6 +467,10 @@
       "create_new": "Create New Team",
       "space_name": "Space Name",
       "create_btn": "Create Space",
+      "join_space": "Join a Team",
+      "join_desc": "Use a connection code to join an existing team.",
+      "connection_code_placeholder": "E.g. 4a8b2c1d...",
+      "join_btn": "Join Space",
       "no_connection": "No workspace selected. Establish a connection.",
       "kick": "Kick",
       "role_updated": "Role updated",
