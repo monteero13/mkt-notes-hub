@@ -75,6 +75,7 @@ export async function proxy(request: NextRequest) {
   const isPublicRoute =
     PUBLIC_ROUTES.includes(pathWithoutLocale) ||
     pathname.startsWith("/api/") ||
+    pathname.startsWith("/auth/") ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/favicon");
 
