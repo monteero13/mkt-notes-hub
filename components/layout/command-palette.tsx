@@ -17,7 +17,7 @@ import {
   UserPlus,
   Search,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 import {
   CommandDialog,
@@ -34,6 +34,8 @@ import { useTranslations } from "next-intl";
 export function CommandPalette() {
   const [open, setOpen] = React.useState(false);
   const router = useRouter();
+  const params = useParams();
+  const locale = params?.locale || "es";
   const t = useTranslations("layout.command_palette");
 
   const runCommand = React.useCallback((command: () => void) => {
@@ -72,19 +74,19 @@ export function CommandPalette() {
         </CommandEmpty>
 
         <CommandGroup heading={t("groups.navigation")} className="px-2">
-          <CommandItem onSelect={() => runCommand(() => router.push("/dashboard"))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors">
+          <CommandItem onSelect={() => runCommand(() => router.push(`/${locale}/dashboard`))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors">
             <LayoutDashboard className="mr-3 h-4 w-4 opacity-40 group-focus:opacity-100" />
             <span className="text-[11px] font-black uppercase tracking-widest">{t("items.dashboard")}</span>
           </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => router.push("/clients"))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors">
+          <CommandItem onSelect={() => runCommand(() => router.push(`/${locale}/clients`))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors">
             <Users className="mr-3 h-4 w-4 opacity-40 group-focus:opacity-100" />
             <span className="text-[11px] font-black uppercase tracking-widest">{t("items.clients")}</span>
           </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => router.push("/campaigns"))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors">
+          <CommandItem onSelect={() => runCommand(() => router.push(`/${locale}/campaigns`))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors">
             <Megaphone className="mr-3 h-4 w-4 opacity-40 group-focus:opacity-100" />
             <span className="text-[11px] font-black uppercase tracking-widest">{t("items.campaigns")}</span>
           </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => router.push("/planner"))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors">
+          <CommandItem onSelect={() => runCommand(() => router.push(`/${locale}/planner`))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors">
             <CalendarRange className="mr-3 h-4 w-4 opacity-40 group-focus:opacity-100" />
             <span className="text-[11px] font-black uppercase tracking-widest">{t("items.calendar")}</span>
           </CommandItem>
@@ -123,17 +125,17 @@ export function CommandPalette() {
         <CommandSeparator className="my-3 opacity-30" />
 
         <CommandGroup heading={t("groups.settings")} className="px-2">
-          <CommandItem onSelect={() => runCommand(() => router.push("/settings"))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors group">
+          <CommandItem onSelect={() => runCommand(() => router.push(`/${locale}/settings`))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors group">
             <User className="mr-3 h-4 w-4 opacity-40 group-focus:opacity-100" />
             <span className="text-[11px] font-black uppercase tracking-widest">{t("items.profile")}</span>
             <CommandShortcut className="text-[9px] font-black opacity-30 group-focus:opacity-60">⌘P</CommandShortcut>
           </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => router.push("/billing"))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors group">
+          <CommandItem onSelect={() => runCommand(() => router.push(`/${locale}/billing`))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors group">
             <CreditCard className="mr-3 h-4 w-4 opacity-40 group-focus:opacity-100" />
             <span className="text-[11px] font-black uppercase tracking-widest">{t("items.billing")}</span>
             <CommandShortcut className="text-[9px] font-black opacity-30 group-focus:opacity-60">⌘B</CommandShortcut>
           </CommandItem>
-          <CommandItem onSelect={() => runCommand(() => router.push("/settings"))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors group">
+          <CommandItem onSelect={() => runCommand(() => router.push(`/${locale}/settings`))} className="h-11 rounded-sm mb-0.5 focus:bg-brand/5 focus:text-brand transition-colors group">
             <Settings className="mr-3 h-4 w-4 opacity-40 group-focus:opacity-100" />
             <span className="text-[11px] font-black uppercase tracking-widest">{t("items.settings")}</span>
             <CommandShortcut className="text-[9px] font-black opacity-30 group-focus:opacity-60">⌘S</CommandShortcut>

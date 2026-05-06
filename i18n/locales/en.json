@@ -1031,7 +1031,8 @@
         "pricing": "Pricing",
         "infrastructure": "Infrastructure",
         "login": "Log In",
-        "signup": "Sign Up"
+        "signup": "Sign Up",
+        "dashboard": "Command Center"
       },
       "hero": {
         "badge": "Now Live: Operational Intelligence Suite V4.0",

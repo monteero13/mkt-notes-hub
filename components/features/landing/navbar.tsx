@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/layout/logo";
@@ -11,6 +12,8 @@ import { createClient } from "@/lib/supabase/client";
 
 export function LandingNavbar() {
   const t = useTranslations("landing.navbar");
+  const params = useParams();
+  const locale = params?.locale || "es";
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -68,24 +71,24 @@ export function LandingNavbar() {
         <div className="hidden items-center gap-4 md:flex">
           {user ? (
             <Link
-              href="/dashboard"
+              href={`/${locale}/dashboard`}
               className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand/90 active:scale-[0.98]"
               style={{ fontFamily: "var(--font-switzer), sans-serif" }}
             >
-              Inicia sesión
+              {t("dashboard")}
               <ArrowUpRight size={14} />
             </Link>
           ) : (
             <>
               <Link
-                href="/login"
+                href={`/${locale}/login`}
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 style={{ fontFamily: "var(--font-switzer), sans-serif" }}
               >
                 {t("login")}
               </Link>
               <Link
-                href="/login?mode=signup"
+                href={`/${locale}/login?mode=signup`}
                 className="inline-flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-brand/90 active:scale-[0.98]"
                 style={{ fontFamily: "var(--font-switzer), sans-serif" }}
               >
@@ -129,23 +132,23 @@ export function LandingNavbar() {
             <div className="mt-6 flex flex-col gap-3 pb-4">
               {user ? (
                 <Link
-                  href="/dashboard"
+                  href={`/${locale}/dashboard`}
                   className="py-3 text-center rounded-full bg-brand text-sm font-semibold text-white hover:bg-brand/90 transition-all"
                   style={{ fontFamily: "var(--font-switzer), sans-serif" }}
                 >
-                  Go to Command Center
+                  {t("dashboard")}
                 </Link>
               ) : (
                 <>
                   <Link
-                    href="/login"
+                    href={`/${locale}/login`}
                     className="py-3 text-center text-sm font-medium text-muted-foreground border border-border rounded-full hover:bg-accent transition-all"
                     style={{ fontFamily: "var(--font-switzer), sans-serif" }}
                   >
                     {t("login")}
                   </Link>
                   <Link
-                    href="/login?mode=signup"
+                    href={`/${locale}/login?mode=signup`}
                     className="py-3 text-center rounded-full bg-brand text-sm font-semibold text-white hover:bg-brand/90 transition-all"
                     style={{ fontFamily: "var(--font-switzer), sans-serif" }}
                   >

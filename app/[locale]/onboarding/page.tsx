@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
 import { Building2, Loader2, Rocket } from "lucide-react";
 
@@ -21,6 +21,8 @@ export default function OnboardingPage() {
   const [name, setName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const supabase = createClient();
+  const params = useParams();
+  const locale = params?.locale || "es";
   const router = useRouter();
   const queryClient = useQueryClient();
   const { workspaces, isLoading: workspacesLoading } = useAuth();
@@ -30,7 +32,7 @@ export default function OnboardingPage() {
     if (workspacesLoading) return;
 
     if (workspaces.length > 0) {
-      router.push("/dashboard");
+      router.push(`/${locale}/dashboard`);
       return;
     }
 
@@ -88,7 +90,7 @@ export default function OnboardingPage() {
 
         await queryClient.invalidateQueries({ queryKey: ['auth-user'] });
         toast.success(t("onboarding.success"));
-        router.push("/dashboard");
+        router.push(`/${locale}/dashboard`);
         return;
       }
 
@@ -100,7 +102,7 @@ export default function OnboardingPage() {
       await queryClient.invalidateQueries({ queryKey: ['auth-user'] });
 
       toast.success(t("onboarding.success"));
-      router.push("/dashboard");
+      router.push(`/${locale}/dashboard`);
     } catch (error: any) {
       toast.error(error.message);
     } finally {

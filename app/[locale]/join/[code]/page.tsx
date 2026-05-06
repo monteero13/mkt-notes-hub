@@ -21,6 +21,7 @@ interface TeamData {
 
 export default function JoinWorkspacePage() {
   const params = useParams();
+  const locale = params?.locale || "es";
   const router = useRouter();
   const [team, setTeam] = useState<TeamData | null>(null);
   const [invite, setInvite] = useState<InviteData | null>(null);
@@ -34,14 +35,14 @@ export default function JoinWorkspacePage() {
         const result = await response.json();
         if (!response.ok || !result.team) {
           toast.error("Enlace de invitación inválido o expirado.");
-          router.push("/dashboard");
+          router.push(`/${locale}/dashboard`);
           return;
         }
         setTeam(result.team);
         setInvite(result.invite);
       } catch {
         toast.error("Error al cargar la invitación.");
-        router.push("/dashboard");
+        router.push(`/${locale}/dashboard`);
       } finally {
         setIsLoading(false);
       }
@@ -56,7 +57,7 @@ export default function JoinWorkspacePage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        router.push(`/login?next=/join/${params.code}`);
+        router.push(`/${locale}/login?next=/join/${params.code}`);
         return;
       }
 
@@ -70,7 +71,7 @@ export default function JoinWorkspacePage() {
 
       if (existing) {
         toast.info("Ya eres miembro de este workspace.");
-        router.push("/dashboard");
+        router.push(`/${locale}/dashboard`);
         return;
       }
 
@@ -91,7 +92,7 @@ export default function JoinWorkspacePage() {
         .eq("id", invite.id);
 
       toast.success(`¡Bienvenido a ${team.name}!`);
-      router.push("/dashboard");
+      router.push(`/${locale}/dashboard`);
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : "Error al unirse al workspace.";
       toast.error(msg);
@@ -126,7 +127,7 @@ export default function JoinWorkspacePage() {
             {isJoining ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             {isJoining ? "Uniéndote..." : "Aceptar invitación"}
           </Button>
-          <Button variant="ghost" className="w-full" onClick={() => router.push("/dashboard")}>
+          <Button variant="ghost" className="w-full" onClick={() => router.push(`/${locale}/dashboard`)}>
             Cancelar
           </Button>
         </CardContent>

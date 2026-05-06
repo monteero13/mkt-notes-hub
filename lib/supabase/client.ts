@@ -13,6 +13,11 @@ export function createClient() {
         getSession: async () => ({ data: { session: null }, error: null }),
         onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
         signInWithOAuth: async () => ({ data: null, error: null }),
+        signInWithPassword: async () => ({ data: { user: null, session: null }, error: null }),
+        signUp: async () => ({ data: { user: null, session: null }, error: null }),
+        signInWithOtp: async () => ({ data: null, error: null }),
+        resetPasswordForEmail: async () => ({ data: null, error: null }),
+        updateUser: async () => ({ data: { user: null }, error: null }),
         signOut: async () => ({ error: null }),
       },
       from: () => ({

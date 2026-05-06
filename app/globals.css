@@ -55,6 +55,17 @@
   /* Legacy compat */
   --color-electric-500: #0084FF;
   --color-blue-500: #3B82F6;
+
+  /* Typography Scales (Slightly increased globally to ensure perfect readability) */
+  --font-size-xs: 0.84375rem;   /* ~13.5px instead of 12px */
+  --font-size-sm: 0.9375rem;    /* ~15px instead of 14px */
+  --font-size-base: 1.0625rem;  /* ~17px instead of 16px */
+  --font-size-lg: 1.1875rem;    /* ~19px instead of 18px */
+  --font-size-xl: 1.34375rem;   /* ~21.5px instead of 20px */
+  --font-size-2xl: 1.625rem;    /* ~26px instead of 24px */
+  --font-size-3xl: 2.0rem;      /* ~32px instead of 30px */
+  --font-size-4xl: 2.5rem;      /* ~40px instead of 36px */
+  --font-size-5xl: 3.25rem;     /* ~52px instead of 48px */
 }
 
 /* ─── Mkt Notes Light Theme ─── */
@@ -112,6 +123,10 @@
 }
 
 @layer base {
+  html {
+    font-size: 16.5px;
+  }
+
   * {
     border-color: hsl(var(--border));
   }
@@ -155,9 +170,33 @@
 
 .gleap-label {
   font-family: var(--font-switzer), sans-serif;
-  font-size: 13px;
+  font-size: 14.5px;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--color-brand);
   /* Texto de etiquetas en azul eléctrico */
+}
+
+/* Global Overrides to upscale all microscopic absolute pixel utility classes used for badges, inputs and labels */
+.text-\[9px\] {
+  font-size: 11.5px !important;
+}
+
+.text-\[10px\] {
+  font-size: 12.5px !important;
+}
+
+.text-\[11px\] {
+  font-size: 13.5px !important;
+}
+
+.text-\[12px\] {
+  font-size: 14.5px !important;
+}
+
+/* Elevate the legibility of Technical Labels across the system */
+.technical-label {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
 }

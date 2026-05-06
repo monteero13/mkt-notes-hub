@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,6 +18,8 @@ type AuthMode = 'login' | 'signup' | 'forgot-password' | 'magic-link' | 'verific
 
 function LoginContent() {
   const t = useTranslations('login');
+  const params = useParams()
+  const locale = params?.locale || 'es'
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -40,7 +42,7 @@ function LoginContent() {
 
   const setMode = (newMode: AuthMode) => {
     setModeState(newMode)
-    router.replace(`/login?mode=${newMode}`, { scroll: false })
+    router.replace(`/${locale}/login?mode=${newMode}`, { scroll: false })
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,7 +80,7 @@ function LoginContent() {
         toast.success(t('success.login'))
 
         setTimeout(() => {
-          window.location.assign('/dashboard')
+          window.location.assign(`/${locale}/dashboard`)
         }, 800)
       } else if (mode === 'signup') {
         const { data: { user }, error: signUpError } = await supabase.auth.signUp({
@@ -141,7 +143,10 @@ function LoginContent() {
 
   const handleOAuth = async (provider: 'apple' | 'google') => {
     try {
-      const next = searchParams.get('next') || '/dashboard'
+      let next = searchParams.get('next') || `/${locale}/dashboard`
+      if (next === '/dashboard') {
+        next = `/${locale}/dashboard`
+      }
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {

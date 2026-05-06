@@ -3,6 +3,7 @@
 import { AppSidebar } from "./layout/app-sidebar";
 import { AppTopbar } from "./layout/app-topbar";
 import { CommandPalette } from "./layout/command-palette";
+import { OnboardingTour } from "@/components/features/onboarding/onboarding-tour";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useWorkspace } from "@/hooks/use-workspace";
@@ -54,6 +55,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         </main>
       </div>
       <CommandPalette />
+      <OnboardingTour />
     </div>
   );
 }

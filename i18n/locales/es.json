@@ -1050,7 +1050,8 @@
         "pricing": "Precios",
         "infrastructure": "Infraestructura",
         "login": "Iniciar Sesión",
-        "signup": "Registrarse"
+        "signup": "Registrarse",
+        "dashboard": "Centro de Mando"
       },
       "hero": {
         "badge": "Ya disponible: Suite de Operaciones Inteligentes V4.0",
