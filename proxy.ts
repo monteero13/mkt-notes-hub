@@ -76,6 +76,7 @@ export async function proxy(request: NextRequest) {
     PUBLIC_ROUTES.includes(pathWithoutLocale) ||
     pathname.startsWith("/api/") ||
     pathname.startsWith("/auth/") ||
+    pathWithoutLocale.startsWith("/auth/") ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/favicon");
 
@@ -89,5 +90,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|trpc|_next|_vercel|.*\\..*).*)"],
+  matcher: ["/((?!api|auth|trpc|_next|_vercel|.*\\..*).*)"],
 };
