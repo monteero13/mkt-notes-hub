@@ -4,9 +4,7 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  outputFileTracingRoot: process.cwd(),
 
   // Optimize package imports: reduces bundle size by only importing used exports
   // This is especially impactful for lucide-react (469+ icons) and radix-ui

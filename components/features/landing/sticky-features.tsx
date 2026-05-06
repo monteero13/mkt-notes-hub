@@ -9,10 +9,22 @@ import { cn } from "@/lib/utils";
 import { BarChart3, Brain, Calendar, Layout, ListTodo, Users, FileText, FolderOpen, ArrowUpRight, Zap } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 gsap.registerPlugin(ScrollTrigger);
 
 const FEATURE_ICONS = [Users, Layout, Calendar, ListTodo, Brain, FileText, FolderOpen, BarChart3];
+
+const FEATURE_IMAGES = [
+  "/feature-crm.png",       // 0. CRM de Socios
+  "/feature-campaign.png",  // 1. Control de Campañas
+  "/feature-timeline.png",  // 2. Línea de Tiempo de Marketing
+  "/feature-tasks.png",     // 3. Gestor de Ejecución
+  "/feature-ideation.png",  // 4. Lab de Ideación
+  "/feature-content.png",   // 5. Ingesta de Contenido
+  "/feature-vault.png",     // 6. Bóveda de Recursos
+  "/feature-campaign.png"   // 7. Auditoría Ejecutiva
+];
 
 export function StickyFeatures() {
   const t = useTranslations("landing.features");
@@ -132,29 +144,18 @@ export function StickyFeatures() {
                         <div className="w-2.5 h-2.5 rounded-full bg-border" />
                         <div className="w-2.5 h-2.5 rounded-full bg-border" />
                       </div>
-                      <div className="flex-1 relative flex items-center justify-center overflow-hidden">
-                         {/* Dynamic Background Gradient */}
-                         <div className={cn(
-                           "absolute inset-0 opacity-20 blur-[100px] transition-colors duration-1000",
-                           i % 2 === 0 ? "bg-brand" : "bg-brand/40"
-                         )} />
+                      <div className="flex-1 relative overflow-hidden bg-[#0d111c]">
+                         <Image
+                           src={FEATURE_IMAGES[i] || ""}
+                           alt={items[i]?.title || ""}
+                           fill
+                           sizes="(max-width: 1024px) 100vw, 50vw"
+                           className="object-cover object-top transition-transform duration-700 hover:scale-[1.02]"
+                           priority={activeIndex === i}
+                         />
                          
-                         {/* Icon/Visual Content */}
-                         <div className="relative z-10 flex flex-col items-center gap-8">
-                            <div className="p-8 rounded-sm bg-background border border-border backdrop-blur-sm">
-                              {React.createElement(FEATURE_ICONS[i] || Zap, { size: 80, className: activeIndex === i ? "text-brand" : "text-muted-foreground/20" })}
-                            </div>
-                            <div className="flex flex-col items-center gap-2">
-                               <div className="technical-label text-[10px] text-muted-foreground tracking-[0.2em]">Node {i + 1} Operational</div>
-                               <div className="h-1.5 w-40 bg-muted rounded-full overflow-hidden">
-                                  <div className="h-full bg-brand w-2/3 animate-pulse" />
-                               </div>
-                            </div>
-                         </div>
-
-                         {/* Floating decorative elements */}
-                         <div className="absolute top-12 left-12 w-32 h-32 border border-border/40 rounded-full" />
-                         <div className="absolute bottom-24 right-12 w-48 h-48 border border-border/40 rounded-full" />
+                         {/* Subtle dark gradient overlay to fit the premium dark style */}
+                         <div className="absolute inset-0 bg-gradient-to-t from-background/20 via-transparent to-transparent pointer-events-none" />
                       </div>
                    </div>
                 </div>
