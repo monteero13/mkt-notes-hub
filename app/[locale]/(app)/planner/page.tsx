@@ -69,9 +69,7 @@ export default function PlanificadorPage() {
         title: newTaskTitle,
         due_date: dateStr,
         status: 'todo',
-        priority: selectedCategory?.color === 'red' ? 'high' : 'medium',
-        category_name: selectedCategory?.name || 'General',
-        category_color: selectedCategory?.color || '#3b82f6',
+        priority: selectedCategory?.color === '#ef4444' ? 'high' : 'medium',
         assignee_id: selectedAssignees[0] ?? null
       });
 

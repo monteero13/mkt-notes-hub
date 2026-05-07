@@ -29,17 +29,26 @@ export default function ContenidoPage() {
   const queryClient = useQueryClient();
   const supabase = createClient();
 
-  const platformIcons: Record<string, any> = {
-    Instagram: { icon: Instagram, label: "Instagram" },
-    YouTube: { icon: Youtube, label: "YouTube" },
-    LinkedIn: { icon: Linkedin, label: "LinkedIn" },
-    TikTok: { icon: Music2, label: "TikTok" },
+  const channelIcons: Record<string, any> = {
+    instagram: { icon: Instagram, label: "Instagram" },
+    youtube:   { icon: Youtube,   label: "YouTube" },
+    linkedin:  { icon: Linkedin,  label: "LinkedIn" },
+    tiktok:    { icon: Music2,    label: "TikTok" },
+    facebook:  { icon: PenTool,   label: "Facebook" },
+    twitter:   { icon: PenTool,   label: "Twitter / X" },
+    email:     { icon: PenTool,   label: "Email" },
+    blog:      { icon: PenTool,   label: "Blog" },
+    other:     { icon: PenTool,   label: "Other" },
   };
 
-  const statusConfig: Record<'draft' | 'in_progress' | 'published', { label: string; color: string }> = {
-    draft: { label: t("statuses.drafting"), color: "text-muted-foreground bg-muted" },
-    in_progress: { label: t("statuses.in_review"), color: "text-warning bg-warning/10" },
+  const statusConfig: Record<string, { label: string; color: string }> = {
+    idea:      { label: t("statuses.idea"),      color: "text-muted-foreground bg-muted" },
+    drafting:  { label: t("statuses.drafting"),  color: "text-muted-foreground bg-muted/60" },
+    in_review: { label: t("statuses.in_review"), color: "text-warning bg-warning/10" },
+    approved:  { label: t("statuses.approved"),  color: "text-brand bg-brand/10" },
+    scheduled: { label: t("statuses.scheduled"), color: "text-primary bg-primary/10" },
     published: { label: t("statuses.published"), color: "text-success bg-success/10" },
+    archived:  { label: t("statuses.archived"),  color: "text-muted-foreground/50 bg-muted/30" },
   };
 
   const handleDelete = async (id: string) => {
@@ -102,17 +111,17 @@ export default function ContenidoPage() {
               </div>
 
               {/* Status Filters */}
-              <div className="flex gap-2 p-1 border border-border bg-card rounded-xl w-fit">
-                {(["all", "draft", "in_progress", "published"] as const).map((s) => (
+              <div className="flex flex-wrap gap-2 p-1 border border-border bg-card rounded-xl w-fit">
+                {(["all", "drafting", "in_review", "approved", "scheduled", "published"] as const).map((s) => (
                   <button
                     key={s}
                     onClick={() => setFilter(s)}
                     className={cn(
-                      "px-6 py-1.5 text-xs font-semibold rounded-lg transition-all",
+                      "px-4 py-1.5 text-xs font-semibold rounded-lg transition-all",
                       filter === s ? "bg-brand text-white" : "text-muted-foreground hover:text-foreground"
                     )}
                   >
-                    {s === "all" ? t("filters.all") : statusConfig[s].label}
+                    {s === "all" ? t("filters.all") : (statusConfig[s]?.label ?? s)}
                   </button>
                 ))}
               </div>
@@ -125,8 +134,8 @@ export default function ContenidoPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                   {filtered.map((item: any) => {
-                    const platform = platformIcons[item.platform as keyof typeof platformIcons] || { icon: PenTool, label: item.platform };
-                    const status = statusConfig[(item.status as keyof typeof statusConfig) || 'draft'] || statusConfig.draft;
+                    const channel = channelIcons[item.channel as string] ?? { icon: PenTool, label: item.channel ?? "—" };
+                    const status = statusConfig[item.status as string] ?? statusConfig["drafting"]!;
                     return (
                       <div
                         key={item.id}
@@ -134,8 +143,8 @@ export default function ContenidoPage() {
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <platform.icon size={12} className="text-muted-foreground/40" />
-                            <span className="text-xs font-medium text-muted-foreground/60">{platform.label}</span>
+                            <channel.icon size={12} className="text-muted-foreground/40" />
+                            <span className="text-xs font-medium text-muted-foreground/60">{channel.label}</span>
                           </div>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -148,13 +157,13 @@ export default function ContenidoPage() {
                               </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48 rounded-sm bg-card border-border">
-                              {(['draft', 'in_progress', 'published'] as const).map((s) => (
+                              {(['drafting', 'in_review', 'approved', 'scheduled', 'published', 'archived'] as const).map((s) => (
                                 <DropdownMenuItem
                                   key={s}
                                   onSelect={() => handleStatusChange(item.id, s)}
                                   className="text-xs py-2 cursor-pointer hover:bg-brand/10 hover:text-brand"
                                 >
-                                  {statusConfig[s].label}
+                                  {statusConfig[s]?.label ?? s}
                                 </DropdownMenuItem>
                               ))}
                             </DropdownMenuContent>
@@ -169,11 +178,11 @@ export default function ContenidoPage() {
 
                         <div className="pt-6 border-t border-border flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-muted-foreground/60">{item.type}</span>
+                            <span className="text-xs font-medium text-muted-foreground/60">{channel.label}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-medium text-muted-foreground/50">
-                              {item.date ? new Date(item.date).toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-US', { day: '2-digit', month: 'short' }) : 'TBD'}
+                              {item.scheduled_at ? new Date(item.scheduled_at).toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-US', { day: '2-digit', month: 'short' }) : 'TBD'}
                             </span>
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                               <DeleteConfirmDialog

@@ -65,10 +65,10 @@ export default async function AnalyticsPage() {
       {/* Top Operational Header */}
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-border px-4 sm:px-8">
         <div className="flex items-center gap-4">
-          <div className="technical-label text-[11px] text-foreground">{t("title")}</div>
+          <div className="text-sm font-semibold text-foreground">{t("title")}</div>
           <div className="h-4 w-[1px] bg-border" />
-          <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
-            <span>{t("title")}</span>
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <span>Dashboard</span>
             <ChevronRight size={12} className="opacity-60" />
             <span className="text-brand">{t("filter_30d")}</span>
           </div>
@@ -78,7 +78,7 @@ export default async function AnalyticsPage() {
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 lg:p-8">
         <div className="mb-4 sm:mb-6 lg:mb-8">
           <h1 className="text-4xl font-light tracking-tight" style={{ fontFamily: "var(--font-clash), sans-serif" }}>{t("title")}</h1>
-          <p className="text-[11px] technical-label opacity-60 uppercase tracking-widest">{t("subtitle")}</p>
+          <p className="text-xs font-semibold technical-label opacity-60 uppercase tracking-wider">{t("subtitle")}</p>
         </div>
 
         <AnalyticsDashboardWrapper

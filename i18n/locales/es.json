@@ -219,9 +219,13 @@
         "all": "Todos"
       },
       "statuses": {
+        "idea": "Idea",
         "drafting": "Borrador",
-        "in_review": "En proceso",
-        "published": "Publicado"
+        "in_review": "En revisión",
+        "approved": "Aprobado",
+        "scheduled": "Programado",
+        "published": "Publicado",
+        "archived": "Archivado"
       },
       "actions": {
         "delete_confirm": "Purgar Entrada",

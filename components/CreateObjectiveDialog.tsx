@@ -49,7 +49,7 @@ export function CreateObjectiveDialog({ children }: { children?: React.ReactNode
             kpi,
             target_value: parseFloat(targetValue) || 0,
             current_value: 0,
-            deadline: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split('T')[0]
+            due_date: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split('T')[0]
           }
         })
       })

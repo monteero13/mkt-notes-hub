@@ -12,21 +12,26 @@ import { useContent } from '@/hooks/use-features-data'
 import { useAuth } from '@/hooks/use-auth'
 import { PremiumLimitModal } from './PremiumLimitModal'
 import { useTranslations } from 'next-intl'
+import type { ContentChannel } from '@/types'
+
+const CHANNELS: ContentChannel[] = [
+  'instagram', 'tiktok', 'youtube', 'linkedin',
+  'facebook', 'twitter', 'email', 'blog', 'other',
+]
 
 export function CreateContentDialog({ children }: { children?: React.ReactNode }) {
   const t = useTranslations('dialogs.content')
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [title, setTitle] = useState('')
-  const [platform, setPlatform] = useState('')
-  const [type, setType] = useState('')
+  const [channel, setChannel] = useState<ContentChannel>('instagram')
 
   const { activeWorkspace } = useWorkspace()
   const { user, isPro } = useAuth()
   const { data: content = [] } = useContent()
   const queryClient = useQueryClient()
 
-  const isLimitReached = !isPro && Array.isArray(content) && content.length >= 4;
+  const isLimitReached = !isPro && Array.isArray(content) && content.length >= 4
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -43,12 +48,10 @@ export function CreateContentDialog({ children }: { children?: React.ReactNode }
           workspaceId: activeWorkspace.id,
           data: {
             title,
-            platform,
-            type,
-            status: 'draft',
-            date: new Date().toISOString().split('T')[0]
-          }
-        })
+            channel,
+            status: 'drafting',
+          },
+        }),
       })
 
       const result = await response.json()
@@ -57,8 +60,7 @@ export function CreateContentDialog({ children }: { children?: React.ReactNode }
       toast.success(t('success'))
       setOpen(false)
       setTitle('')
-      setPlatform('')
-      setType('')
+      setChannel('instagram')
       queryClient.invalidateQueries({ queryKey: ['content'] })
     } catch (error: any) {
       toast.error(error.message)
@@ -90,7 +92,7 @@ export function CreateContentDialog({ children }: { children?: React.ReactNode }
               <DialogDescription className="text-[10px] technical-label opacity-60 mt-1 uppercase">{t('desc')}</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleCreate} className="space-y-6">
-              <div className="space-y-2 group">
+              <div className="space-y-2">
                 <label className="technical-label text-[10px] text-foreground opacity-60">{t('label_title')}</label>
                 <Input
                   placeholder={t('placeholder_title')}
@@ -100,27 +102,23 @@ export function CreateContentDialog({ children }: { children?: React.ReactNode }
                   required
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2 group">
-                  <label className="technical-label text-[10px] text-foreground opacity-60">{t('label_platform')}</label>
-                  <Input
-                    placeholder={t('placeholder_platform')}
-                    value={platform}
-                    onChange={(e) => setPlatform(e.target.value)}
-                    className="h-12 rounded-sm border-border bg-background focus:border-brand transition-all text-sm font-medium px-4"
-                  />
-                </div>
-                <div className="space-y-2 group">
-                  <label className="technical-label text-[10px] text-foreground opacity-60">{t('label_platform')}</label>
-                  <Input
-                    placeholder="Ej: Reel"
-                    value={type}
-                    onChange={(e) => setType(e.target.value)}
-                    className="h-12 rounded-sm border-border bg-background focus:border-brand transition-all text-sm font-medium px-4"
-                  />
-                </div>
+              <div className="space-y-2">
+                <label className="technical-label text-[10px] text-foreground opacity-60">{t('label_platform')}</label>
+                <select
+                  value={channel}
+                  onChange={(e) => setChannel(e.target.value as ContentChannel)}
+                  className="w-full h-12 rounded-sm border border-border bg-background px-4 text-sm font-medium text-foreground focus:border-brand focus:outline-none transition-all capitalize"
+                >
+                  {CHANNELS.map((c) => (
+                    <option key={c} value={c} className="capitalize">{c}</option>
+                  ))}
+                </select>
               </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full h-12 rounded-sm font-black uppercase tracking-[0.2em] text-[10px] mt-4 bg-brand text-white shadow-lg shadow-brand/10 hover:opacity-90">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full h-12 rounded-sm font-black uppercase tracking-[0.2em] text-[10px] mt-4 bg-brand text-white shadow-lg shadow-brand/10 hover:opacity-90"
+              >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('submit')}
               </Button>
             </form>

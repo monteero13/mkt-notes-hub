@@ -119,7 +119,7 @@ export default function ObjetivosPage() {
                           <div className="flex items-center gap-2">
                             <Calendar size={12} className="text-muted-foreground/30" />
                             <span className="technical-label text-[8px] opacity-40 uppercase tracking-widest">
-                              Deadline: {new Date(obj.deadline).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
+                              Deadline: {obj.due_date ? new Date(obj.due_date).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
                             </span>
                           </div>
                           <CreateTaskDialog>

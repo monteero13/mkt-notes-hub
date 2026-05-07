@@ -44,10 +44,8 @@ export function CreateCampaignDialog({ children }: { children?: React.ReactNode 
           workspaceId: activeWorkspace.id,
           data: {
             name,
-            channel,
             end_date: endDate || null,
-            status: 'planning',
-            progress: 0
+            status: 'draft',
           }
         })
       })

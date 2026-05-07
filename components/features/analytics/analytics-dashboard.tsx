@@ -125,10 +125,10 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
             <Lock size={32} className="text-brand" />
           </div>
           <h3 className="text-2xl font-black uppercase tracking-tighter mb-2 text-foreground">{t("restricted_title")}</h3>
-          <p className="max-w-md text-[11px] technical-label opacity-60 uppercase tracking-[0.2em] mb-8 leading-relaxed">
+          <p className="max-w-md text-xs font-semibold technical-label opacity-60 uppercase tracking-[0.2em] mb-8 leading-relaxed">
             {t("restricted_desc")}
           </p>
-          <Button className="h-12 rounded-sm bg-brand px-12 technical-label text-[11px] text-white shadow-2xl shadow-brand/20 hover:scale-105 transition-transform" asChild>
+          <Button className="h-12 rounded-sm bg-brand px-12 technical-label text-xs font-semibold text-white shadow-2xl shadow-brand/20 hover:scale-105 transition-transform" asChild>
             <a href="/billing">{t("restricted_btn")}</a>
           </Button>
         </div>
@@ -144,21 +144,21 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
           <Button
             onClick={handleExportCSV}
             disabled={exportingCSV}
-            className="h-8 rounded-sm bg-accent/5 border border-border px-4 technical-label text-[10px] text-foreground hover:bg-brand/10 hover:text-brand gap-2 transition-all"
+            className="h-8 rounded-sm bg-accent/5 border border-border px-4 technical-label text-xs font-semibold text-foreground hover:bg-brand/10 hover:text-brand gap-2 transition-all"
           >
             {exportingCSV ? <Loader2 size={12} className="animate-spin" /> : <Download size={12} />}
             {t("export_csv")}
-            {!isPro && <span className="text-[8px] bg-brand/20 text-brand px-1 py-0.5 rounded-sm ml-1">PRO</span>}
+            {!isPro && <span className="text-[10px] font-bold bg-brand/20 text-brand px-1.5 py-0.5 rounded-sm ml-1">PRO</span>}
           </Button>
 
           <Button
             onClick={handleExportPDF}
             disabled={exportingPDF}
-            className="h-8 rounded-sm bg-accent/5 border border-border px-4 technical-label text-[10px] text-foreground hover:bg-brand/10 hover:text-brand gap-2 transition-all"
+            className="h-8 rounded-sm bg-accent/5 border border-border px-4 technical-label text-xs font-semibold text-foreground hover:bg-brand/10 hover:text-brand gap-2 transition-all"
           >
             {exportingPDF ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
             {t("export_pdf")}
-            {!isPro && <span className="text-[8px] bg-brand/20 text-brand px-1 py-0.5 rounded-sm ml-1">PRO</span>}
+            {!isPro && <span className="text-[10px] font-bold bg-brand/20 text-brand px-1.5 py-0.5 rounded-sm ml-1">PRO</span>}
           </Button>
         </div>
 
@@ -177,7 +177,7 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
             <div className={cn("absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity", color)}>
               <Icon size={40} />
             </div>
-            <div className="technical-label text-[10px] opacity-40 uppercase tracking-widest mb-1">{label}</div>
+            <div className="technical-label text-xs font-semibold opacity-40 uppercase tracking-widest mb-1">{label}</div>
             <div className="contundente-number text-2xl">{value}</div>
           </div>
         ))}
@@ -190,7 +190,7 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "px-6 py-2 rounded-sm technical-label text-[10px] uppercase tracking-[0.2em] transition-all",
+              "px-6 py-2 rounded-sm technical-label text-xs font-semibold uppercase tracking-wider transition-all",
               activeTab === tab 
                 ? "bg-brand text-white shadow-lg shadow-brand/20" 
                 : "text-muted-foreground hover:text-foreground hover:bg-accent/10"
@@ -205,8 +205,8 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
       {snapshots.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-accent/5 py-32 text-center flex flex-col items-center">
           <TrendingUp size={48} className="mb-4 text-muted-foreground opacity-10" />
-          <h3 className="technical-label text-[11px] font-black uppercase tracking-widest text-muted-foreground">{t("empty_title")}</h3>
-          <p className="mt-2 text-[10px] text-muted-foreground/40 uppercase tracking-widest max-w-xs">
+          <h3 className="technical-label text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t("empty_title")}</h3>
+          <p className="mt-2 text-xs text-muted-foreground/40 uppercase tracking-wider max-w-xs">
             {t("empty_desc")}
           </p>
         </div>
@@ -215,31 +215,31 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
           {(activeTab === "overview" || activeTab === "social") && (
             <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
               <div className="flex items-center justify-between mb-8 border-b border-border pb-4">
-                <div className="technical-label text-[11px] flex items-center gap-2">
+                <div className="technical-label text-xs font-semibold flex items-center gap-2">
                   <TrendingUp size={16} className="text-brand" /> {t("chart_reach_title")}
                 </div>
-                <div className="text-[10px] technical-label opacity-40">{t("chart_reach_subtitle")}</div>
+                <div className="text-xs font-semibold technical-label opacity-40">{t("chart_reach_subtitle")}</div>
               </div>
               <ResponsiveContainer width="100%" height={320}>
                 <LineChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} 
+                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis 
-                    tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} 
+                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
                     tickFormatter={formatNumber}
                     axisLine={false}
                     tickLine={false}
                   />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '2px', fontSize: '10px' }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '2px', fontSize: '11px' }}
                     labelStyle={{ fontWeight: 'black', textTransform: 'uppercase', marginBottom: '8px' }}
                   />
-                  <Legend iconType="rect" wrapperStyle={{ paddingTop: '20px', fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase' }} />
+                  <Legend iconType="rect" wrapperStyle={{ paddingTop: '20px', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }} />
                   <Line type="monotone" dataKey="impressions" stroke="#6366f1" strokeWidth={3} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                   <Line type="monotone" dataKey="reach" stroke="#a855f7" strokeWidth={3} dot={false} activeDot={{ r: 4, strokeWidth: 0 }} />
                 </LineChart>
@@ -250,30 +250,30 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
           {(activeTab === "overview" || activeTab === "paid") && (
             <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
               <div className="flex items-center justify-between mb-8 border-b border-border pb-4">
-                <div className="technical-label text-[11px] flex items-center gap-2">
+                <div className="technical-label text-xs font-semibold flex items-center gap-2">
                   <DollarSign size={16} className="text-emerald-500" /> {t("chart_financial_title")}
                 </div>
-                <div className="text-[10px] technical-label opacity-40">{t("chart_financial_subtitle")}</div>
+                <div className="text-xs font-semibold technical-label opacity-40">{t("chart_financial_subtitle")}</div>
               </div>
               <ResponsiveContainer width="100%" height={320}>
                 <BarChart data={chartData}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} 
+                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis 
-                    tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} 
+                    tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} 
                     tickFormatter={(v) => `$${formatNumber(v)}`}
                     axisLine={false}
                     tickLine={false}
                   />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '2px', fontSize: '10px' }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '2px', fontSize: '11px' }}
                   />
-                  <Legend iconType="rect" wrapperStyle={{ paddingTop: '20px', fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase' }} />
+                  <Legend iconType="rect" wrapperStyle={{ paddingTop: '20px', fontSize: '11px', fontWeight: 'bold', textTransform: 'uppercase' }} />
                   <Bar dataKey="spend" fill="#f59e0b" name={t("chart_spend")} radius={[2,2,0,0]} />
                   <Bar dataKey="revenue" fill="#10b981" name={t("chart_revenue")} radius={[2,2,0,0]} />
                 </BarChart>
@@ -284,10 +284,10 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
           {(activeTab === "business") && (
             <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
               <div className="flex items-center justify-between mb-8 border-b border-border pb-4">
-                <div className="technical-label text-[11px] flex items-center gap-2">
+                <div className="technical-label text-xs font-semibold flex items-center gap-2">
                   <Users size={16} className="text-brand" /> {t("matrix_partner_title")}
                 </div>
-                <div className="text-[10px] technical-label opacity-40">{t("matrix_partner_subtitle")}</div>
+                <div className="text-xs font-semibold technical-label opacity-40">{t("matrix_partner_subtitle")}</div>
               </div>
               <div className="space-y-6">
                 {clients.filter(c => c.monthly_retainer).sort((a,b) => (b.monthly_retainer ?? 0) - (a.monthly_retainer ?? 0)).map((client) => {
@@ -296,10 +296,10 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
                     <div key={client.id} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="technical-label text-[10px] font-black uppercase text-foreground">{client.company_name}</span>
-                          <Badge variant="outline" className="text-[7px] technical-label px-1 py-0 opacity-40 rounded-sm">{t("matrix_active")}</Badge>
+                          <span className="technical-label text-xs font-bold uppercase text-foreground">{client.company_name}</span>
+                          <Badge variant="outline" className="text-[10px] technical-label px-1.5 py-0.5 opacity-60 rounded-sm">{t("matrix_active")}</Badge>
                         </div>
-                        <span className="technical-label text-[11px] font-black text-foreground">{formatCurrency(client.monthly_retainer ?? 0)}</span>
+                        <span className="technical-label text-xs font-bold text-foreground">{formatCurrency(client.monthly_retainer ?? 0)}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="flex-1 rounded-sm bg-accent/5 h-2 overflow-hidden border border-border/30">
@@ -308,7 +308,7 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
                             style={{ width: `${Math.min(100, percentage)}%` }}
                           />
                         </div>
-                        <span className="technical-label text-[9px] opacity-40 w-10 text-right">{percentage.toFixed(1)}%</span>
+                        <span className="technical-label text-xs opacity-50 w-10 text-right">{percentage.toFixed(1)}%</span>
                       </div>
                     </div>
                   );
@@ -320,15 +320,15 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
           {(activeTab === "team") && (
             <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
               <div className="flex items-center justify-between mb-8 border-b border-border pb-4">
-                <div className="technical-label text-[11px] flex items-center gap-2">
+                <div className="technical-label text-xs font-semibold flex items-center gap-2">
                   <Users size={16} className="text-brand" /> {t("team_velocity_title")}
                 </div>
-                <div className="text-[10px] technical-label opacity-40">{t("team_velocity_subtitle")}</div>
+                <div className="text-xs font-semibold technical-label opacity-40">{t("team_velocity_subtitle")}</div>
               </div>
 
               {teamStats.length === 0 ? (
                 <div className="py-16 text-center">
-                  <div className="technical-label text-[10px] opacity-20 uppercase tracking-widest">{t("team_empty")}</div>
+                  <div className="technical-label text-xs font-semibold opacity-40 uppercase tracking-widest">{t("team_empty")}</div>
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -341,17 +341,17 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
                           <div className="flex items-center gap-3">
                             <Avatar className="h-7 w-7 rounded-sm border border-border">
                               <img src={member.avatar ?? undefined} alt="" />
-                              <AvatarFallback className="text-[9px] font-black">{getInitials(member.name)}</AvatarFallback>
+                              <AvatarFallback className="text-[10px] font-bold">{getInitials(member.name)}</AvatarFallback>
                             </Avatar>
-                            <span className="technical-label text-[10px] font-black uppercase text-foreground">
+                            <span className="technical-label text-xs font-bold uppercase text-foreground">
                               {member.name}
                             </span>
                             {i === 0 && (
-                              <span className="technical-label text-[7px] px-1.5 py-0.5 bg-brand text-white rounded-sm">{t("team_top")}</span>
+                              <span className="technical-label text-[10px] px-1.5 py-0.5 bg-brand text-white rounded-sm">{t("team_top")}</span>
                             )}
                           </div>
-                          <span className="technical-label text-[11px] font-black text-foreground">
-                            {member.count} <span className="opacity-40 text-[9px]">{t("team_tasks")}</span>
+                          <span className="technical-label text-xs font-bold text-foreground">
+                            {member.count} <span className="opacity-40 text-[11px]">{t("team_tasks")}</span>
                           </span>
                         </div>
                         <div className="flex items-center gap-3">
@@ -361,7 +361,7 @@ export function AnalyticsDashboard({ isPro, snapshots, campaigns, clients, compl
                               style={{ width: `${pct}%` }}
                             />
                           </div>
-                          <span className="technical-label text-[9px] opacity-40 w-10 text-right">{pct}%</span>
+                          <span className="technical-label text-xs opacity-50 w-10 text-right">{pct}%</span>
                         </div>
                       </div>
                     );

@@ -219,9 +219,13 @@
         "all": "All"
       },
       "statuses": {
+        "idea": "Idea",
         "drafting": "Draft",
-        "in_review": "In Progress",
-        "published": "Published"
+        "in_review": "In Review",
+        "approved": "Approved",
+        "scheduled": "Scheduled",
+        "published": "Published",
+        "archived": "Archived"
       },
       "actions": {
         "delete_confirm": "Purge Entry",

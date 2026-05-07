@@ -6,7 +6,7 @@ import { z } from "zod";
 import { assertWithinLimit, PlanLimitError } from "@/lib/limits/plan-limits";
 
 const CONTENT_CHANNELS = ["instagram","tiktok","linkedin","youtube","twitter","facebook","email","blog","other"] as const;
-const CONTENT_STATUSES = ["idea","draft","in_review","approved","scheduled","published","archived"] as const;
+const CONTENT_STATUSES = ["idea","drafting","in_review","approved","scheduled","published","archived"] as const;
 
 const contentSchema = z.object({
   workspace_id: z.string().uuid(),
@@ -17,7 +17,7 @@ const contentSchema = z.object({
   cta: z.string().max(500).nullish(),
   hashtags: z.array(z.string()).optional(),
   channel: z.enum(CONTENT_CHANNELS),
-  status: z.enum(CONTENT_STATUSES).default("draft"),
+  status: z.enum(CONTENT_STATUSES).default("drafting"),
   scheduled_at: z.string().datetime().nullish(),
 });
 
