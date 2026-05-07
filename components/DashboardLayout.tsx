@@ -13,7 +13,7 @@ import { Loader2 } from "lucide-react";
 function DashboardContent({ children }: { children: React.ReactNode }) {
   // Only authLoading truly blocks: we need to know if the user is authenticated.
   // workspaceLoading (members, invites, subscription) is non-critical and handled locally.
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, isFetching } = useAuth();
   const { workspaces, activeWorkspace } = useWorkspace();
   const router = useRouter();
   const pathname = usePathname();
@@ -26,11 +26,11 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       router.push('/login?mode=login');
       return;
     }
-    // Redirect to onboarding if authenticated but no workspaces
-    if (!authLoading && user && workspaces.length === 0 && pathname !== '/onboarding') {
+    // Redirect to onboarding if authenticated but no workspaces (and not currently fetching)
+    if (!authLoading && !isFetching && user && workspaces.length === 0 && pathname !== '/onboarding') {
       router.push('/onboarding');
     }
-  }, [authLoading, user, workspaces, router, pathname]);
+  }, [authLoading, isFetching, user, workspaces, router, pathname]);
 
   // Show a minimal full-screen spinner only during the initial auth check.
   // Once auth resolves (whether or not workspace data is ready), show the layout.

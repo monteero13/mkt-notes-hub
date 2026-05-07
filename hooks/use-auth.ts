@@ -7,7 +7,7 @@ import { Profile, WorkspaceWithMembership } from '@/types';
 export function useAuth() {
   const supabase = createClient();
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, isFetching, error } = useQuery({
     queryKey: ['auth-user'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -69,6 +69,7 @@ export function useAuth() {
     subscription: data?.subscription ?? null,
     isPro: data?.workspaces.some(w => ["pro", "enterprise"].includes(w.plan || "free")),
     isLoading,
+    isFetching,
     isAuthenticated: !!data?.user,
     error,
   };

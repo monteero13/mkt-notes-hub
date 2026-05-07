@@ -65,7 +65,15 @@ export default function OnboardingPage() {
     autoRepair();
   }, [workspacesLoading, workspaces, router, queryClient]);
 
-  if (!workspacesLoading && workspaces.length > 0) {
+  if (workspacesLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary opacity-20" />
+      </div>
+    );
+  }
+
+  if (workspaces.length > 0) {
     return null;
   }
 
