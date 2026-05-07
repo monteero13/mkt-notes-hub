@@ -49,7 +49,12 @@ export function handleApiError(error: unknown): NextResponse {
   if (error instanceof ApiError) {
     return apiError(error.status, error.message);
   }
-  const message = error instanceof Error ? error.message : "Internal server error";
+  let message = "Internal server error";
+  if (error instanceof Error) {
+    message = error.message;
+  } else if (error && typeof error === "object" && "message" in error) {
+    message = String((error as Record<string, unknown>).message);
+  }
   console.error("[API] Unhandled error:", error);
   return apiError(500, message);
 }
