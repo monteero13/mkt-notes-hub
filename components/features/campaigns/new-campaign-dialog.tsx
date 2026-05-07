@@ -57,6 +57,8 @@ export function NewCampaignDialog({ workspaceId, clients, defaultOpen = false }:
       budget: data.budget ? parseFloat(data.budget) : null,
       client_id: data.client_id || null,
       platform: data.platform || null,
+      start_date: data.start_date || null,
+      end_date: data.end_date || null,
     });
     if (result.error) toast.error(result.error);
     else {
