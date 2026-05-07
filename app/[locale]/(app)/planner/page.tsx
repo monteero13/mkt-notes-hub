@@ -64,15 +64,15 @@ export default function PlanificadorPage() {
     try {
       const dateStr = selectedDay.toISOString().split('T')[0];
       const { error } = await supabase.from('tasks').insert({
-        user_id: user.id,
+        created_by: user.id,
         workspace_id: activeWorkspace.id,
         title: newTaskTitle,
         due_date: dateStr,
-        status: 'pending',
+        status: 'todo',
         priority: selectedCategory?.color === 'red' ? 'high' : 'medium',
         category_name: selectedCategory?.name || 'General',
         category_color: selectedCategory?.color || '#3b82f6',
-        assignees: selectedAssignees
+        assignee_id: selectedAssignees[0] ?? null
       });
 
       if (error) throw error;

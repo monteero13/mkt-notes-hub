@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { handleCreatePortalSession } from "@/lib/stripe-actions";
+import { handleCreatePortalSession, handleCreateCheckoutSession } from "@/lib/stripe-actions";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -16,6 +16,7 @@ export default function BillingPage() {
   const { user, profile, isLoading: authLoading } = useAuth();
   const { isPro, activeWorkspace, isLoading: wsLoading } = useWorkspace();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
   const t = useTranslations("billing");
 
   const isLoading = authLoading || wsLoading;
@@ -28,6 +29,19 @@ export default function BillingPage() {
       toast.error(error.message);
     } finally {
       setIsRedirecting(false);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    setIsUpgrading(true);
+    try {
+      // Stripe price ID is fetched from env or defaults to standard Pro monthly product
+      const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_PRO_MONTHLY || "price_1Oxxxxxxxxxxxxxxxxx";
+      await handleCreateCheckoutSession(priceId);
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsUpgrading(false);
     }
   };
 
@@ -124,12 +138,11 @@ export default function BillingPage() {
                       </Button>
                     ) : (
                       <Button
-                        asChild
+                        onClick={handleUpgrade}
+                        disabled={isUpgrading}
                         className="h-10 rounded-sm bg-brand text-white technical-label text-[10px] px-10 hover:opacity-90 transition-all font-black uppercase tracking-widest shadow-lg shadow-brand/20"
                       >
-                        <Link href="/pricing">
-                          {t("current_plan.upgrade_btn")}
-                        </Link>
+                        {isUpgrading ? <Loader2 className="h-4 w-4 animate-spin" /> : t("current_plan.upgrade_btn")}
                       </Button>
                     )}
                   </div>

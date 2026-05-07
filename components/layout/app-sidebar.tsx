@@ -111,6 +111,7 @@ export function AppSidebar({ isOpen = false, onClose }: { isOpen?: boolean; onCl
               return (
                 <Link
                   key={item.href}
+                  id={`sidebar-${item.href.replace("/", "")}`}
                   href={locked ? "/billing" : item.href}
                   className={cn(
                     "relative flex items-center gap-3 rounded-md py-2.5 px-3 transition-all duration-150",
@@ -149,6 +150,7 @@ export function AppSidebar({ isOpen = false, onClose }: { isOpen?: boolean; onCl
               return (
                 <Link
                   key={item.href}
+                  id={`sidebar-${item.href.replace("/", "")}`}
                   href={item.href}
                   className={cn(
                     "relative flex items-center gap-3 rounded-md py-2.5 px-3 transition-all duration-150",
