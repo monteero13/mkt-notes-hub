@@ -35,7 +35,7 @@ export function ManageCategoriesDialog() {
       const { error } = await supabase.from('task_categories').insert([{
         name: newName,
         color: newColor,
-        workspace_id: activeWorkspace.id,
+        team_id: activeWorkspace.id,
         user_id: user.id
       }])
 
@@ -45,8 +45,14 @@ export function ManageCategoriesDialog() {
       setNewName('')
       await queryClient.invalidateQueries({ queryKey: ['task_categories'] })
     } catch (err: any) {
-      console.error('Add Category Error:', err)
-      toast.error('Error' + ': ' + err.message)
+      console.error('Add Category Error Details:', {
+        message: err?.message,
+        details: err?.details,
+        hint: err?.hint,
+        code: err?.code,
+        fullError: err
+      })
+      toast.error('Error: ' + (err?.message || 'Error desconocido'))
     } finally {
       setIsSubmitting(false)
     }

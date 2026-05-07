@@ -15,7 +15,7 @@ export function useCategories() {
       const { data, error } = await supabase
         .from('task_categories')
         .select('*')
-        .eq('workspace_id', activeWorkspace?.id);
+        .eq('team_id', activeWorkspace?.id);
       
       if (error) throw error;
       return data || [];

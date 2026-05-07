@@ -12,7 +12,7 @@ export async function createCheckoutSession(priceId: string) {
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/login?mode=signup&plan=pro&next=/pricing");
+  if (!user) redirect("/login?mode=signup&plan=pro&next=/billing");
 
   // Get the user's active workspace from cookie to tie the subscription to it
   const cookieStore = await cookies();
@@ -43,7 +43,7 @@ export async function createCheckoutSession(priceId: string) {
       line_items: [{ price: priceId, quantity: 1 }],
       mode: "subscription",
       success_url: `${host}/dashboard?success=true`,
-      cancel_url: `${host}/pricing?canceled=true`,
+      cancel_url: `${host}/billing?canceled=true`,
       customer_email: user.email,
       metadata: { workspaceId },
       subscription_data: { metadata: { workspaceId, userId: user.id } },
@@ -82,7 +82,7 @@ export async function createPortalSession() {
     workspaceId = membership?.workspace_id;
   }
 
-  if (!workspaceId) redirect("/pricing");
+  if (!workspaceId) redirect("/billing");
 
   const { data: subscription } = await supabase
     .from("subscriptions")
@@ -90,7 +90,7 @@ export async function createPortalSession() {
     .eq("workspace_id", workspaceId)
     .maybeSingle();
 
-  if (!subscription?.stripe_customer_id) redirect("/pricing");
+  if (!subscription?.stripe_customer_id) redirect("/billing");
 
   const host =
     process.env.NEXT_PUBLIC_APP_URL ||

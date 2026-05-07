@@ -81,6 +81,26 @@ export function SocialDistributionModal({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleOpenPlatform = () => {
+    navigator.clipboard.writeText(socialPackText);
+    setCopied(true);
+    toast.success(`Copiado. Abriendo ${activeTab === "youtube" ? "YouTube" : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}...`);
+    setTimeout(() => setCopied(false), 2000);
+
+    let url = "https://www.instagram.com";
+    if (activeTab === "instagram") {
+      url = "https://www.instagram.com/";
+    } else if (activeTab === "linkedin") {
+      url = "https://www.linkedin.com/feed/";
+    } else if (activeTab === "youtube") {
+      url = "https://studio.youtube.com/";
+    } else if (activeTab === "tiktok") {
+      url = "https://www.tiktok.com/upload";
+    }
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   const addLog = (text: string, delay: number) => {
     return new Promise<void>((resolve) => {
       setTimeout(() => {
@@ -191,18 +211,29 @@ export function SocialDistributionModal({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="technical-label text-[9px] opacity-60 uppercase tracking-widest">Unificador de Redes (Social Pack)</span>
-                <Button
-                  onClick={handleCopyPack}
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "h-8 rounded-lg text-[9px] technical-label uppercase tracking-wider gap-1.5 transition-all shadow-sm",
-                    copied ? "border-success bg-success/5 text-success hover:bg-success/10" : "border-brand/40 text-brand bg-brand/5 hover:bg-brand/10 hover:border-brand"
-                  )}
-                >
-                  {copied ? <Check size={11} /> : <Copy size={11} />}
-                  {copied ? "¡Copiado!" : "Copiar Pack Social"}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleCopyPack}
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "h-8 rounded-lg text-[9px] technical-label uppercase tracking-wider gap-1.5 transition-all shadow-sm",
+                      copied ? "border-success bg-success/5 text-success hover:bg-success/10" : "border-brand/40 text-brand bg-brand/5 hover:bg-brand/10 hover:border-brand"
+                    )}
+                  >
+                    {copied ? <Check size={11} /> : <Copy size={11} />}
+                    {copied ? "¡Copiado!" : "Copiar Texto"}
+                  </Button>
+                  <Button
+                    onClick={handleOpenPlatform}
+                    variant="default"
+                    size="sm"
+                    className="h-8 rounded-lg text-[9px] technical-label uppercase tracking-wider bg-brand text-white hover:bg-brand/90 font-bold transition-all shadow-sm gap-1.5"
+                  >
+                    <Share2 size={11} />
+                    Copiar y Abrir {activeTab === "youtube" ? "YouTube" : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+                  </Button>
+                </div>
               </div>
 
               <div className="relative rounded-xl border border-border/80 bg-background/50 p-4 font-mono text-[10.5px] text-foreground leading-relaxed whitespace-pre-wrap select-all">
