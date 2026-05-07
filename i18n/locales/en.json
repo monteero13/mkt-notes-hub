@@ -415,6 +415,7 @@
       "operator": "Operator"
     },
     "settings": {
+      "update_success": "Profile updated successfully",
       "title": "Account Settings",
       "desc": "Manage your identity and personal settings.",
       "identity_management": "Identity Management",

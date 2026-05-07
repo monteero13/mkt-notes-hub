@@ -431,6 +431,7 @@
       "operator": "Operador"
     },
     "settings": {
+      "update_success": "Perfil actualizado correctamente",
       "title": "Ajustes de Cuenta",
       "desc": "Gestiona tu identidad y configuración personal.",
       "identity_management": "Identity Management",
