@@ -3,6 +3,7 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { CreditCard, Zap, CheckCircle2, ArrowRight, Loader2, Wallet, ChevronRight, Hash } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useWorkspace } from "@/hooks/use-workspace";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { handleCreatePortalSession } from "@/lib/stripe-actions";
@@ -12,11 +13,12 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 export default function BillingPage() {
-  const { user, profile, isLoading } = useAuth();
+  const { user, profile, isLoading: authLoading } = useAuth();
+  const { isPro, activeWorkspace, isLoading: wsLoading } = useWorkspace();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const t = useTranslations("billing");
 
-  const isPro = profile?.is_pro;
+  const isLoading = authLoading || wsLoading;
 
   const handleManageBilling = async () => {
     setIsRedirecting(true);

@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { createClient } from "./supabase/server";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY)
@@ -13,17 +14,24 @@ export async function createCheckoutSession(priceId: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login?mode=signup&plan=pro&next=/pricing");
 
-  // Get the user's active workspace to tie the subscription to it
-  const { data: membership } = await supabase
-    .from("workspace_members")
-    .select("workspace_id")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .order("joined_at")
-    .limit(1)
-    .maybeSingle();
+  // Get the user's active workspace from cookie to tie the subscription to it
+  const cookieStore = await cookies();
+  const activeWorkspaceId = cookieStore.get("mkt_active_workspace")?.value;
 
-  const workspaceId = membership?.workspace_id;
+  let workspaceId = activeWorkspaceId;
+
+  if (!workspaceId) {
+    const { data: membership } = await supabase
+      .from("workspace_members")
+      .select("workspace_id")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .order("joined_at")
+      .limit(1)
+      .maybeSingle();
+    workspaceId = membership?.workspace_id;
+  }
+
   if (!workspaceId) redirect("/onboarding");
 
   const host =
@@ -56,21 +64,30 @@ export async function createPortalSession() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: membership } = await supabase
-    .from("workspace_members")
-    .select("workspace_id")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .order("joined_at")
-    .limit(1)
-    .maybeSingle();
+  // Get active workspace ID from cookie
+  const cookieStore = await cookies();
+  const activeWorkspaceId = cookieStore.get("mkt_active_workspace")?.value;
 
-  if (!membership?.workspace_id) redirect("/pricing");
+  let workspaceId = activeWorkspaceId;
+
+  if (!workspaceId) {
+    const { data: membership } = await supabase
+      .from("workspace_members")
+      .select("workspace_id")
+      .eq("user_id", user.id)
+      .eq("is_active", true)
+      .order("joined_at")
+      .limit(1)
+      .maybeSingle();
+    workspaceId = membership?.workspace_id;
+  }
+
+  if (!workspaceId) redirect("/pricing");
 
   const { data: subscription } = await supabase
     .from("subscriptions")
     .select("stripe_customer_id")
-    .eq("workspace_id", membership.workspace_id)
+    .eq("workspace_id", workspaceId)
     .maybeSingle();
 
   if (!subscription?.stripe_customer_id) redirect("/pricing");

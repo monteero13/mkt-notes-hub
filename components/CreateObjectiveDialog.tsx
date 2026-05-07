@@ -10,7 +10,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { Loader2, Plus, Target, BarChart } from 'lucide-react'
 import { useTeam } from '@/hooks/use-team'
-import { useAuth } from '@/hooks/use-auth'
+import { useWorkspace } from '@/hooks/use-workspace'
 import { PremiumLimitModal } from './PremiumLimitModal'
 
 export function CreateObjectiveDialog({ children }: { children?: React.ReactNode }) {
@@ -24,9 +24,9 @@ export function CreateObjectiveDialog({ children }: { children?: React.ReactNode
   const supabase = createClient()
 
   const { data: objectives = [] } = useQueryClient().getQueryData(['objectives']) as any || { data: [] }
-  const { profile } = useAuth()
+  const { isPro } = useWorkspace()
 
-  const isLimitReached = !profile?.is_pro && Array.isArray(objectives) && objectives.length >= 5;
+  const isLimitReached = !isPro && Array.isArray(objectives) && objectives.length >= 5;
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
