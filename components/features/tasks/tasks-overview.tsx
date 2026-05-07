@@ -26,10 +26,10 @@ export function TasksOverview({ tasks }: Props) {
   const t = useTranslations("dashboard.tasks");
 
   return (
-    <Card className="rounded-xl border-border shadow-sm overflow-hidden">
-      <CardHeader className="flex-row items-center justify-between h-14 border-b border-border px-6 py-0 space-y-0">
+    <Card className="rounded-xl border-border bg-card shadow-sm overflow-hidden">
+      <CardHeader className="flex-row items-center justify-between h-14 border-b border-border px-6 py-0 space-y-0 bg-accent/5">
         <div className="text-sm font-semibold tracking-tight text-foreground">{t("pending_actions")}</div>
-        <Button variant="ghost" size="sm" asChild className="h-8 rounded-sm text-xs font-medium hover:bg-accent/10">
+        <Button variant="ghost" size="sm" asChild className="h-8 rounded-md text-xs font-medium hover:bg-accent/10">
           <Link href="/tasks" className="flex items-center gap-2">
             {t("audit_all")} <ArrowRight size={10} />
           </Link>

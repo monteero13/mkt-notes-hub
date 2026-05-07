@@ -21,32 +21,27 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
 
-  /* Gleap radii system */
+  /* Radii system — DESIGN.md: 12px cards, 10px buttons, 6px labels */
   --radius-lg: 0.75rem;
   --radius-md: 0.625rem;
   --radius-sm: 0.375rem;
 
   /* Brand palette — Mkt Notes Blue family */
   --color-brand: #0084FF;
-  /* Azul Eléctrico del logo */
   --color-glacier: #E1EFFF;
-  /* Azul muy claro para acentos */
   --color-sky: #91e0ff;
   --color-ink: #001A3D;
-  /* Marino Profundo del logo */
   --color-canvas: #f5f7fa;
-  /* Cloud Canvas (ajustado a tono más frío) */
   --color-surface: #ffffff;
   --color-platinum: #e2e8f0;
   --color-plum: #64748b;
-  /* Gris azulado para texto muted */
 
   /* Semantic status */
   --color-success: #10B981;
   --color-error: #EF4444;
   --color-warning: #F59E0B;
 
-  /* Shadows */
+  /* Shadows — Light: ultra-soft; Dark: colored borders */
   --shadow-sm: rgba(16, 24, 40, 0.05) 0px 1px 2px 0px;
   --shadow-md: rgba(0, 26, 61, 0.04) 0px 8px 16px 0px;
   --shadow-card: rgba(0, 26, 61, 0.04) 0px 8px 16px 0px;
@@ -56,50 +51,46 @@
   --color-electric-500: #0084FF;
   --color-blue-500: #3B82F6;
 
-  /* Typography Scales (Slightly increased globally to ensure perfect readability) */
-  --font-size-xs: 0.84375rem;   /* ~13.5px instead of 12px */
-  --font-size-sm: 0.9375rem;    /* ~15px instead of 14px */
-  --font-size-base: 1.0625rem;  /* ~17px instead of 16px */
-  --font-size-lg: 1.1875rem;    /* ~19px instead of 18px */
-  --font-size-xl: 1.34375rem;   /* ~21.5px instead of 20px */
-  --font-size-2xl: 1.625rem;    /* ~26px instead of 24px */
-  --font-size-3xl: 2.0rem;      /* ~32px instead of 30px */
-  --font-size-4xl: 2.5rem;      /* ~40px instead of 36px */
-  --font-size-5xl: 3.25rem;     /* ~52px instead of 48px */
+  /* Typography Scales */
+  --font-size-xs: 0.84375rem;   /* ~13.5px */
+  --font-size-sm: 0.9375rem;    /* ~15px */
+  --font-size-base: 1.0625rem;  /* ~17px */
+  --font-size-lg: 1.1875rem;    /* ~19px */
+  --font-size-xl: 1.34375rem;   /* ~21.5px */
+  --font-size-2xl: 1.625rem;    /* ~26px */
+  --font-size-3xl: 2.0rem;      /* ~32px */
+  --font-size-4xl: 2.5rem;      /* ~40px */
+  --font-size-5xl: 3.25rem;     /* ~52px */
 }
 
 /* ─── Mkt Notes Light Theme ─── */
 @layer base {
   :root {
     --background: 210 20% 98%;
-    /* Fondo muy claro azulado */
     --foreground: 214 100% 12%;
-    /* #001A3D Marino profundo */
     --card: 0 0% 100%;
     --card-foreground: 214 100% 12%;
     --popover: 0 0% 100%;
     --popover-foreground: 214 100% 12%;
     --primary: 210 100% 50%;
-    /* #0084FF Azul vibrante */
     --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96%;
     --secondary-foreground: 214 100% 12%;
     --muted: 210 40% 96%;
     --muted-foreground: 215 16% 47%;
-    /* Gris azulado */
     --accent: 210 100% 94%;
-    /* Azul glaciar para hovers */
     --accent-foreground: 210 100% 50%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 214 32% 91%;
-    /* Bordes más limpios */
     --input: 214 32% 91%;
     --ring: 210 100% 50%;
+    /* Brand RGB for rgba() shadows */
+    --brand-rgb: 0, 132, 255;
   }
 
   .dark {
-    /* Mercury Theme - Dark Command Center */
+    /* Mercury Command Center — Abyss dark space station */
     --background: 240 18% 11%; /* #171721 Abyss */
     --foreground: 240 23% 94%; /* #ededf3 Starlight */
     --card: 240 17% 14%; /* #1e1e2a Surface */
@@ -108,7 +99,7 @@
     --popover-foreground: 240 23% 94%;
     --primary: 232 80% 62%; /* #5266eb Mercury Blue */
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 15% 18%; /* #272735 Interactive */
+    --secondary: 240 15% 18%; /* #272735 Abyss Hover */
     --secondary-foreground: 240 23% 94%;
     --muted: 240 15% 18%;
     --muted-foreground: 240 9% 78%; /* #c3c3cc Silver */
@@ -116,9 +107,13 @@
     --accent-foreground: 240 23% 94%;
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 6% 46%; /* #70707d Lead */
+    --border: 240 6% 46%; /* #70707d Lead Border */
     --input: 240 6% 46%;
     --ring: 232 80% 62%;
+    /* Brand RGB for rgba() shadows — Mercury Blue */
+    --brand-rgb: 82, 102, 235;
+    /* Override brand color to Mercury Blue in dark mode */
+    --color-brand: #5266eb;
   }
 }
 
@@ -134,37 +129,67 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    /* Satoshi Medium (500) — closest available to Switzer Regular/Medium for body text */
+    font-family: var(--font-satoshi), var(--font-switzer), system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-clash), var(--font-switzer), sans-serif;
+  h1, h2, h3, h4, h5, h6 {
+    /* Clash Grotesk Bold for all headlines per DESIGN.md */
+    font-family: var(--font-clash), "Playfair Display", "Arial Black", sans-serif;
     font-weight: 700;
     letter-spacing: -0.03em;
   }
 }
 
-/* Ajuste de utilidades de marca */
+/* ─── Brand Utility Classes ─── */
+
+/* Clash Display — for headlines, page titles, numerical summaries */
+@utility font-clash {
+  font-family: var(--font-clash), "Playfair Display", "Arial Black", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+/* Switzer Black — for bold UI labels, technical badges, uppercase identifiers */
+@utility font-switzer {
+  font-family: var(--font-switzer), var(--font-satoshi), system-ui, sans-serif;
+}
+
+/* Thin, low-noise border using the platinum/lead token */
+@utility border-subtle {
+  border: 1px solid hsl(var(--border));
+}
+
+/* Premium card container — 12px radius, card surface, elevated shadow on hover */
+@utility enterprise-card {
+  background-color: hsl(var(--card));
+  border-radius: var(--radius-lg);
+  border: 1px solid hsl(var(--border));
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+  transition: all 0.2s ease;
+  &:hover {
+    border-color: hsl(var(--primary) / 0.4);
+    box-shadow: var(--shadow-elevated);
+  }
+}
+
+/* Stat metric card — 12px radius per DESIGN.md spec */
 @utility stat-card {
   background-color: hsl(var(--card));
-  border-radius: 1.25rem; /* Unificación a radios grandes */
+  border-radius: var(--radius-lg);
   border: 1px solid hsl(var(--border));
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   transition: all 0.2s ease;
-
   &:hover {
     border-color: var(--color-brand);
-    background-color: hsl(var(--accent)); /* Elevación por color */
+    background-color: hsl(var(--accent));
   }
 }
 
@@ -174,7 +199,26 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--color-brand);
-  /* Texto de etiquetas en azul eléctrico */
+}
+
+/* ─── Scrollbar — matches Abyss/Platinum palette ─── */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.4);
 }
 
 /* Global Overrides to upscale all microscopic absolute pixel utility classes used for badges, inputs and labels */
@@ -226,4 +270,95 @@
   font-size: 12px !important;
   font-weight: 700 !important;
   letter-spacing: 0.06em !important;
+}
+
+/* ─── Zen Focus Mode & Collapsible Sidebar Styles ─── */
+.transition-zen {
+  transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.focus-mode-active .zen-hide {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  overflow: hidden !important;
+  transition: opacity 0.4s ease, max-height 0.4s ease, padding 0.4s ease, margin 0.4s ease, visibility 0.4s;
+}
+
+.zen-hide {
+  opacity: 1;
+  visibility: visible;
+  max-height: 1000px;
+  transition: opacity 0.4s ease, max-height 0.4s ease, padding 0.4s ease, margin 0.4s ease, visibility 0.4s;
+}
+
+/* Custom platform-specific colors for planner */
+.social-item-instagram {
+  border-left: 4px solid #e1306c !important;
+  background: linear-gradient(to right, rgba(225, 48, 108, 0.08), transparent) !important;
+}
+.social-item-youtube {
+  border-left: 4px solid #ff0000 !important;
+  background: linear-gradient(to right, rgba(255, 0, 0, 0.08), transparent) !important;
+}
+.social-item-linkedin {
+  border-left: 4px solid #0077b5 !important;
+  background: linear-gradient(to right, rgba(0, 119, 181, 0.08), transparent) !important;
+}
+.social-item-tiktok {
+  border-left: 4px solid #00f2fe !important;
+  background: linear-gradient(to right, rgba(0, 242, 254, 0.08), transparent) !important;
+}
+.social-item-facebook {
+  border-left: 4px solid #1877f2 !important;
+  background: linear-gradient(to right, rgba(24, 119, 242, 0.08), transparent) !important;
+}
+.social-item-twitter {
+  border-left: 4px solid #1da1f2 !important;
+  background: linear-gradient(to right, rgba(29, 161, 242, 0.08), transparent) !important;
+}
+.social-item-email {
+  border-left: 4px solid #5266eb !important;
+  background: linear-gradient(to right, rgba(82, 102, 235, 0.08), transparent) !important;
+}
+.social-item-blog {
+  border-left: 4px solid #ff5722 !important;
+  background: linear-gradient(to right, rgba(255, 87, 34, 0.08), transparent) !important;
+}
+
+/* Beautiful custom circular checkbox */
+.custom-checkbox {
+  appearance: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1.5px solid hsl(var(--border));
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-checkbox:checked {
+  background-color: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+}
+
+.custom-checkbox:checked::after {
+  content: "✓";
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 900;
+}
+
+.custom-checkbox:hover {
+  border-color: hsl(var(--primary));
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15);
 }

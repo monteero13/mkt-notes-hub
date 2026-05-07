@@ -12,6 +12,7 @@ import { useWorkspace } from '@/hooks/use-workspace'
 import { useAuth } from '@/hooks/use-auth'
 import { cn } from '@/lib/utils'
 import { PremiumLimitModal } from './PremiumLimitModal'
+import { useResources } from '@/hooks/use-features-data'
 import { useTranslations } from 'next-intl'
 
 export function CreateResourceDialog({ children }: { children?: React.ReactNode }) {
@@ -23,12 +24,11 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
   const [type, setType] = useState('image')
   const [file, setFile] = useState<File | null>(null)
 
-  const { activeWorkspace } = useWorkspace()
-  const { isPro } = useAuth()
+  const { activeWorkspace, isPro } = useWorkspace()
   const queryClient = useQueryClient()
   const supabase = createClient()
 
-  const { data: resources = [] } = queryClient.getQueryData(['resources']) as any || { data: [] }
+  const { data: resources = [] } = useResources()
   const isLimitReached = !isPro && Array.isArray(resources) && resources.length >= 3;
 
   const handleCreate = async (e: React.FormEvent) => {

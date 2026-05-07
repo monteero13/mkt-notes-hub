@@ -13,13 +13,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AvatarGroup } from "@/components/ui/avatar-group";
-import { Search, LogOut, User, CreditCard, ChevronDown, Activity, ShieldCheck, Bell, Menu } from "lucide-react";
+import { Search, LogOut, User, CreditCard, ChevronDown, Activity, ShieldCheck, Bell, Menu, ChevronLeft, Eye } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
-export function AppTopbar({ onMenuClick }: { onMenuClick?: () => void }) {
+export function AppTopbar({
+  onMenuClick,
+  onToggleCollapse,
+  onToggleFocus,
+  isSidebarCollapsed = false,
+  isFocusMode = false,
+}: {
+  onMenuClick?: () => void;
+  onToggleCollapse?: () => void;
+  onToggleFocus?: () => void;
+  isSidebarCollapsed?: boolean;
+  isFocusMode?: boolean;
+}) {
   const { profile, activeWorkspace, members } = useWorkspace();
   const router = useRouter();
   const t = useTranslations("layout.topbar");
@@ -41,11 +54,36 @@ export function AppTopbar({ onMenuClick }: { onMenuClick?: () => void }) {
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden h-9 w-9 shrink-0 rounded-sm"
+        className="md:hidden h-9 w-9 shrink-0 rounded-md"
         onClick={onMenuClick}
       >
         <Menu size={18} />
       </Button>
+
+      {/* Sidebar Toggle & Focus Mode Toggle (Desktop) */}
+      <div className="hidden md:flex items-center gap-1 shrink-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-9 w-9 text-muted-foreground hover:text-foreground transition-all rounded-md"
+          onClick={onToggleCollapse}
+          title={isSidebarCollapsed ? "Ampliar barra lateral" : "Colapsar barra lateral"}
+        >
+          <ChevronLeft size={16} className={cn("transition-transform duration-300", isSidebarCollapsed && "rotate-180")} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn(
+            "h-9 w-9 transition-all rounded-md",
+            isFocusMode ? "text-brand bg-brand/10 hover:bg-brand/20" : "text-muted-foreground hover:text-foreground hover:bg-accent"
+          )}
+          onClick={onToggleFocus}
+          title={isFocusMode ? "Desactivar Modo Enfoque (Zen)" : "Activar Modo Enfoque (Zen)"}
+        >
+          <Eye size={16} className={cn(isFocusMode && "animate-pulse")} />
+        </Button>
+      </div>
 
       {/* Global Command Search */}
       <button
@@ -53,7 +91,7 @@ export function AppTopbar({ onMenuClick }: { onMenuClick?: () => void }) {
           const event = new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true });
           document.dispatchEvent(event);
         }}
-        className="group flex h-9 items-center gap-4 rounded-sm border border-border bg-muted/30 px-4 text-sm text-muted-foreground transition-all hover:border-brand/50 hover:bg-muted/50 sm:w-80 md:w-96 shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
+        className="group flex h-9 items-center gap-3 rounded-md border border-border bg-muted/30 px-3 text-sm text-muted-foreground transition-all hover:border-brand/50 hover:bg-muted/50 w-full sm:w-64 md:w-80 lg:w-96 max-w-[380px] shrink-0 shadow-[inset_0_1px_2px_rgba(0,0,0,0.05)]"
       >
         <Search size={13} className="text-muted-foreground/30 group-hover:text-brand transition-colors" />
         <span className="hidden sm:inline technical-label text-[10px] opacity-40 group-hover:opacity-100 transition-opacity uppercase tracking-wider">{t("search_placeholder")}</span>
@@ -64,10 +102,10 @@ export function AppTopbar({ onMenuClick }: { onMenuClick?: () => void }) {
         </div>
       </button>
 
-      <div className="flex items-center gap-8">
-        <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           {members && members.length > 0 && (
-            <div className="hidden lg:flex items-center gap-4 border-r border-border/50 pr-8">
+            <div className="hidden 2xl:flex items-center gap-3 border-r border-border/50 pr-4 sm:pr-5">
               <div className="flex flex-col items-end gap-1 mr-2">
                 <span className="technical-label text-[7px] opacity-40 uppercase tracking-[0.2em] font-black">{t("active_members") || "ACTIVE DEPLOYMENT"}</span>
                 <div className="h-[1px] w-8 bg-gradient-to-r from-brand/20 to-transparent" />
@@ -84,27 +122,25 @@ export function AppTopbar({ onMenuClick }: { onMenuClick?: () => void }) {
            )}
         </div>
 
-        <div className="h-6 w-[1px] bg-border opacity-20" />
-
         {/* Personnel Hub */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-3 rounded-sm py-1 transition-all group">
-              <Avatar className="h-8 w-8 rounded-sm border border-border transition-all shadow-sm">
+            <button className="flex items-center gap-2 rounded-md py-1 transition-all group">
+              <Avatar className="h-8 w-8 rounded-md border border-border transition-all shadow-sm">
                 <AvatarImage src={profile?.avatar_url ?? undefined} />
-                <AvatarFallback className="bg-brand text-[10px] font-black text-white rounded-sm">{initials}</AvatarFallback>
+                <AvatarFallback className="bg-brand text-[10px] font-black text-white rounded-md">{initials}</AvatarFallback>
               </Avatar>
-              <div className="flex flex-col items-start text-left hidden sm:flex">
+              <div className="flex flex-col items-start text-left hidden 2xl:flex">
                 <span className="text-[11px] font-black tracking-tight text-foreground leading-none mb-1 uppercase">{profile?.full_name ?? tc("operator")}</span>
                 <div className="flex items-center gap-1.5">
                    <ShieldCheck size={10} className="text-brand opacity-60" />
                    <span className="technical-label text-[8px] opacity-50">{t("session_encrypted")}</span>
                 </div>
               </div>
-              <ChevronDown size={10} className="text-muted-foreground/40 group-hover:text-brand transition-colors ml-1" />
+              <ChevronDown size={10} className="text-muted-foreground/40 group-hover:text-brand transition-colors ml-0.5" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 mt-2 rounded-sm border-border bg-card shadow-2xl p-1">
+          <DropdownMenuContent align="end" className="w-56 mt-2 rounded-lg border-border bg-card shadow-2xl p-1">
             <DropdownMenuLabel className="font-normal p-3">
               <div className="flex flex-col space-y-1">
                 <p className="technical-label text-[10px] text-foreground">{profile?.full_name || tc("active_agent")}</p>
@@ -113,16 +149,16 @@ export function AppTopbar({ onMenuClick }: { onMenuClick?: () => void }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <div className="p-1 space-y-0.5">
-              <DropdownMenuItem asChild className="rounded-sm cursor-pointer h-9 px-3 focus:bg-brand/10 focus:text-brand">
+              <DropdownMenuItem asChild className="rounded-md cursor-pointer h-9 px-3 focus:bg-brand/10 focus:text-brand">
                 <Link href="/settings" className="flex items-center technical-label text-[9px]"><User size={12} className="mr-3 opacity-40" />{t("user_menu.profile")}</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="rounded-sm cursor-pointer h-9 px-3 focus:bg-brand/10 focus:text-brand">
+              <DropdownMenuItem asChild className="rounded-md cursor-pointer h-9 px-3 focus:bg-brand/10 focus:text-brand">
                 <Link href="/billing" className="flex items-center technical-label text-[9px]"><CreditCard size={12} className="mr-3 opacity-40" />{t("user_menu.billing")}</Link>
               </DropdownMenuItem>
             </div>
             <DropdownMenuSeparator />
             <div className="p-1">
-              <DropdownMenuItem className="text-error focus:bg-error/10 focus:text-error rounded-sm cursor-pointer h-9 px-3 technical-label text-[9px]" onClick={handleSignOut}>
+              <DropdownMenuItem className="text-error focus:bg-error/10 focus:text-error rounded-md cursor-pointer h-9 px-3 technical-label text-[9px]" onClick={handleSignOut}>
                 <LogOut size={12} className="mr-3" />{t("user_menu.logout")}
               </DropdownMenuItem>
             </div>

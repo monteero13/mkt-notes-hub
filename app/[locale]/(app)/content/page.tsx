@@ -1,7 +1,7 @@
 'use client';
 
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { Instagram, Youtube, Linkedin, Music2, Plus, PenTool, Loader2, Trash2, ChevronRight, ArrowUpRight } from "lucide-react";
+import { Instagram, Youtube, Linkedin, Music2, Plus, PenTool, Loader2, Trash2, ChevronRight, ArrowUpRight, Smartphone } from "lucide-react";
 import { useState } from "react";
 import { useContent } from "@/hooks/use-features-data";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SocialDistributionModal } from "@/components/features/content/social-distribution-modal";
 
 export default function ContenidoPage() {
   const t = useTranslations("content_manager");
@@ -28,6 +29,10 @@ export default function ContenidoPage() {
   const [filter, setFilter] = useState("all");
   const queryClient = useQueryClient();
   const supabase = createClient();
+
+  // Distribution states
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [isDistributeOpen, setIsDistributeOpen] = useState(false);
 
   const channelIcons: Record<string, any> = {
     instagram: { icon: Instagram, label: "Instagram" },
@@ -139,7 +144,7 @@ export default function ContenidoPage() {
                     return (
                       <div
                         key={item.id}
-                        className="group relative border border-border bg-card p-6 rounded-xl shadow-sm hover:border-brand transition-all flex flex-col gap-6 overflow-hidden"
+                        className="group relative border border-border bg-card p-6 rounded-xl shadow-sm hover:border-brand transition-all flex flex-col gap-5 overflow-hidden"
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -176,7 +181,19 @@ export default function ContenidoPage() {
                           </h3>
                         </div>
 
-                        <div className="pt-6 border-t border-border flex items-center justify-between">
+                        {/* Fast Distribution Button */}
+                        <Button
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setIsDistributeOpen(true);
+                          }}
+                          className="w-full h-9 rounded-lg bg-brand/5 border border-brand/20 text-brand text-[10.1px] uppercase font-black tracking-widest hover:bg-brand hover:text-white transition-all shadow-sm"
+                        >
+                          <Smartphone size={12} className="mr-1.5" />
+                          Distribuir
+                        </Button>
+
+                        <div className="pt-4 border-t border-border flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-medium text-muted-foreground/60">{channel.label}</span>
                           </div>
@@ -205,6 +222,19 @@ export default function ContenidoPage() {
             </div>
           )}
         </div>
+
+        {/* Mount Social Distribution Modal */}
+        <SocialDistributionModal
+          isOpen={isDistributeOpen}
+          onClose={() => {
+            setIsDistributeOpen(false);
+            setSelectedItem(null);
+          }}
+          contentItem={selectedItem}
+          onPublishSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ['content'] });
+          }}
+        />
       </div>
     </DashboardLayout>
   );

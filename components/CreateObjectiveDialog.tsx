@@ -10,6 +10,7 @@ import { Loader2, Plus, Target, BarChart } from 'lucide-react'
 import { useWorkspace } from '@/hooks/use-workspace'
 import { createObjective } from '@/actions/objectives'
 import { PremiumLimitModal } from './PremiumLimitModal'
+import { useObjectives } from '@/hooks/use-features-data'
 
 export function CreateObjectiveDialog({ children }: { children?: React.ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -17,10 +18,9 @@ export function CreateObjectiveDialog({ children }: { children?: React.ReactNode
   const [title, setTitle] = useState('')
   const [kpi, setKpi] = useState('')
   const [targetValue, setTargetValue] = useState('')
-  const queryClient = useQueryClient()
-
-  const { data: objectives = [] } = useQueryClient().getQueryData(['objectives']) as any || { data: [] }
   const { isPro, activeWorkspace } = useWorkspace()
+  const { data: objectives = [] } = useObjectives()
+  const queryClient = useQueryClient()
 
   const isLimitReached = !isPro && Array.isArray(objectives) && objectives.length >= 5;
 

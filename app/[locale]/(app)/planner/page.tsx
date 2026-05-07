@@ -1,7 +1,6 @@
 'use client';
 
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,26 +11,33 @@ import {
   Calendar as CalendarIcon,
   Clock,
   ArrowUpRight,
-  Hash,
-  ChevronRight as ChevronRightSmall
+  ChevronRight as ChevronRightSmall,
+  Instagram,
+  Youtube,
+  Linkedin,
+  Facebook,
+  Twitter,
+  Mail,
+  Globe,
+  MessageSquare,
+  CheckCircle,
+  Trash2
 } from "lucide-react";
-import { useDashboardData } from "@/hooks/use-dashboard-data";
 import { useWorkspace } from "@/hooks/use-workspace";
-import { useMemo, useState } from "react";
+import { useTasks, useContent } from "@/hooks/use-features-data";
+import { useMemo, useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
-import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useAuth } from "@/hooks/use-auth";
 import { useCategories } from "@/hooks/use-categories";
 import { ManageCategoriesDialog } from "@/components/ManageCategoriesDialog";
 import { useTranslations, useLocale } from "next-intl";
+import Link from "next/link";
 
 export default function PlanificadorPage() {
   const t = useTranslations("planner");
   const tc = useTranslations("common");
   const locale = useLocale();
-  
+
   const daysLabels = [
     tc("days_short.mon").toUpperCase(),
     tc("days_short.tue").toUpperCase(),
@@ -42,45 +48,124 @@ export default function PlanificadorPage() {
     tc("days_short.sun").toUpperCase(),
   ];
 
-  const { tasks = [] } = useDashboardData();
   const { activeWorkspace } = useWorkspace();
   const isLeader = activeWorkspace?.role && !['viewer', 'client_guest'].includes(activeWorkspace.role);
-  const { user } = useAuth();
+  
+  // Custom states
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | null>(new Date());
   const [isAddingTask, setIsAddingTask] = useState(false);
+  const [plannerFilter, setPlannerFilter] = useState<'all' | 'tasks' | 'publications'>('all');
+  const [fastTaskTitle, setFastTaskTitle] = useState('');
 
-  const { data: categories = [], isLoading: isLoadingCats } = useCategories();
+  // Fetching unified data
+  const { data: tasks = [], createTask, updateTask, deleteTask } = useTasks();
+  const { data: publications = [] } = useContent();
+  const { data: categories = [] } = useCategories();
 
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<any>(null);
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
 
-  const supabase = createClient();
-  const queryClient = useQueryClient();
+  // Beautiful Helper to get social icon
+  const getSocialIcon = (channel: string) => {
+    const c = channel?.toLowerCase();
+    switch (c) {
+      case 'instagram': return <Instagram className="h-3 w-3 text-[#e1306c]" />;
+      case 'youtube': return <Youtube className="h-3 w-3 text-[#ff0000]" />;
+      case 'linkedin': return <Linkedin className="h-3 w-3 text-[#0077b5]" />;
+      case 'facebook': return <Facebook className="h-3 w-3 text-[#1877f2]" />;
+      case 'twitter': case 'x': return <Twitter className="h-3 w-3 text-[#1da1f2]" />;
+      case 'email': return <Mail className="h-3 w-3 text-[#5266eb]" />;
+      case 'blog': return <Globe className="h-3 w-3 text-[#ff5722]" />;
+      default: return <MessageSquare className="h-3 w-3 text-brand" />;
+    }
+  };
+
+  // Unify and filter events (Tasks + Content Items)
+  const calendarEvents = useMemo(() => {
+    const list: any[] = [];
+
+    if (plannerFilter === 'all' || plannerFilter === 'tasks') {
+      tasks.forEach((t_item: any) => {
+        list.push({
+          id: t_item.id,
+          type: 'task',
+          title: t_item.title,
+          date: t_item.due_date ? t_item.due_date.split('T')[0] : null,
+          status: t_item.status,
+          priority: t_item.priority,
+          category_color: t_item.category_color || '#7C3AED',
+          category_name: t_item.category_name || 'Tarea',
+          raw: t_item,
+        });
+      });
+    }
+
+    if (plannerFilter === 'all' || plannerFilter === 'publications') {
+      publications.forEach((pub: any) => {
+        let pubDateStr = null;
+        if (pub.date) {
+          pubDateStr = pub.date;
+        } else if (pub.scheduled_at) {
+          pubDateStr = pub.scheduled_at.split('T')[0];
+        } else if (pub.published_at) {
+          pubDateStr = pub.published_at.split('T')[0];
+        } else if (pub.created_at) {
+          pubDateStr = pub.created_at.split('T')[0];
+        }
+
+        list.push({
+          id: pub.id,
+          type: 'publication',
+          title: pub.title,
+          date: pubDateStr,
+          status: pub.status,
+          channel: pub.channel || 'instagram',
+          raw: pub,
+        });
+      });
+    }
+
+    return list;
+  }, [tasks, publications, plannerFilter]);
 
   const handleAddTask = async () => {
-    if (!newTaskTitle.trim() || !selectedDay || !user || !activeWorkspace) return;
+    if (!newTaskTitle.trim() || !selectedDay || !activeWorkspace) return;
     try {
       const dateStr = selectedDay.toISOString().split('T')[0];
-      const { error } = await supabase.from('tasks').insert({
-        created_by: user.id,
-        workspace_id: activeWorkspace.id,
-        title: newTaskTitle,
+      await createTask({
+        title: newTaskTitle.trim(),
         due_date: dateStr,
         status: 'todo',
         priority: selectedCategory?.color === '#ef4444' ? 'high' : 'medium',
         assignee_id: selectedAssignees[0] ?? null
       });
 
-      if (error) throw error;
-      toast.success(t("toast.success"));
+      toast.success(t("toast.success") || "Tarea añadida con éxito");
       setNewTaskTitle('');
       setSelectedAssignees([]);
       setIsAddingTask(false);
-      await queryClient.invalidateQueries({ queryKey: ['tasks'] });
     } catch (e: any) {
       toast.error(tc("error") + ": " + e.message);
+    }
+  };
+
+  const handleFastTaskSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fastTaskTitle.trim() || !selectedDay || !activeWorkspace) return;
+    try {
+      const dateStr = selectedDay.toISOString().split('T')[0];
+      await createTask({
+        title: fastTaskTitle.trim(),
+        due_date: dateStr,
+        status: 'todo',
+        priority: 'medium',
+      });
+      toast.success("Tarea creada");
+      setFastTaskTitle('');
+    } catch (err: any) {
+      toast.error(tc("error") + ": " + err.message);
     }
   };
 
@@ -114,29 +199,61 @@ export default function PlanificadorPage() {
   const dayEvents = useMemo(() => {
     if (!selectedDay) return [];
     const dateStr = selectedDay.toISOString().split('T')[0];
-    return (tasks || []).filter((t: any) => t.due_date === dateStr);
-  }, [selectedDay, tasks]);
+    return calendarEvents.filter((e: any) => e.date === dateStr);
+  }, [selectedDay, calendarEvents]);
 
   return (
     <DashboardLayout>
       <div className="flex flex-col h-full bg-background">
         {/* Top Control Bar */}
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-border px-4 sm:px-8">
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-border px-4 sm:px-8 gap-4 flex-wrap sm:flex-nowrap">
           <div className="flex items-center gap-4">
             <div className="technical-label text-[11px] text-foreground">{t("header.title")}</div>
-            <div className="h-4 w-[1px] bg-border" />
-            <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
+            <div className="h-4 w-[1px] bg-border hidden sm:block" />
+            <div className="hidden sm:flex items-center gap-2 text-[11px] font-bold text-muted-foreground uppercase tracking-widest">
               <span>{t("header.subtitle")}</span>
               <ChevronRightSmall size={12} className="opacity-60" />
               <span className="text-brand">{monthName}</span>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center bg-accent/5 border border-border rounded-sm overflow-hidden">
+
+          {/* Unified Filters inside Top Control Bar */}
+          <div className="flex items-center gap-3">
+            <div className="flex bg-accent/10 p-0.5 rounded-lg border border-border">
+              <button
+                onClick={() => setPlannerFilter('all')}
+                className={cn(
+                  "px-3 py-1.5 technical-label text-[8.5px] rounded-sm uppercase tracking-wider transition-all",
+                  plannerFilter === 'all' ? "bg-card text-foreground shadow-sm font-black" : "text-muted-foreground/60 hover:text-foreground"
+                )}
+              >
+                Ver Todo
+              </button>
+              <button
+                onClick={() => setPlannerFilter('tasks')}
+                className={cn(
+                  "px-3 py-1.5 technical-label text-[8.5px] rounded-sm uppercase tracking-wider transition-all",
+                  plannerFilter === 'tasks' ? "bg-card text-foreground shadow-sm font-black" : "text-muted-foreground/60 hover:text-foreground"
+                )}
+              >
+                Tareas
+              </button>
+              <button
+                onClick={() => setPlannerFilter('publications')}
+                className={cn(
+                  "px-3 py-1.5 technical-label text-[8.5px] rounded-sm uppercase tracking-wider transition-all",
+                  plannerFilter === 'publications' ? "bg-card text-foreground shadow-sm font-black" : "text-muted-foreground/60 hover:text-foreground"
+                )}
+              >
+                Social
+              </button>
+            </div>
+
+            <div className="flex items-center bg-accent/5 border border-border rounded-lg overflow-hidden">
               <button onClick={() => navigateMonth(-1)} className="p-2 hover:bg-brand/10 hover:text-brand transition-colors border-r border-border">
                 <ChevronLeft size={14} />
               </button>
-              <div className="px-4 technical-label text-[9px] min-w-[120px] text-center">{monthName}</div>
+              <div className="px-4 technical-label text-[9px] min-w-[120px] text-center uppercase tracking-wider font-bold">{monthName}</div>
               <button onClick={() => navigateMonth(1)} className="p-2 hover:bg-brand/10 hover:text-brand transition-colors border-l border-border">
                 <ChevronRight size={14} />
               </button>
@@ -150,7 +267,7 @@ export default function PlanificadorPage() {
           <div className="lg:col-span-3 flex flex-col min-h-0 border-r border-border">
             <div className="grid grid-cols-7 border-b border-border bg-accent/5">
               {daysLabels.map(day => (
-                <div key={day} className="px-3 py-3 technical-label text-[9px] text-muted-foreground/60 text-center border-r border-border last:border-r-0">
+                <div key={day} className="px-3 py-3 technical-label text-[9px] text-muted-foreground/60 text-center border-r border-border last:border-r-0 uppercase tracking-wider">
                   {day}
                 </div>
               ))}
@@ -160,14 +277,14 @@ export default function PlanificadorPage() {
                 const dateStr = item.date.toISOString().split('T')[0];
                 const isSelected = selectedDay && dateStr === selectedDateStr;
                 const isToday = new Date().toISOString().split('T')[0] === dateStr;
-                const cellTasks = (tasks || []).filter((t: any) => t.due_date === dateStr);
+                const cellEvents = calendarEvents.filter((e: any) => e.date === dateStr);
 
                 return (
                   <div
                     key={i}
                     onClick={() => setSelectedDay(item.date)}
                     className={cn(
-                      "min-h-[120px] p-2 border-r border-b border-border/40 last:border-r-0 cursor-pointer transition-all flex flex-col gap-2 group",
+                      "min-h-[120px] p-1.5 border-r border-b border-border/40 last:border-r-0 cursor-pointer transition-all flex flex-col gap-2 group",
                       !item.isCurrentMonth && "opacity-40 bg-accent/5",
                       isSelected && "bg-brand/[0.03] ring-1 ring-inset ring-brand/20 z-10",
                       item.isCurrentMonth && "hover:bg-accent/5"
@@ -175,30 +292,52 @@ export default function PlanificadorPage() {
                   >
                     <div className="flex justify-between items-center">
                       <span className={cn(
-                        "h-6 w-6 flex items-center justify-center technical-label text-[10px] rounded-sm",
-                        isToday ? "bg-brand text-white" : "text-muted-foreground/60",
+                        "h-6 w-6 flex items-center justify-center technical-label text-[10px] rounded-lg transition-all",
+                        isToday ? "bg-brand text-white shadow-md shadow-brand/20" : "text-muted-foreground/60",
                         isSelected && !isToday && "text-brand font-black"
                       )}>
                         {item.day}
                       </span>
-                      {cellTasks.length > 0 && (
-                        <div className="technical-label text-[8px] opacity-40">{cellTasks.length} {t("calendar.units")}</div>
+                      {cellEvents.length > 0 && (
+                        <div className="technical-label text-[8px] opacity-40">{cellEvents.length} {t("calendar.units")}</div>
                       )}
                     </div>
 
-                    <div className="space-y-1 flex-1">
-                      {cellTasks.slice(0, 4).map((t_item: any, idx) => (
-                        <div
-                          key={idx}
-                          className="h-4 px-2 border-l-2 text-[8px] font-black uppercase tracking-tighter truncate flex items-center bg-accent/5 border-border"
-                          style={{ borderLeftColor: t_item.category_color || '#7C3AED' }}
-                        >
-                          {t_item.title}
-                        </div>
-                      ))}
-                      {cellTasks.length > 4 && (
-                        <div className="text-[7px] font-black text-brand/60 ml-1">
-                          {t("calendar.more_units", { count: cellTasks.length - 4 })}
+                    {/* Integrated Events Inside Cells */}
+                    <div className="space-y-1 flex-1 overflow-hidden">
+                      {cellEvents.slice(0, 4).map((e_item: any, idx) => {
+                        if (e_item.type === 'publication') {
+                          return (
+                            <div
+                              key={idx}
+                              className={cn(
+                                "h-[19px] px-1.5 border-l-2 text-[8px] font-bold uppercase tracking-tight truncate flex items-center gap-1.5 rounded-r-md transition-all hover:scale-[1.02]",
+                                `social-item-${e_item.channel}`
+                              )}
+                            >
+                              {getSocialIcon(e_item.channel)}
+                              <span className="truncate flex-1 text-foreground/80">{e_item.title}</span>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div
+                              key={idx}
+                              className={cn(
+                                "h-[19px] px-1.5 border-l-2 text-[8px] font-semibold uppercase tracking-tight truncate flex items-center gap-1 rounded-r-md bg-accent/10 border-border transition-all hover:scale-[1.02]",
+                                e_item.status === 'done' && "opacity-45 line-through"
+                              )}
+                              style={{ borderLeftColor: e_item.category_color || '#7C3AED' }}
+                            >
+                              <CheckCircle size={8} className={cn("shrink-0", e_item.status === 'done' ? "text-success" : "text-muted-foreground/30")} />
+                              <span className="truncate flex-1 text-foreground/80">{e_item.title}</span>
+                            </div>
+                          );
+                        }
+                      })}
+                      {cellEvents.length > 4 && (
+                        <div className="text-[7.5px] font-black text-brand/60 ml-1 uppercase tracking-tight">
+                          +{cellEvents.length - 4} más
                         </div>
                       )}
                     </div>
@@ -208,13 +347,13 @@ export default function PlanificadorPage() {
             </div>
           </div>
 
-          {/* Tactical Side Panel */}
+          {/* Tactical Side Panel with Inline Fast Task */}
           <div className="flex flex-col min-h-0 bg-card/30">
             {selectedDay && (
               <>
                 <div className="p-4 sm:p-6 border-b border-border bg-accent/5 flex items-center justify-between">
                   <div className="flex flex-col gap-1">
-                    <div className="technical-label text-brand text-[9px]">{t("side_panel.title")}</div>
+                    <div className="technical-label text-brand text-[9px] uppercase tracking-widest">{t("side_panel.title") || "Planificación"}</div>
                     <h2 className="text-xl font-black tracking-tighter uppercase leading-none">
                       {selectedDay.getDate()} {selectedDay.toLocaleString(locale === 'es' ? 'es-ES' : 'en-US', { month: 'short' }).toUpperCase()}
                     </h2>
@@ -222,34 +361,51 @@ export default function PlanificadorPage() {
                   <Button
                     onClick={() => setIsAddingTask(!isAddingTask)}
                     size="icon"
-                    className={cn("h-8 w-8 rounded-sm", isAddingTask ? "bg-accent/10 text-foreground" : "bg-brand text-white")}
+                    className={cn("h-8 w-8 rounded-lg transition-all", isAddingTask ? "bg-accent/10 text-foreground" : "bg-brand text-white shadow-md shadow-brand/10 hover:shadow-brand/20")}
                   >
                     {isAddingTask ? <X size={14} /> : <Plus size={14} />}
                   </Button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 space-y-4 sm:space-y-6">
+                  
+                  {/* Inline Fast Task Creator (Only when not in full creator form) */}
+                  {!isAddingTask && (
+                    <form onSubmit={handleFastTaskSubmit} className="mb-2">
+                      <div className="relative flex items-center">
+                        <Plus size={12} className="absolute left-3 text-muted-foreground/40" />
+                        <Input
+                          type="text"
+                          placeholder="Crear tarea... (Enter)"
+                          value={fastTaskTitle}
+                          onChange={(e) => setFastTaskTitle(e.target.value)}
+                          className="pl-8 pr-3 h-10 rounded-lg border border-border/80 bg-background text-[11px] font-bold tracking-tight uppercase placeholder:opacity-50 focus:border-brand transition-all shadow-sm"
+                        />
+                      </div>
+                    </form>
+                  )}
+
                   {isAddingTask ? (
                     <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
                       <div className="space-y-1.5">
-                        <label className="technical-label text-[8px] opacity-60 ml-1">{t("side_panel.add.objective_label")}</label>
+                        <label className="technical-label text-[8px] opacity-60 ml-1 uppercase tracking-wider">{t("side_panel.add.objective_label")}</label>
                         <Input
                           placeholder={t("side_panel.add.objective_placeholder")}
                           value={newTaskTitle}
                           onChange={(e) => setNewTaskTitle(e.target.value)}
-                          className="h-10 rounded-sm border-border bg-card text-[11px] font-bold"
+                          className="h-10 rounded-lg border-border bg-card text-[11px] font-bold uppercase tracking-tight"
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <label className="technical-label text-[8px] opacity-60 ml-1">{t("side_panel.add.category_label")}</label>
+                        <label className="technical-label text-[8px] opacity-60 ml-1 uppercase tracking-wider">{t("side_panel.add.category_label")}</label>
                         <div className="flex flex-wrap gap-2">
                           {categories.map((cat: any) => (
                             <button
                               key={cat.id}
                               type="button"
                               className={cn(
-                                "px-3 py-1.5 rounded-sm technical-label text-[8px] border transition-all",
+                                "px-3 py-1.5 rounded-lg technical-label text-[8px] border transition-all uppercase tracking-wider font-bold",
                                 selectedCategory?.id === cat.id ? "border-brand bg-brand/5 text-brand" : "border-border opacity-60 hover:opacity-100"
                               )}
                               onClick={() => setSelectedCategory(cat)}
@@ -260,33 +416,133 @@ export default function PlanificadorPage() {
                         </div>
                       </div>
 
-                      <Button onClick={handleAddTask} className="w-full h-10 rounded-sm bg-brand text-white technical-label text-[10px] font-black uppercase">
+                      <Button onClick={handleAddTask} className="w-full h-10 rounded-lg bg-brand text-white technical-label text-[10px] font-black uppercase tracking-widest shadow-md shadow-brand/10 hover:shadow-brand/20">
                         {t("side_panel.add.submit")}
                       </Button>
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {dayEvents.length > 0 ? dayEvents.map((t_item: any) => (
-                        <div key={t_item.id} className="group flex flex-col gap-3 p-4 border border-border bg-card rounded-sm hover:border-brand transition-all">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Hash size={10} className="text-brand" />
-                              <span className="technical-label text-[8px] opacity-60">{t_item.category_name || t("side_panel.task.default_category")}</span>
-                            </div>
-                            <button className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/60 hover:text-brand">
-                              <ArrowUpRight size={12} />
-                            </button>
-                          </div>
-                          <p className="text-[11px] font-black uppercase tracking-tight text-foreground leading-normal">{t_item.title}</p>
-                          <div className="flex items-center gap-2 pt-3 border-t border-border/50">
-                            <Clock size={10} className="text-muted-foreground/60" />
-                            <span className="technical-label text-[8px] opacity-60">{t("side_panel.task.time")}</span>
-                          </div>
-                        </div>
-                      )) : (
-                        <div className="h-[40vh] flex flex-col items-center justify-center text-muted-foreground/40 gap-3 border border-dashed border-border rounded-sm">
-                          <CalendarIcon size={32} />
-                          <span className="technical-label text-[9px] uppercase tracking-widest">{t("side_panel.empty")}</span>
+                      {dayEvents.length > 0 ? (
+                        dayEvents.map((e_item: any) => {
+                          if (e_item.type === 'task') {
+                            return (
+                              <div
+                                key={e_item.id}
+                                className={cn(
+                                  "group flex flex-col gap-2 p-3.5 border border-border bg-card rounded-lg hover:border-brand/40 hover:shadow-md transition-all duration-300 relative overflow-hidden",
+                                  e_item.status === 'done' && "opacity-55 border-border/50"
+                                )}
+                              >
+                                {/* Left Color Accent Bar */}
+                                <div
+                                  className="absolute left-0 top-0 bottom-0 w-1"
+                                  style={{ backgroundColor: e_item.category_color || '#7C3AED' }}
+                                />
+                                
+                                <div className="flex items-start gap-3">
+                                  <input
+                                    type="checkbox"
+                                    checked={e_item.status === 'done'}
+                                    onChange={async (chkEvt) => {
+                                      const isChecked = chkEvt.target.checked;
+                                      await updateTask({
+                                        id: e_item.id,
+                                        status: isChecked ? 'done' : 'todo',
+                                        completed_at: isChecked ? new Date().toISOString() : null
+                                      });
+                                      toast.success(isChecked ? "Tarea completada" : "Tarea reactivada");
+                                    }}
+                                    className="custom-checkbox shrink-0 mt-0.5"
+                                  />
+                                  
+                                  <div className="flex-1 min-w-0">
+                                    <p className={cn(
+                                      "text-[11px] font-bold uppercase tracking-tight text-foreground leading-snug transition-all duration-300",
+                                      e_item.status === 'done' && "line-through text-muted-foreground/70"
+                                    )}>
+                                      {e_item.title}
+                                    </p>
+                                    
+                                    <div className="flex items-center gap-3 mt-2 text-[8px] technical-label text-muted-foreground/60">
+                                      <span className="px-1.5 py-0.5 bg-accent/10 border border-border/50 rounded-md uppercase font-bold">
+                                        {e_item.category_name}
+                                      </span>
+                                      {e_item.priority && (
+                                        <span className={cn(
+                                          "px-1.5 py-0.5 rounded-md uppercase border font-bold",
+                                          e_item.priority === 'high' ? "bg-error/5 border-error/20 text-error" : "bg-accent/10 border-border/50"
+                                        )}>
+                                          {e_item.priority}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <button
+                                    onClick={async () => {
+                                      if (confirm("¿Estás seguro de que deseas eliminar esta tarea?")) {
+                                        await deleteTask(e_item.id);
+                                        toast.success("Tarea eliminada");
+                                      }
+                                    }}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground/40 hover:text-error p-1 self-start"
+                                    title="Eliminar tarea"
+                                  >
+                                    <Trash2 size={13} />
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          } else {
+                            // Render social publication event
+                            return (
+                              <div
+                                key={e_item.id}
+                                className={cn(
+                                  "group flex flex-col gap-2.5 p-3.5 border bg-card rounded-lg hover:border-brand/40 hover:shadow-md transition-all duration-300 relative overflow-hidden",
+                                  `social-item-${e_item.channel}`
+                                )}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1.5">
+                                    {getSocialIcon(e_item.channel)}
+                                    <span className="technical-label text-[8px] uppercase font-black text-muted-foreground tracking-wider">
+                                      {e_item.channel}
+                                    </span>
+                                  </div>
+                                  <span className={cn(
+                                    "text-[8px] technical-label uppercase px-1.5 py-0.5 rounded-md border font-bold",
+                                    e_item.status === 'published' ? "bg-success/5 border-success/20 text-success" :
+                                    e_item.status === 'scheduled' ? "bg-brand/5 border-brand/20 text-brand" : "bg-accent/10 border-border/50 text-muted-foreground"
+                                  )}>
+                                    {e_item.status}
+                                  </span>
+                                </div>
+                                
+                                <p className="text-[11px] font-black uppercase tracking-tight text-foreground leading-snug">
+                                  {e_item.title}
+                                </p>
+
+                                <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                                  <div className="flex items-center gap-1.5 text-[8px] technical-label text-muted-foreground/60">
+                                    <Clock size={10} />
+                                    <span>Publicación Social</span>
+                                  </div>
+                                  <Link
+                                    href="/content"
+                                    className="text-[8px] technical-label text-brand hover:underline flex items-center gap-0.5 font-bold uppercase tracking-wider"
+                                  >
+                                    Ver en Matriz <ArrowUpRight size={10} />
+                                  </Link>
+                                </div>
+                              </div>
+                            );
+                          }
+                        })
+                      ) : (
+                        <div className="h-[40vh] flex flex-col items-center justify-center text-muted-foreground/30 gap-3 border border-dashed border-border/80 rounded-lg">
+                          <CalendarIcon size={32} className="opacity-60" />
+                          <span className="technical-label text-[9px] uppercase tracking-widest font-black">{t("side_panel.empty") || "Sin Actividades"}</span>
                         </div>
                       )}
                     </div>
@@ -300,4 +556,3 @@ export default function PlanificadorPage() {
     </DashboardLayout>
   );
 }
-

@@ -8,7 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { formatDistanceToNow } from "date-fns";
 import type { ActivityLog } from "@/types";
-
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { useTranslations } from "next-intl";
 
 const ACTION_STYLES: Record<string, { type: string; icon: React.ElementType }> = {
@@ -47,17 +47,17 @@ export function RecentActivity() {
   });
 
   return (
-    <div className="border border-border bg-card rounded-sm shadow-sm overflow-hidden flex flex-col">
-      <div className="flex h-14 items-center justify-between border-b border-border px-6 bg-accent/5">
-        <div className="flex items-center gap-3">
-          <Zap size={16} className="text-warning" />
-          <div className="technical-label text-foreground">{t("title")}</div>
+    <Card className="border border-border bg-card rounded-xl shadow-sm overflow-hidden flex flex-col">
+      <CardHeader className="flex-row items-center justify-between h-14 border-b border-border px-6 py-0 space-y-0 bg-accent/5">
+        <div className="flex items-center gap-2">
+          <Zap size={14} className="text-warning/70" />
+          <div className="text-sm font-semibold tracking-tight text-foreground">{t("title")}</div>
         </div>
         <div className="flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-sm bg-warning animate-pulse" />
-          <span className="technical-label text-[9px] opacity-60">{t("live_feed")}</span>
+          <span className="technical-label text-[9px] opacity-60 uppercase tracking-widest">{t("live_feed")}</span>
         </div>
-      </div>
+      </CardHeader>
 
       <div className="p-0">
         {isLoading ? (
@@ -120,7 +120,7 @@ export function RecentActivity() {
           {t("view_history")}
         </button>
       </div>
-    </div>
+    </Card>
   );
 }
 

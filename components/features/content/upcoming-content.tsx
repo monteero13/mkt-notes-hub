@@ -31,10 +31,10 @@ export function UpcomingContent({ items }: Props) {
   const t = useTranslations("dashboard.content");
 
   return (
-    <Card className="rounded-sm border-border shadow-sm overflow-hidden">
-      <CardHeader className="flex-row items-center justify-between h-14 border-b border-border px-6 py-0 space-y-0">
-        <div className="technical-label text-foreground text-[11px]">{t("title")}</div>
-        <Button variant="ghost" size="sm" asChild className="h-8 rounded-sm technical-label text-[9px] hover:bg-accent/10">
+    <Card className="rounded-xl border-border shadow-sm overflow-hidden bg-card">
+      <CardHeader className="flex-row items-center justify-between h-14 border-b border-border px-6 py-0 space-y-0 bg-accent/5">
+        <div className="text-sm font-semibold tracking-tight text-foreground">{t("title")}</div>
+        <Button variant="ghost" size="sm" asChild className="h-8 rounded-md text-xs font-medium hover:bg-accent/10">
           <Link href="/content" className="flex items-center gap-2">
             {t("calendar_view")} <ArrowRight size={10} />
           </Link>

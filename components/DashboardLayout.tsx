@@ -10,6 +10,8 @@ import { useWorkspace } from "@/hooks/use-workspace";
 import { useRouter, usePathname } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+
 function DashboardContent({ children }: { children: React.ReactNode }) {
   // Only authLoading truly blocks: we need to know if the user is authenticated.
   // workspaceLoading (members, invites, subscription) is non-critical and handled locally.
@@ -18,6 +20,29 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  
+  // Sidebar collapsed and Zen Focus states
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isFocusMode, setIsFocusMode] = useState(false);
+
+  useEffect(() => {
+    const storedCollapsed = localStorage.getItem("mkt_sidebar_collapsed") === "true";
+    const storedFocus = localStorage.getItem("mkt_focus_mode") === "true";
+    setIsSidebarCollapsed(storedCollapsed);
+    setIsFocusMode(storedFocus);
+  }, []);
+
+  const handleToggleCollapse = () => {
+    const newValue = !isSidebarCollapsed;
+    setIsSidebarCollapsed(newValue);
+    localStorage.setItem("mkt_sidebar_collapsed", String(newValue));
+  };
+
+  const handleToggleFocus = () => {
+    const newValue = !isFocusMode;
+    setIsFocusMode(newValue);
+    localStorage.setItem("mkt_focus_mode", String(newValue));
+  };
 
   useEffect(() => {
     if (pathname === '/demo') return;
@@ -46,11 +71,26 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   if (!user) return null;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <AppSidebar isOpen={isMobileSidebarOpen} onClose={() => setIsMobileSidebarOpen(false)} />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <AppTopbar onMenuClick={() => setIsMobileSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
+    <div className={cn(
+      "flex h-screen overflow-hidden bg-background transition-colors duration-500",
+      isFocusMode && "focus-mode-active"
+    )}>
+      <AppSidebar
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={handleToggleCollapse}
+        isFocusMode={isFocusMode}
+      />
+      <div className="flex flex-1 flex-col overflow-hidden transition-all duration-300">
+        <AppTopbar
+          onMenuClick={() => setIsMobileSidebarOpen(true)}
+          onToggleCollapse={handleToggleCollapse}
+          onToggleFocus={handleToggleFocus}
+          isSidebarCollapsed={isSidebarCollapsed}
+          isFocusMode={isFocusMode}
+        />
+        <main className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar transition-all duration-500">
           {children}
         </main>
       </div>

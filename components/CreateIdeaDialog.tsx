@@ -8,9 +8,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { Loader2, Plus } from 'lucide-react'
 import { useWorkspace } from '@/hooks/use-workspace'
-import { useAuth } from '@/hooks/use-auth'
 import { PremiumLimitModal } from './PremiumLimitModal'
 import { useTranslations } from 'next-intl'
+import { useIdeas } from '@/hooks/use-features-data'
 
 export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
   const t = useTranslations('ideas.dialog')
@@ -18,11 +18,10 @@ export function CreateIdeaDialog({ children }: { children?: React.ReactNode }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('')
-  const { activeWorkspace } = useWorkspace()
+  const { activeWorkspace, isPro } = useWorkspace()
+  const { data: ideas = [] } = useIdeas()
   const queryClient = useQueryClient()
 
-  const { isPro } = useAuth()
-  const { data: ideas = [] } = useQueryClient().getQueryData(['ideas']) as any || { data: [] }
   const isLimitReached = !isPro && Array.isArray(ideas) && ideas.length >= 5;
 
   const handleCreate = async (e: React.FormEvent) => {
