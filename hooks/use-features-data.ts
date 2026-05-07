@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import { useWorkspace } from './use-workspace';
-import { ContentItem } from '@/types';
+import { ContentItem, Resource } from '@/types';
 
 export { useTeam } from './use-team';
 
@@ -44,6 +44,27 @@ export function useIdeas() {
 
       if (error) throw error;
       return data || [];
+    },
+    staleTime: 1000 * 60 * 3,
+  });
+}
+
+export function useResources() {
+  const supabase = createClient();
+  const { activeWorkspace } = useWorkspace();
+
+  return useQuery({
+    queryKey: ['resources', activeWorkspace?.id],
+    enabled: !!activeWorkspace?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('resources')
+        .select('*')
+        .eq('workspace_id', activeWorkspace!.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return (data || []) as Resource[];
     },
     staleTime: 1000 * 60 * 3,
   });

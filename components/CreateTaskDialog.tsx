@@ -57,24 +57,23 @@ export function CreateTaskDialog({ children, defaultCampaignId, defaultDate, tas
     try {
       const selectedCategory = categories.find((c: any) => c.name === categoryName);
 
-      const payload = {
+      const basePayload = {
         title,
         campaign_id: campaignId || null,
         due_date: dueDate || null,
-        user_id: user?.id,
         workspace_id: activeWorkspace.id,
-        status: task?.status || 'pending',
+        status: task?.status || 'todo',
         priority: task?.priority || 'medium',
         category_name: selectedCategory?.name || null,
-        category_color: selectedCategory?.color || null
+        category_color: selectedCategory?.color || null,
       };
 
       let error;
       if (task?.id) {
-        const res = await supabase.from('tasks').update(payload).eq('id', task.id)
+        const res = await supabase.from('tasks').update(basePayload).eq('id', task.id)
         error = res.error
       } else {
-        const res = await supabase.from('tasks').insert([payload])
+        const res = await supabase.from('tasks').insert([{ ...basePayload, created_by: user?.id }])
         error = res.error
       }
 

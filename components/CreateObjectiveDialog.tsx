@@ -1,16 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
 import { Loader2, Plus, Target, BarChart } from 'lucide-react'
-import { useTeam } from '@/hooks/use-team'
 import { useWorkspace } from '@/hooks/use-workspace'
+import { createObjective } from '@/actions/objectives'
 import { PremiumLimitModal } from './PremiumLimitModal'
 
 export function CreateObjectiveDialog({ children }: { children?: React.ReactNode }) {
@@ -19,43 +17,32 @@ export function CreateObjectiveDialog({ children }: { children?: React.ReactNode
   const [title, setTitle] = useState('')
   const [kpi, setKpi] = useState('')
   const [targetValue, setTargetValue] = useState('')
-  const { data: team } = useTeam()
   const queryClient = useQueryClient()
-  const supabase = createClient()
 
   const { data: objectives = [] } = useQueryClient().getQueryData(['objectives']) as any || { data: [] }
-  const { isPro } = useWorkspace()
+  const { isPro, activeWorkspace } = useWorkspace()
 
   const isLimitReached = !isPro && Array.isArray(objectives) && objectives.length >= 5;
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title.trim() || isLimitReached) return
+    if (!title.trim() || isLimitReached || !activeWorkspace) return
 
     setIsSubmitting(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('Debes iniciar sesión para suscribirte')
+      const dueDate = new Date()
+      dueDate.setMonth(dueDate.getMonth() + 3)
 
-      const response = await fetch('/api/create-entity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'objective',
-          userId: user.id,
-          teamId: team?.id || null,
-          data: {
-            title,
-            kpi,
-            target_value: parseFloat(targetValue) || 0,
-            current_value: 0,
-            due_date: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().split('T')[0]
-          }
-        })
+      const result = await createObjective({
+        workspace_id: activeWorkspace.id,
+        title,
+        kpi: kpi || null,
+        target_value: targetValue ? parseFloat(targetValue) : null,
+        current_value: 0,
+        due_date: dueDate.toISOString().split('T')[0],
       })
 
-      const result = await response.json()
-      if (!response.ok) throw new Error(result.error || 'Error al crear objetivo')
+      if (result.error) throw new Error(result.error)
 
       toast.success('Objetivo fijado con éxito')
       await queryClient.refetchQueries({ queryKey: ['objectives'] })

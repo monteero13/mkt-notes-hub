@@ -28,7 +28,7 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
   const queryClient = useQueryClient()
   const supabase = createClient()
 
-  const { data: resources = [] } = queryClient.getQueryData(['content']) as any || { data: [] }
+  const { data: resources = [] } = queryClient.getQueryData(['resources']) as any || { data: [] }
   const isLimitReached = !isPro && Array.isArray(resources) && resources.length >= 3;
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -47,13 +47,17 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Debes iniciar sesión para suscribirte')
 
-      let finalUrl = url
-      let platform = 'Enlace'
+      let fileUrl = url.trim()
+      let filePath = ''
+      const fileTypeMap: Record<string, string> = {
+        image: 'image', video: 'video', document: 'document', link: 'other',
+      }
+      const dbFileType = fileTypeMap[type] ?? 'other'
 
       if (file) {
         const fileExt = file.name.split('.').pop()
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-        const filePath = `${user.id}/${fileName}`
+        filePath = `${user.id}/${fileName}`
 
         const { error: uploadError } = await supabase.storage
           .from('resources')
@@ -65,37 +69,32 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
           .from('resources')
           .getPublicUrl(filePath)
 
-        finalUrl = urlData.publicUrl
-        platform = 'Archivo Local'
-      } else if (url.includes('instagram.com/reel') || url.includes('tiktok.com')) {
-        platform = 'Social Media'
+        fileUrl = urlData.publicUrl
       }
 
-      const response = await fetch('/api/create-entity', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'content',
-          workspaceId: activeWorkspace.id,
-          data: {
-            title: title || file?.name || 'Sin título',
-            type,
-            url: finalUrl,
-            platform,
-            status: 'published'
-          }
-        })
-      })
+      if (!fileUrl) throw new Error(t('error'))
 
-      const result = await response.json()
-      if (!response.ok) throw new Error(result.error || t('error'))
+      const { error: insertError } = await supabase
+        .from('resources')
+        .insert({
+          workspace_id: activeWorkspace.id,
+          name: title || file?.name || 'Sin título',
+          file_url: fileUrl,
+          file_path: filePath || fileUrl,
+          file_type: dbFileType,
+          mime_type: file?.type || null,
+          size_bytes: file?.size || null,
+          uploaded_by: user.id,
+        })
+
+      if (insertError) throw insertError
 
       toast.success(t('success'))
       setOpen(false)
       setTitle('')
       setUrl('')
       setFile(null)
-      queryClient.invalidateQueries({ queryKey: ['content'] })
+      queryClient.invalidateQueries({ queryKey: ['resources'] })
     } catch (error: any) {
       toast.error(error.message || t('error'));
     } finally {

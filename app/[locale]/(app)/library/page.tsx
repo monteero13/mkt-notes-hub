@@ -6,7 +6,8 @@ import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
 import { CreateResourceDialog } from '@/components/CreateResourceDialog';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { useContent } from '@/hooks/use-features-data';
+import { useResources } from '@/hooks/use-features-data';
+import type { Resource } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import { useTranslations } from 'next-intl';
 import {
@@ -24,7 +25,7 @@ import {
 } from 'lucide-react';
 
 export default function BibliotecaPage() {
-  const { data: resources = [], isLoading } = useContent();
+  const { data: resources = [], isLoading } = useResources();
   const queryClient = useQueryClient();
   const supabase = createClient();
   const t = useTranslations('library');
@@ -32,10 +33,10 @@ export default function BibliotecaPage() {
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase.from('content_items').delete().eq('id', id);
+      const { error } = await supabase.from('resources').delete().eq('id', id);
       if (error) throw error;
       toast.success(t('delete_success'));
-      queryClient.invalidateQueries({ queryKey: ['content'] });
+      queryClient.invalidateQueries({ queryKey: ['resources'] });
     } catch (error: any) {
       toast.error(tCommon('error') + ': ' + error.message);
     }
@@ -110,8 +111,8 @@ export default function BibliotecaPage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-                  {resources?.map((res: any) => {
-                    const thumbnail = getThumbnail(res.url, res.type);
+                  {(resources as Resource[]).map((res) => {
+                    const thumbnail = getThumbnail(res.file_url, res.file_type);
                     return (
                       <div
                         key={res.id}
@@ -120,18 +121,18 @@ export default function BibliotecaPage() {
                         {/* Preview Area */}
                         <div className="aspect-[16/10] bg-accent/5 relative flex items-center justify-center overflow-hidden border-b border-border">
                           {thumbnail ? (
-                            <img src={thumbnail} alt={res.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500" />
+                            <img src={thumbnail} alt={res.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-500" />
                           ) : (
                             <div className="text-muted-foreground/30 group-hover:text-brand/60 transition-all">
-                              {getIcon(res.type)}
+                              {getIcon(res.file_type)}
                             </div>
                           )}
 
                           {/* Overlay Actions */}
                           <div className="absolute inset-0 bg-background/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-3">
-                            {res.url && (
+                            {res.file_url && (
                               <button
-                                onClick={() => window.open(res.url, '_blank')}
+                                onClick={() => window.open(res.file_url, '_blank')}
                                 className="h-9 w-9 rounded-sm bg-brand text-white flex items-center justify-center hover:scale-105 transition-transform"
                               >
                                 <ExternalLink size={16} />
@@ -145,7 +146,7 @@ export default function BibliotecaPage() {
                           </div>
 
                           <div className="absolute top-4 left-4 h-8 w-8 rounded-sm bg-background border border-border flex items-center justify-center text-muted-foreground/60 group-hover:text-brand group-hover:border-brand transition-all">
-                            {getIcon(res.type)}
+                            {getIcon(res.file_type)}
                           </div>
                         </div>
 
@@ -154,14 +155,14 @@ export default function BibliotecaPage() {
                           <div className="space-y-2">
                             <div className="flex items-center gap-2">
                               <span className="technical-label text-[8px] px-1.5 py-0.5 rounded-sm bg-brand/5 text-brand border border-brand/10">
-                                {res.platform || res.type}
+                                {res.file_type}
                               </span>
                               <span className="technical-label text-[8px] opacity-40 uppercase tracking-widest">
                                 ID-{res.id.slice(0, 4)}
                               </span>
                             </div>
                             <h4 className="font-black text-[11px] uppercase tracking-tight text-foreground leading-normal line-clamp-2 group-hover:text-brand transition-colors">
-                              {res.title}
+                              {res.name}
                             </h4>
                           </div>
                           <div className="mt-auto pt-4 border-t border-border flex items-center justify-between">

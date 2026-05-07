@@ -9,11 +9,12 @@ const objectiveSchema = z.object({
   workspace_id: z.string().uuid(),
   title: z.string().min(1).max(300),
   description: z.string().max(5000).nullish(),
+  kpi: z.string().max(200).nullish(),
   status: z.enum(["active","completed","paused","canceled"]).default("active"),
   target_value: z.number().nullish(),
   current_value: z.number().nullish(),
   unit: z.string().max(50).nullish(),
-  due_date: z.string().datetime().nullish(),
+  due_date: z.string().nullish(),
   client_id: z.string().uuid().nullish(),
   campaign_id: z.string().uuid().nullish(),
 });

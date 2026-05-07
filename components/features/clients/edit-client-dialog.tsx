@@ -40,7 +40,7 @@ export function EditClientDialog({ client, workspaceId, onClose }: Props) {
           company_name: companyName,
           niche: industry,
           contact_email: email,
-          monthly_retainer: parseFloat(retainer) || 0,
+          monthly_retainer: retainer ? parseFloat(retainer) : null,
         })
         .eq('id', client.id)
         .eq('workspace_id', workspaceId);
