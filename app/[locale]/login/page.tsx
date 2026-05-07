@@ -40,6 +40,16 @@ function LoginContent() {
     }
   }, [searchParams])
 
+  useEffect(() => {
+    const errorParam = searchParams?.get('error')
+    if (errorParam === 'auth-code-error') {
+      toast.error(locale === 'es' 
+        ? 'Error de autenticación. El código ha caducado o ya ha sido utilizado.' 
+        : 'Authentication error. The code has expired or has already been used.'
+      )
+    }
+  }, [searchParams, locale])
+
   const setMode = (newMode: AuthMode) => {
     setModeState(newMode)
     router.replace(`/${locale}/login?mode=${newMode}`, { scroll: false })

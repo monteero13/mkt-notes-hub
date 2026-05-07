@@ -26,6 +26,6 @@ export async function GET(request: Request) {
     }
   }
 
-  // Si algo falla, redirigimos a la página de error de autenticación localizada
-  return NextResponse.redirect(`${origin}/${locale}/auth/auth-code-error`)
+  // Si algo falla, redirigimos a la página de login con un parámetro de error
+  return NextResponse.redirect(`${origin}/${locale}/login?error=auth-code-error`)
 }
