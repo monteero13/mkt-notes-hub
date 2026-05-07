@@ -34,13 +34,36 @@ export async function GET(request: Request) {
       return NextResponse.json({ team: invite.workspace, invite: { id: invite.id, email: invite.email, role: invite.role } });
     }
 
-    // 2. If not found, try to find a workspace by short ID (8 chars)
-    // Note: In production, you'd want a dedicated join_code column for security and collisions.
-    const { data: workspace, error: wsError } = await supabase
-      .from("workspaces")
-      .select("id, name, slug")
-      .ilike("id", `${token}%`)
-      .maybeSingle();
+    // 2. If not found, try to find a workspace by short ID (8 chars) or full UUID
+    let workspace = null;
+    let wsError = null;
+
+    const cleanToken = token.trim().toLowerCase();
+
+    if (cleanToken.length === 36) {
+      // Si introducen un UUID completo
+      const { data, error } = await supabase
+        .from("workspaces")
+        .select("id, name, slug")
+        .eq("id", cleanToken)
+        .maybeSingle();
+      workspace = data;
+      wsError = error;
+    } else if (cleanToken.length === 8) {
+      // Si introducen el código de conexión de 8 caracteres (primer segmento del UUID)
+      // Usamos el legendario truco matemático de rangos para buscar un prefijo UUID indexado sin castear a texto en base de datos.
+      const lowerBound = `${cleanToken}-0000-0000-0000-000000000000`;
+      const upperBound = `${cleanToken}-ffff-ffff-ffff-ffffffffffff`;
+      
+      const { data, error } = await supabase
+        .from("workspaces")
+        .select("id, name, slug")
+        .gte("id", lowerBound)
+        .lte("id", upperBound)
+        .maybeSingle();
+      workspace = data;
+      wsError = error;
+    }
 
     if (wsError) throw wsError;
 
