@@ -1,9 +1,9 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import { useWorkspace } from './use-workspace';
-import { ContentItem, Resource } from '@/types';
+import { ContentItem, Resource, Task } from '@/types';
 
 export { useTeam } from './use-team';
 
@@ -89,4 +89,90 @@ export function useObjectives() {
     },
     staleTime: 1000 * 60 * 3,
   });
+}
+
+export function useTasks() {
+  const supabase = createClient();
+  const { activeWorkspace } = useWorkspace();
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
+    queryKey: ['tasks', activeWorkspace?.id],
+    enabled: !!activeWorkspace?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*, campaign:campaigns(*), assignee:profiles(*)')
+        .eq('workspace_id', activeWorkspace!.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return (data || []) as Task[];
+    },
+    staleTime: 1000 * 60 * 3,
+  });
+
+  const createTaskMutation = useMutation({
+    mutationFn: async (task: Partial<Task>) => {
+      if (!activeWorkspace?.id) throw new Error('No active workspace');
+      const { data, error } = await supabase
+        .from('tasks')
+        .insert({
+          ...task,
+          workspace_id: activeWorkspace.id,
+          status: task.status || 'todo',
+          priority: task.priority || 'medium',
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Task;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', activeWorkspace?.id] });
+    },
+  });
+
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<Task> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('tasks')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data as Task;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', activeWorkspace?.id] });
+    },
+  });
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      return id;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', activeWorkspace?.id] });
+    },
+  });
+
+  return {
+    ...query,
+    createTask: createTaskMutation.mutateAsync,
+    isCreating: createTaskMutation.isPending,
+    updateTask: updateTaskMutation.mutateAsync,
+    isUpdating: updateTaskMutation.isPending,
+    deleteTask: deleteTaskMutation.mutateAsync,
+    isDeleting: deleteTaskMutation.isPending,
+  };
 }
