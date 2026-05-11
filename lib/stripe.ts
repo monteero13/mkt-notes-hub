@@ -38,6 +38,7 @@ export async function createCheckoutSession(priceId: string) {
     process.env.NEXT_PUBLIC_APP_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
+  let checkoutUrl: string | null = null;
   try {
     const session = await stripe.checkout.sessions.create({
       line_items: [{ price: priceId, quantity: 1 }],
@@ -49,12 +50,14 @@ export async function createCheckoutSession(priceId: string) {
       subscription_data: { metadata: { workspaceId, userId: user.id } },
     });
 
-    if (session?.url) redirect(session.url);
+    if (session?.url) checkoutUrl = session.url;
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Stripe error";
     console.error("Stripe Error:", error);
     throw new Error(msg);
   }
+
+  if (checkoutUrl) redirect(checkoutUrl);
 }
 
 export async function createPortalSession() {
@@ -96,17 +99,20 @@ export async function createPortalSession() {
     process.env.NEXT_PUBLIC_APP_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
+  let portalUrl: string | null = null;
   try {
     const session = await stripe.billingPortal.sessions.create({
       customer: subscription.stripe_customer_id,
       return_url: `${host}/billing`,
     });
-    if (session.url) redirect(session.url);
+    if (session.url) portalUrl = session.url;
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Stripe error";
     console.error("Portal Error:", error);
     throw new Error(msg);
   }
+
+  if (portalUrl) redirect(portalUrl);
 }
 
 export async function isWorkspacePro(workspaceId: string): Promise<boolean> {

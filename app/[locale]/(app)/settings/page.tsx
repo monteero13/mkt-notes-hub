@@ -42,6 +42,7 @@ export default function PerfilPage() {
   const [fullName, setFullName] = useState('')
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [isResettingPassword, setIsResettingPassword] = useState(false)
 
   // Contact Form State
   const [isContactOpen, setIsContactOpen] = useState(false)
@@ -156,6 +157,29 @@ export default function PerfilPage() {
   }
   const supabase = createClient()
   const queryClient = useQueryClient()
+
+  const handleResetPassword = async () => {
+    if (!user?.email) return
+    setIsResettingPassword(true)
+    try {
+      const host = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: `${host}/auth/reset-password`,
+      })
+      if (error) throw error
+      toast.success(
+        locale === 'es'
+          ? `Correo de restablecimiento enviado a ${user.email}. Revisa tu bandeja de entrada.`
+          : `Password reset email sent to ${user.email}. Check your inbox.`
+      )
+    } catch (error: any) {
+      toast.error(error.message || (
+        locale === 'es' ? 'Error al enviar el correo de restablecimiento.' : 'Error sending reset email.'
+      ))
+    } finally {
+      setIsResettingPassword(false)
+    }
+  }
 
   useEffect(() => {
     if (profile) {
@@ -341,7 +365,12 @@ export default function PerfilPage() {
                       <div className="text-xs text-muted-foreground/60">{t('rotation_keys')}</div>
                     </div>
                   </div>
-                  <Button className="h-9 rounded-lg bg-accent/5 border border-border text-xs font-medium text-foreground hover:bg-brand/10 hover:text-brand transition-all px-4">
+                  <Button
+                    onClick={handleResetPassword}
+                    disabled={isResettingPassword}
+                    className="h-9 rounded-lg bg-accent/5 border border-border text-xs font-medium text-foreground hover:bg-brand/10 hover:text-brand transition-all px-4 flex items-center gap-1.5"
+                  >
+                    {isResettingPassword && <Loader2 size={12} className="animate-spin" />}
                     {t('reset_access_keys')}
                   </Button>
                 </div>
