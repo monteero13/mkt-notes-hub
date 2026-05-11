@@ -16,109 +16,192 @@ import {
   Download,
   AlertTriangle,
   Sparkles,
-  Trash2
+  Trash2,
+  Mail,
+  Send
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useWorkspace } from "@/hooks/use-workspace";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { simulateUpgradeToPro, simulateCancelSubscription } from "@/lib/stripe-actions";
-import { useState } from "react";
+import { handleCreateCheckoutSession, handleCreatePortalSession } from "@/lib/stripe-actions";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function BillingPage() {
-  const { profile, isLoading: authLoading } = useAuth();
+  const { user, profile, isLoading: authLoading } = useAuth();
   const { isPro, activeWorkspace, isLoading: wsLoading } = useWorkspace();
   const queryClient = useQueryClient();
   const t = useTranslations("billing");
+  const params = useParams();
+  const locale = params?.locale || "es";
 
   // Local Interactive States
   const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly');
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
-  
-  // Simulation Processing states
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [logs, setLogs] = useState<string[]>([]);
-  const [isCanceling, setIsCanceling] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
+  const [isPortalLoading, setIsPortalLoading] = useState(false);
+
+  // Contact Form State
+  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [contactSubject, setContactSubject] = useState('');
+  const [contactMessage, setContactMessage] = useState('');
+  const [contactHoneypot, setContactHoneypot] = useState('');
+  const [isContactSubmitting, setIsContactSubmitting] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+
+  // Manage client-side submission cooldown
+  useEffect(() => {
+    const checkCooldown = () => {
+      const lastSubmit = localStorage.getItem('mkt-notes-last-support-submit');
+      if (lastSubmit) {
+        const diff = Date.now() - parseInt(lastSubmit, 10);
+        const remaining = Math.ceil((60000 - diff) / 1000);
+        if (remaining > 0) {
+          setCooldownSeconds(remaining);
+          return;
+        }
+      }
+      setCooldownSeconds(0);
+    };
+
+    checkCooldown();
+    const interval = setInterval(checkCooldown, 1000);
+    return () => clearInterval(interval);
+  }, [isContactOpen]);
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Honeypot check (immediate silent check)
+    if (contactHoneypot.trim() !== '') {
+      setIsContactOpen(false);
+      toast.success(
+        locale === 'es'
+          ? 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.'
+          : 'Message sent successfully. We will contact you soon.'
+      );
+      return;
+    }
+
+    // Client-side cooldown check
+    if (cooldownSeconds > 0) {
+      toast.error(
+        locale === 'es'
+          ? `Por favor, espera ${cooldownSeconds} segundos antes de enviar otro mensaje.`
+          : `Please wait ${cooldownSeconds} seconds before sending another message.`
+      );
+      return;
+    }
+
+    if (contactSubject.trim().length < 3 || contactSubject.length > 100) {
+      toast.error(
+        locale === 'es'
+          ? 'El asunto debe tener entre 3 y 100 caracteres.'
+          : 'Subject must be between 3 and 100 characters.'
+      );
+      return;
+    }
+
+    if (contactMessage.trim().length < 10 || contactMessage.length > 1000) {
+      toast.error(
+        locale === 'es'
+          ? 'El mensaje debe tener entre 10 y 1000 caracteres.'
+          : 'Message must be between 10 and 1000 characters.'
+      );
+      return;
+    }
+
+    try {
+      setIsContactSubmitting(true);
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: 'ayuda',
+          subject: contactSubject,
+          message: contactMessage,
+          honeypot: contactHoneypot,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Error sending message');
+      }
+
+      // Success! Set cooldown in localStorage and state
+      localStorage.setItem('mkt-notes-last-support-submit', Date.now().toString());
+      setCooldownSeconds(60);
+
+      toast.success(
+        locale === 'es'
+          ? 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.'
+          : 'Message sent successfully. We will contact you soon.'
+      );
+
+      // Reset form and close modal
+      setContactSubject('');
+      setContactMessage('');
+      setContactHoneypot('');
+      setIsContactOpen(false);
+    } catch (err: any) {
+      toast.error(err.message || 'Error sending message');
+    } finally {
+      setIsContactSubmitting(false);
+    }
+  };
 
   const isLoading = authLoading || wsLoading;
 
-  // Invoice Lists mock representation
-  const mockInvoices = [
-    { id: "INV-2026-003", date: "07 May 2026", amount: billingInterval === 'monthly' ? "€29.00" : "€290.00", status: "Paid" },
-    { id: "INV-2026-002", date: "07 Apr 2026", amount: "€29.00", status: "Paid" },
-    { id: "INV-2026-001", date: "07 Mar 2026", amount: "€29.00", status: "Paid" },
-  ];
+  const handleUpgradeRealStripe = async () => {
+    if (!activeWorkspace?.id) {
+      toast.error("No hay un espacio de trabajo activo seleccionado.");
+      return;
+    }
 
-  const handleDownloadInvoice = (invoiceId: string) => {
-    toast.promise(
-      new Promise((resolve) => setTimeout(resolve, 1200)),
-      {
-        loading: `Generando PDF para la factura ${invoiceId}...`,
-        success: `Factura ${invoiceId}.pdf descargada correctamente (Simulado).`,
-        error: "Error al generar la descarga.",
+    setIsUpgrading(true);
+    try {
+      const priceId = process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID || "price_1TM6WkJxysYhy7Uh5CHD9h5q";
+      await handleCreateCheckoutSession(priceId);
+    } catch (err: any) {
+      if (err.message?.includes("NEXT_REDIRECT") || err.digest?.includes("NEXT_REDIRECT")) {
+        throw err;
       }
-    );
+      toast.error(`Error al abrir la pasarela de Stripe: ${err.message}`);
+    } finally {
+      setIsUpgrading(false);
+    }
   };
 
-  const startCheckoutSimulation = async () => {
+  const handleManageSubscription = async () => {
     if (!activeWorkspace?.id) {
       toast.error("No hay un espacio de trabajo activo seleccionado.");
       return;
     }
 
-    setIsProcessing(true);
-    setLogs([]);
-
-    const steps = [
-      "Iniciando pasarela de pago segura...",
-      "Estableciendo canal SSL v1.3 cifrado de 256 bits...",
-      "Validando credenciales de tarjeta Visa (4242)...",
-      "Procesando pago con banco emisor de forma segura...",
-      "Autorización de transacción recibida con éxito (Ref: tx_981a2f)...",
-      "Comunicando con el servidor de aprovisionamiento de Mkt Notes Hub...",
-      "Actualizando cuotas de base de datos para Workspace...",
-      "Suscripción PRO activada de forma persistente en Supabase.",
-    ];
-
-    for (let i = 0; i < steps.length; i++) {
-      await new Promise((resolve) => setTimeout(resolve, i === 4 ? 1200 : 600));
-      setLogs((prev) => [...prev, `[SYSTEM] ${steps[i]}`]);
-    }
-
+    setIsPortalLoading(true);
     try {
-      await simulateUpgradeToPro(activeWorkspace.id, 'pro', billingInterval);
-      toast.success("¡Suscripción PRO activada con éxito!");
-      queryClient.invalidateQueries({ queryKey: ['auth-user'] });
-      queryClient.invalidateQueries({ queryKey: ['workspace-subscription', activeWorkspace.id] });
+      await handleCreatePortalSession();
     } catch (err: any) {
-      toast.error(`Error al procesar la simulación: ${err.message}`);
+      if (err.message?.includes("NEXT_REDIRECT") || err.digest?.includes("NEXT_REDIRECT")) {
+        throw err;
+      }
+      toast.error(`Error al abrir el portal de facturación de Stripe: ${err.message}`);
     } finally {
-      setIsProcessing(false);
-      setIsCheckoutOpen(false);
-    }
-  };
-
-  const handleCancelSubscription = async () => {
-    if (!activeWorkspace?.id) {
-      toast.error("No hay un espacio de trabajo activo seleccionado.");
-      return;
-    }
-
-    setIsCanceling(true);
-    try {
-      await simulateCancelSubscription(activeWorkspace.id);
-      toast.success("Tu suscripción ha sido cancelada. Has regresado al plan gratuito.");
-      queryClient.invalidateQueries({ queryKey: ['auth-user'] });
-      queryClient.invalidateQueries({ queryKey: ['workspace-subscription', activeWorkspace.id] });
-    } catch (err: any) {
-      toast.error(`Error al cancelar la suscripción: ${err.message}`);
-    } finally {
-      setIsCanceling(false);
-      setIsCancelConfirmOpen(false);
+      setIsPortalLoading(false);
     }
   };
 
@@ -290,10 +373,20 @@ export default function BillingPage() {
                       </div>
                     </div>
                     <Button
-                      onClick={() => setIsCheckoutOpen(true)}
-                      className="w-full h-10 mt-8 rounded-lg bg-brand text-white hover:opacity-95 transition-all uppercase font-black text-[9px] tracking-widest shadow-lg shadow-brand/20"
+                      onClick={handleUpgradeRealStripe}
+                      disabled={isUpgrading}
+                      className="w-full h-10 mt-8 rounded-lg bg-brand text-white hover:opacity-95 transition-all uppercase font-black text-[9px] tracking-widest shadow-lg shadow-brand/20 flex items-center justify-center gap-2"
                     >
-                      Mejorar a Pro <ArrowRight size={12} className="ml-2" />
+                      {isUpgrading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Conectando...
+                        </>
+                      ) : (
+                        <>
+                          Mejorar a Pro <ArrowRight size={12} />
+                        </>
+                      )}
                     </Button>
                   </div>
 
@@ -386,61 +479,52 @@ export default function BillingPage() {
                   {/* Period renewal details and triggers */}
                   <div className="pt-6 border-t border-brand/15 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="space-y-1">
-                      <p className="technical-label text-[8px] opacity-45 uppercase tracking-widest">Próximo Cobro</p>
+                      <p className="technical-label text-[8px] opacity-45 uppercase tracking-widest">Gestión de Cuenta</p>
                       <p className="text-xs font-bold text-muted-foreground/80 flex items-center gap-1.5 uppercase">
                         <Calendar size={12} className="text-brand opacity-60" />
-                        07 de Junio de 2026 (€29.00 EUR)
+                        Usa el portal de Stripe para actualizar facturas o cancelar
                       </p>
                     </div>
                     <Button
-                      variant="outline"
-                      onClick={() => setIsCancelConfirmOpen(true)}
-                      className="h-10 border-red-500/20 text-red-400 hover:bg-red-500/5 hover:text-red-300 rounded-lg text-[9px] px-6 transition-all font-black uppercase tracking-widest"
+                      onClick={handleManageSubscription}
+                      disabled={isPortalLoading}
+                      className="h-10 bg-brand text-white hover:bg-brand/90 rounded-lg text-[9px] px-6 transition-all font-black uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-lg shadow-brand/20"
                     >
-                      Cancelar Suscripción
+                      {isPortalLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Conectando...
+                        </>
+                      ) : (
+                        "Gestionar Suscripción"
+                      )}
                     </Button>
                   </div>
                 </div>
 
-                {/* Right Column: Simulated Invoice History & Support Card */}
+                {/* Right Column: Support Card */}
                 <div className="space-y-6">
-                  {/* Invoices List panel */}
-                  <div className="border border-border bg-card p-6 rounded-xl space-y-4 shadow-sm">
-                    <div className="space-y-1">
-                      <span className="technical-label text-foreground text-[8px] uppercase tracking-widest font-bold">Registro Contable</span>
-                      <h4 className="text-sm font-semibold tracking-tight text-foreground">Historial de Facturación</h4>
-                    </div>
-                    <div className="h-[1px] bg-border" />
-                    
-                    <div className="space-y-2.5">
-                      {mockInvoices.map((inv) => (
-                        <div key={inv.id} className="flex items-center justify-between p-3 border border-border/40 rounded-lg hover:bg-accent/5 transition-colors">
-                          <div className="space-y-0.5">
-                            <p className="text-[10px] font-black uppercase text-foreground">{inv.id}</p>
-                            <p className="text-[9px] text-muted-foreground/60">{inv.date}</p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-bold text-muted-foreground/80">{inv.amount}</span>
-                            <button
-                              onClick={() => handleDownloadInvoice(inv.id)}
-                              className="p-1.5 text-muted-foreground/40 hover:text-brand border border-border/60 hover:border-brand/20 bg-background hover:bg-brand/5 rounded-md transition-colors"
-                            >
-                              <Download size={11} />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
                   {/* Customer support card */}
                   <div className="border border-border bg-card p-6 rounded-xl text-center space-y-4">
                     <div className="space-y-1.5">
-                      <p className="technical-label text-brand text-[8px] uppercase tracking-widest font-bold">¿Necesitas Ayuda?</p>
-                      <p className="text-[11px] text-muted-foreground/80 leading-relaxed">¿Tienes dudas con tus facturas o deseas migrar tu método de pago?</p>
+                      <p className="technical-label text-brand text-[8px] uppercase tracking-widest font-bold">
+                        {locale === 'es' ? '¿Necesitas Ayuda?' : 'Need Help?'}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground/80 leading-relaxed">
+                        {locale === 'es'
+                          ? '¿Tienes dudas con tus facturas o deseas migrar tu método de pago?'
+                          : 'Do you have questions about your invoices or want to migrate your payment method?'}
+                      </p>
                     </div>
-                    <Button variant="outline" className="w-full border-border hover:bg-card text-[10px] h-9 transition-all uppercase font-black tracking-wider" asChild>
-                      <a href="mailto:13albertomontero.profesional@gmail.com">Contactar Facturación</a>
+                    <Button
+                      variant="outline"
+                      className="w-full border-border hover:bg-card text-[10px] h-9 transition-all uppercase font-black tracking-wider cursor-pointer"
+                      onClick={() => {
+                        setContactSubject(locale === 'es' ? 'Duda sobre Facturación' : 'Billing Inquiry');
+                        setIsContactOpen(true);
+                      }}
+                    >
+                      {locale === 'es' ? 'Contactar Facturación' : 'Contact Billing'}
                     </Button>
                   </div>
                 </div>
@@ -451,191 +535,98 @@ export default function BillingPage() {
           </div>
         </div>
 
-        {/* --- MODAL 1: CHECKOUT GATEWAY STRIPE SIMULATOR --- */}
-        {isCheckoutOpen && (
-          <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col md:flex-row animate-scale-up">
-              
-              {/* Product overview side column */}
-              <div className="md:w-5/12 bg-accent/20 border-r border-border p-6 sm:p-8 flex flex-col justify-between relative">
-                <div className="space-y-6">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded bg-brand flex items-center justify-center text-white font-black text-xs">M</div>
-                    <span className="text-xs font-black uppercase tracking-widest text-foreground">MKT.NOTES</span>
-                  </div>
-                  <div className="space-y-1.5">
-                    <span className="technical-label text-brand text-[8px] uppercase tracking-widest">Resumen del pedido</span>
-                    <h4 className="text-xl font-light" style={{ fontFamily: "var(--font-clash), sans-serif" }}>Licencia Pro Plan</h4>
-                    <p className="text-[10px] text-muted-foreground/60">Servicios profesionales para agencias en la nube.</p>
-                  </div>
+      </div>
+
+      {/* Interactive Billing Support Dialog */}
+      <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+        <DialogContent className="sm:max-w-[480px] p-0 overflow-hidden border border-border bg-background shadow-2xl rounded-2xl">
+          <div className="p-8">
+            <DialogHeader className="mb-6 text-left">
+              <DialogTitle className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand/10 text-brand">
+                  <Mail size={16} />
                 </div>
+                {locale === 'es' ? 'Soporte de Facturación' : 'Billing Support'}
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground mt-1">
+                {locale === 'es'
+                  ? 'Completa el siguiente formulario para enviarnos tu consulta de forma directa y segura. Te responderemos en un plazo máximo de 24 horas.'
+                  : 'Complete the form below to send us your inquiry directly and securely. We will reply within 24 hours.'}
+              </DialogDescription>
+            </DialogHeader>
 
-                <div className="space-y-4 pt-8 md:pt-0">
-                  <div className="h-[1px] bg-border" />
-                  <div className="flex justify-between items-baseline">
-                    <span className="text-xs text-muted-foreground">Total hoy:</span>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-light text-foreground" style={{ fontFamily: "var(--font-clash), sans-serif" }}>
-                        {billingInterval === 'monthly' ? "€29.00" : "€290.00"}
-                      </span>
-                      <span className="text-[9px] text-muted-foreground uppercase font-black">{billingInterval === 'monthly' ? "EUR/mes" : "EUR/año"}</span>
-                    </div>
-                  </div>
-                  <div className="text-[9px] text-muted-foreground/50 text-right">IVA e impuestos locales incluidos.</div>
-                </div>
+            <form onSubmit={handleContactSubmit} className="space-y-5">
+              {/* Honey Pot to block robotic spammers */}
+              <div className="absolute opacity-0 pointer-events-none -z-10 h-0 w-0 overflow-hidden">
+                <label>Do not fill this field</label>
+                <input
+                  type="text"
+                  value={contactHoneypot}
+                  onChange={(e) => setContactHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
               </div>
 
-              {/* Secure payment form / terminal simulator side column */}
-              <div className="md:w-7/12 p-6 sm:p-8 flex flex-col justify-center relative min-h-[350px]">
-                {!isProcessing ? (
-                  <div className="space-y-6 animate-fade-in">
-                    <div className="space-y-1">
-                      <span className="technical-label text-emerald-400 text-[8px] uppercase tracking-widest font-bold flex items-center gap-1">
-                        <Lock size={10} /> Pasarela Segura (Sandbox)
-                      </span>
-                      <h4 className="text-base font-semibold tracking-tight text-foreground">Detalles de la Transacción</h4>
-                    </div>
-
-                    <div className="space-y-4">
-                      {/* Card information mock-up fields */}
-                      <div className="space-y-1.5">
-                        <label className="technical-label text-[8px] opacity-40 uppercase tracking-widest">Número de Tarjeta</label>
-                        <div className="relative">
-                          <input
-                            type="text"
-                            readOnly
-                            value="4242 •••• •••• 4242"
-                            className="w-full bg-background border border-border px-3 py-2 text-xs rounded-lg text-foreground font-mono focus:outline-none"
-                          />
-                          <CreditCard size={14} className="absolute right-3 top-3 text-muted-foreground/40" />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                          <label className="technical-label text-[8px] opacity-40 uppercase tracking-widest">Vencimiento</label>
-                          <input
-                            type="text"
-                            readOnly
-                            value="12 / 28"
-                            className="w-full bg-background border border-border px-3 py-2 text-xs rounded-lg text-foreground font-mono focus:outline-none"
-                          />
-                        </div>
-                        <div className="space-y-1.5">
-                          <label className="technical-label text-[8px] opacity-40 uppercase tracking-widest">CVC / CVV</label>
-                          <input
-                            type="text"
-                            readOnly
-                            value="123"
-                            className="w-full bg-background border border-border px-3 py-2 text-xs rounded-lg text-foreground font-mono focus:outline-none"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="technical-label text-[8px] opacity-40 uppercase tracking-widest">Titular de la Tarjeta</label>
-                        <input
-                          type="text"
-                          readOnly
-                          value={profile?.full_name || "Alberto Montero"}
-                          className="w-full bg-background border border-border px-3 py-2 text-xs rounded-lg text-foreground font-bold uppercase tracking-wide focus:outline-none"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex gap-3 pt-2">
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsCheckoutOpen(false)}
-                        className="w-1/2 h-10 border-border text-muted-foreground text-[10px] rounded-lg uppercase font-black tracking-widest hover:bg-accent/5"
-                      >
-                        Cancelar
-                      </Button>
-                      <Button
-                        onClick={startCheckoutSimulation}
-                        className="w-1/2 h-10 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] rounded-lg uppercase font-black tracking-widest shadow-lg shadow-emerald-600/10 flex items-center justify-center gap-1"
-                      >
-                        <Shield size={12} /> Confirmar Pago
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  /* --- SUBMIT PROCESSING TERMINAL LOGGER --- */
-                  <div className="space-y-6 animate-fade-in flex flex-col justify-between h-full py-4">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin text-brand" />
-                        <span className="text-xs font-black uppercase tracking-widest text-foreground">Procesando Transacción...</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground/60">No cierres esta ventana. Conectando con los procesadores bancarios.</p>
-                    </div>
-
-                    {/* Monospaced simulator terminal container */}
-                    <div className="flex-1 bg-black/60 border border-border/80 rounded-xl p-4 font-mono text-[9px] space-y-1.5 text-left text-emerald-400 overflow-y-auto max-h-[160px] custom-scrollbar shadow-inner select-none">
-                      {logs.map((log, i) => (
-                        <div key={i} className="leading-relaxed opacity-90">
-                          <span className="text-muted-foreground/50">[{new Date().toLocaleTimeString()}]</span> {log}
-                        </div>
-                      ))}
-                      <div className="w-1.5 h-3 bg-emerald-400 animate-ping inline-block ml-1" />
-                    </div>
-
-                    <div className="text-[9px] text-center text-muted-foreground/40 flex items-center justify-center gap-1">
-                      <Lock size={10} /> Canal cifrado mediante seguridad bancaria SSL AES-256.
-                    </div>
-                  </div>
-                )}
+              <div className="space-y-1.5">
+                <label className="text-[10px] technical-label text-muted-foreground/80 uppercase tracking-wider ml-0.5">
+                  {locale === 'es' ? 'Asunto' : 'Subject'}
+                </label>
+                <Input
+                  required
+                  placeholder={locale === 'es' ? 'Ej: Error en cargo duplicado, cambio de tarjeta...' : 'e.g., Duplicate charge error, change card...'}
+                  value={contactSubject}
+                  onChange={(e) => setContactSubject(e.target.value)}
+                  className="h-11 border-border bg-background rounded-xl text-xs font-semibold focus-visible:ring-brand px-4"
+                />
               </div>
 
-            </div>
-          </div>
-        )}
-
-        {/* --- MODAL 2: CANCEL SUBSCRIPTION CONFIRMATION DIALOG --- */}
-        {isCancelConfirmOpen && (
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-card border border-border rounded-xl w-full max-w-md overflow-hidden shadow-2xl p-6 space-y-6 animate-scale-up text-center">
-              
-              <div className="mx-auto w-12 h-12 bg-red-500/10 border border-red-500/20 text-red-400 rounded-full flex items-center justify-center">
-                <AlertTriangle size={20} />
+              <div className="space-y-1.5">
+                <label className="text-[10px] technical-label text-muted-foreground/80 uppercase tracking-wider ml-0.5">
+                  {locale === 'es' ? 'Mensaje o Detalles' : 'Message or Details'}
+                </label>
+                <Textarea
+                  required
+                  placeholder={locale === 'es' ? 'Describe detalladamente tu solicitud indicando los datos necesarios...' : 'Describe your request in detail, providing any necessary details...'}
+                  rows={5}
+                  value={contactMessage}
+                  onChange={(e) => setContactMessage(e.target.value)}
+                  className="border-border bg-background rounded-xl text-xs font-medium focus-visible:ring-brand px-4 py-3 resize-none"
+                />
               </div>
 
-              <div className="space-y-2">
-                <h4 className="text-base font-semibold tracking-tight text-foreground">¿Seguro que deseas cancelar?</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Perderás el acceso inmediato a la creación ilimitada de campañas, la analítica pro y el hub de distribución directa de contenidos. Tu workspace volverá a los límites del plan Free.
-                </p>
-              </div>
-
-              <div className="flex gap-3 pt-2">
+              <div className="flex items-center justify-between pt-2">
                 <Button
-                  variant="outline"
-                  onClick={() => setIsCancelConfirmOpen(false)}
-                  disabled={isCanceling}
-                  className="w-1/2 h-10 border-border text-muted-foreground text-[10px] rounded-lg uppercase font-black tracking-widest hover:bg-accent/5"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setIsContactOpen(false)}
+                  disabled={isContactSubmitting}
+                  className="h-10 rounded-xl text-xs font-bold text-muted-foreground hover:bg-muted"
                 >
-                  Volver Atrás
+                  {locale === 'es' ? 'Cancelar' : 'Cancel'}
                 </Button>
+
                 <Button
-                  onClick={handleCancelSubscription}
-                  disabled={isCanceling}
-                  className="w-1/2 h-10 bg-red-600 hover:bg-red-500 text-white text-[10px] rounded-lg uppercase font-black tracking-widest shadow-lg shadow-red-600/15 flex items-center justify-center gap-1.5"
+                  type="submit"
+                  disabled={isContactSubmitting || cooldownSeconds > 0}
+                  className="h-10 rounded-xl bg-brand text-white hover:bg-brand/90 text-xs font-black uppercase tracking-widest flex items-center gap-1.5 px-5 shadow-lg shadow-brand/10"
                 >
-                  {isCanceling ? (
+                  {isContactSubmitting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : cooldownSeconds > 0 ? (
+                    `${cooldownSeconds}s`
                   ) : (
                     <>
-                      <Trash2 size={12} /> Confirmar Cancelación
+                      {locale === 'es' ? 'Enviar' : 'Send'}
+                      <Send size={12} />
                     </>
                   )}
                 </Button>
               </div>
-
-            </div>
+            </form>
           </div>
-        )}
-
-      </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

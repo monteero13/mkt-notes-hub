@@ -19,7 +19,7 @@ export function QuickActions() {
   const actions = [
     { label: t("campaign"), icon: Zap, href: "/campaigns?new=true", color: "text-brand" },
     { label: t("client"), icon: Users, href: "/clients?new=true", color: "text-success" },
-    { label: t("task"), icon: ListTodo, href: "/tasks?new=true", color: "text-warning" },
+    { label: t("task"), icon: ListTodo, href: "/planner?new=true", color: "text-warning" },
     { label: t("content"), icon: FileText, href: "/content?new=true", color: "text-brand" },
   ];
 

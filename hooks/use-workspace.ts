@@ -16,6 +16,7 @@ interface WorkspaceContextType {
   profile: Profile | null;
   members: any[];
   invites: any[];
+  onlineUsers: Record<string, any>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(undefined);
@@ -121,6 +122,57 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return hasProPlan || hasActiveSub;
   }, [activeWorkspace, subscriptionQuery.data]);
 
+  // 5. Estado de presencia para gente conectada en tiempo real (Supabase Presence)
+  // Totalmente optimizado para la capa gratuita de Supabase: se ejecuta 100% en memoria
+  // a través de WebSockets sin realizar lecturas, escrituras ni I/O en PostgreSQL.
+  const [onlineUsers, setOnlineUsers] = React.useState<Record<string, any>>({});
+
+  useEffect(() => {
+    if (!activeWorkspace?.id || !profile?.id) {
+      setOnlineUsers({});
+      return;
+    }
+
+    const channel = supabase.channel(`presence-workspace-${activeWorkspace.id}`, {
+      config: {
+        presence: {
+          key: profile.id,
+        },
+      },
+    });
+
+    channel
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        const users: Record<string, any> = {};
+        
+        Object.entries(state).forEach(([key, value]) => {
+          const presenceItems = value as any[];
+          if (presenceItems && presenceItems.length > 0) {
+            const item = presenceItems[0];
+            if (item?.user_id) {
+              users[item.user_id] = item;
+            }
+          }
+        });
+        setOnlineUsers(users);
+      })
+      .subscribe(async (status: string) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({
+            user_id: profile.id,
+            full_name: profile.full_name,
+            avatar_url: profile.avatar_url,
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [activeWorkspace?.id, profile?.id]);
+
   const value = useMemo(() => ({
     activeWorkspace,
     workspaces,
@@ -132,7 +184,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     profile,
     members: membersQuery.data || [],
     invites: invitesQuery.data || [],
-  }), [activeWorkspace, workspaces, setActiveWorkspaceId, authLoading, subscriptionQuery.isLoading, membersQuery.isLoading, invitesQuery.isLoading, isPro, profile, membersQuery.data, invitesQuery.data]);
+    onlineUsers,
+  }), [activeWorkspace, workspaces, setActiveWorkspaceId, authLoading, subscriptionQuery.isLoading, membersQuery.isLoading, invitesQuery.isLoading, isPro, profile, membersQuery.data, invitesQuery.data, onlineUsers]);
 
   return React.createElement(WorkspaceContext.Provider, { value }, children);
 }
@@ -156,6 +209,7 @@ export function useWorkspace() {
       profile: null,
       members: [],
       invites: [],
+      onlineUsers: {},
     };
   }
   return context;

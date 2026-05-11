@@ -11,11 +11,21 @@ import { useAuth } from '@/hooks/use-auth'
 import { useWorkspace } from '@/hooks/use-workspace'
 import { useCategories } from '@/hooks/use-categories'
 import { useQueryClient } from '@tanstack/react-query'
-export function ManageCategoriesDialog() {
-  const [open, setOpen] = useState(false)
+import { cn } from '@/lib/utils'
+interface ManageCategoriesDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode;
+}
+
+export function ManageCategoriesDialog({ open: controlledOpen, onOpenChange, trigger }: ManageCategoriesDialogProps = {}) {
+  const [internalOpen, setInternalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [newName, setNewName] = useState('')
   const [newColor, setNewColor] = useState('#7C3AED')
+
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen
+  const setOpen = onOpenChange !== undefined ? onOpenChange : setInternalOpen
 
   const { user } = useAuth()
   const { activeWorkspace } = useWorkspace()
@@ -71,57 +81,104 @@ export function ManageCategoriesDialog() {
 
   const isLeader = activeWorkspace?.role && !['viewer', 'client_guest'].includes(activeWorkspace.role);
 
+  const defaultTrigger = isLeader ? (
+    <Button
+      variant="outline"
+      size="sm"
+      className="h-7 px-3 rounded-sm border border-brand/20 text-brand bg-brand/5 hover:bg-brand/10 transition-all gap-2"
+    >
+      <Settings2 size={12} />
+      <span className="technical-label text-[9px] text-brand">Configurar tipos</span>
+    </Button>
+  ) : (
+    <div />
+  );
+
+  const finalTrigger = trigger !== undefined ? trigger : defaultTrigger;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {isLeader ? (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 px-3 rounded-sm border border-brand/20 text-brand bg-brand/5 hover:bg-brand/10 transition-all gap-2"
-          >
-            <Settings2 size={12} />
-            <span className="technical-label text-[9px] text-brand">Configurar tipos</span>
-          </Button>
-        ) : (
-          <div />
-        )}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden border border-border bg-background shadow-2xl rounded-sm">
+      {finalTrigger && (
+        <DialogTrigger asChild>
+          {finalTrigger}
+        </DialogTrigger>
+      )}
+      <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden border border-border bg-background shadow-2xl rounded-lg">
         <div className="p-8">
-          <DialogHeader className="mb-8 text-left">
+          <DialogHeader className="mb-6 text-left">
             <DialogTitle className="text-xl font-heading font-black tracking-tighter uppercase text-foreground">Tipos de Tarea</DialogTitle>
             <DialogDescription className="text-[10px] technical-label opacity-60 mt-1 uppercase">
               {isLeader ? 'Gestiona las categorías de tareas para tu equipo.' : 'Lista de categorías disponibles.'}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-8">
+          <div className="space-y-6">
             {isLeader && (
-              <div className="flex gap-2">
-                <div className="flex-1 space-y-1.5">
-                  <label className="technical-label text-[9px] opacity-60 ml-1">Label Name</label>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Nueva categoría..."
-                      value={newName}
-                      onChange={e => setNewName(e.target.value)}
-                      className="h-10 rounded-sm bg-black border-border px-4 text-xs font-bold"
-                      disabled={isSubmitting}
-                    />
-                    <div className="relative">
-                      <Input
+              <div className="flex flex-col gap-4 border border-border/60 rounded-xl p-4 bg-accent/5">
+                <div className="space-y-1.5">
+                  <label className="technical-label text-[9px] opacity-60 ml-1 uppercase tracking-wider">Nombre del Tipo de Tarea</label>
+                  <Input
+                    placeholder="Escribe el nombre de la categoría..."
+                    value={newName}
+                    onChange={e => setNewName(e.target.value)}
+                    className="h-10 rounded-lg bg-background border-border px-4 text-xs font-bold focus:border-brand focus:ring-1 focus:ring-brand transition-all"
+                    disabled={isSubmitting}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="technical-label text-[9px] opacity-60 ml-1 uppercase tracking-wider">Color del Tipo</label>
+                  <div className="flex items-center gap-3">
+                    {/* Preset Palette Selection */}
+                    <div className="flex items-center gap-2">
+                      {[
+                        '#7C3AED', // Brand Violet
+                        '#3B82F6', // Blue
+                        '#10B981', // Emerald
+                        '#F59E0B', // Amber
+                        '#EF4444', // Red
+                        '#EC4899', // Pink
+                      ].map(color => (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => setNewColor(color)}
+                          className={cn(
+                            "w-6 h-6 rounded-full transition-all duration-200 relative active:scale-95 border",
+                            newColor === color ? "scale-110 ring-2 ring-brand ring-offset-2 border-transparent" : "border-border hover:scale-105"
+                          )}
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                    </div>
+                    
+                    <div className="w-px h-5 bg-border/60" />
+
+                    {/* Custom Color Trigger */}
+                    <label 
+                      className="relative w-6 h-6 rounded-full border border-border cursor-pointer transition-all duration-200 hover:scale-105 overflow-hidden flex items-center justify-center active:scale-95" 
+                      style={{ backgroundColor: newColor }}
+                      title="Color personalizado"
+                    >
+                      <input
                         type="color"
                         value={newColor}
                         onChange={e => setNewColor(e.target.value)}
-                        className="w-10 h-10 p-0 rounded-sm cursor-pointer border-border bg-black overflow-hidden"
+                        className="sr-only"
                         disabled={isSubmitting}
                       />
-                    </div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-white mix-blend-difference" />
+                    </label>
                   </div>
                 </div>
-                <Button onClick={handleAdd} size="icon" className="h-10 w-10 mt-[23px] shrink-0 rounded-sm bg-brand text-white hover:opacity-90" disabled={isSubmitting}>
-                  {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Plus size={16} />}
+
+                <Button 
+                  onClick={handleAdd} 
+                  className="w-full h-10 rounded-lg bg-brand text-white technical-label text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all flex items-center justify-center gap-2" 
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+                  <span>Crear Tipo</span>
                 </Button>
               </div>
             )}

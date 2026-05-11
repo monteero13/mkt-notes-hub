@@ -5,6 +5,7 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import Link from "next/link";
 import { ChevronRight, ArrowUpRight } from "lucide-react";
 import { useDashboardData } from "@/hooks/use-dashboard-data";
+import { useContent } from "@/hooks/use-features-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
@@ -55,6 +56,7 @@ export default function DashboardPage() {
   const { profile } = useAuth();
   const { activeWorkspace } = useWorkspace();
   const { campaigns, tasks, counts } = useDashboardData();
+  const { data: content = [] } = useContent();
   const router = useRouter();
 
   const firstName = profile?.full_name?.toUpperCase() || 'OPERATOR';
@@ -197,7 +199,7 @@ export default function DashboardPage() {
               <TasksOverview tasks={tasks} />
 
               {/* UPCOMING CONTENT */}
-              <UpcomingContent items={[]} />
+              <UpcomingContent items={content} />
             </div>
 
           </div>

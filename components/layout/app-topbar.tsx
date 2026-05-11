@@ -33,7 +33,8 @@ export function AppTopbar({
   isSidebarCollapsed?: boolean;
   isFocusMode?: boolean;
 }) {
-  const { profile, activeWorkspace, members } = useWorkspace();
+  const { profile, activeWorkspace, members, onlineUsers } = useWorkspace();
+  const onlineCount = Object.keys(onlineUsers || {}).length;
   const router = useRouter();
   const t = useTranslations("layout.topbar");
   const tc = useTranslations("common");
@@ -107,7 +108,19 @@ export function AppTopbar({
           {members && members.length > 0 && (
             <div className="hidden 2xl:flex items-center gap-3 border-r border-border/50 pr-4 sm:pr-5">
               <div className="flex flex-col items-end gap-1 mr-2">
-                <span className="technical-label text-[7px] opacity-40 uppercase tracking-[0.2em] font-black">{t("active_members") || "ACTIVE DEPLOYMENT"}</span>
+                <div className="flex items-center gap-1.5">
+                  {onlineCount > 0 && (
+                    <span className="flex h-1.5 w-1.5 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+                    </span>
+                  )}
+                  <span className="technical-label text-[7px] opacity-40 uppercase tracking-[0.2em] font-black">
+                    {onlineCount > 0 
+                      ? `${onlineCount} ${t("online") || "EN LÍNEA"}`
+                      : t("active_members") || "ACTIVE DEPLOYMENT"}
+                  </span>
+                </div>
                 <div className="h-[1px] w-8 bg-gradient-to-r from-brand/20 to-transparent" />
               </div>
               <AvatarGroup members={members} limit={5} />
@@ -131,11 +144,7 @@ export function AppTopbar({
                 <AvatarFallback className="bg-brand text-[10px] font-black text-white rounded-md">{initials}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col items-start text-left hidden 2xl:flex">
-                <span className="text-[11px] font-black tracking-tight text-foreground leading-none mb-1 uppercase">{profile?.full_name ?? tc("operator")}</span>
-                <div className="flex items-center gap-1.5">
-                   <ShieldCheck size={10} className="text-brand opacity-60" />
-                   <span className="technical-label text-[8px] opacity-50">{t("session_encrypted")}</span>
-                </div>
+                <span className="text-[11px] font-black tracking-tight text-foreground leading-none uppercase">{profile?.full_name ?? tc("operator")}</span>
               </div>
               <ChevronDown size={10} className="text-muted-foreground/40 group-hover:text-brand transition-colors ml-0.5" />
             </button>

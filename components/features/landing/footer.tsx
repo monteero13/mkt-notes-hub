@@ -75,7 +75,15 @@ export function LandingFooter() {
             className="text-[12px] text-[#94a3b8]"
             style={{ fontFamily: "var(--font-switzer), sans-serif" }}
           >
-            &copy; {new Date().getFullYear()} {t("copyright")}
+            &copy; {new Date().getFullYear()} {t("copyright")} &bull; Desarrollado por{" "}
+            <a
+              href="https://instagram.com/albeertomontero_"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-[#001A3D] underline transition-colors"
+            >
+              @albeertomontero_
+            </a>
           </p>
           <div className="flex items-center gap-2">
             <div className="h-2 w-2 rounded-full bg-[#10B981] animate-pulse" />

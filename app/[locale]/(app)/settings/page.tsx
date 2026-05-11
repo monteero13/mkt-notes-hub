@@ -6,22 +6,154 @@ import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Loader2, Camera, ShieldCheck, User, Mail, Lock, ChevronRight, Fingerprint } from 'lucide-react'
+import { Loader2, Camera, ShieldCheck, User, Mail, Lock, ChevronRight, Fingerprint, HelpCircle, Send } from 'lucide-react'
 import { toast } from 'sonner'
 import { DashboardLayout } from '@/components/DashboardLayout'
 import { useQueryClient } from '@tanstack/react-query'
 import { useWorkspace } from '@/hooks/use-workspace'
 import { cn } from '@/lib/utils'
 import { useTranslations } from 'next-intl'
+import { useRouter, useParams } from 'next/navigation'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
 
 export default function PerfilPage() {
   const { user, profile, isLoading } = useAuth()
   const { isPro } = useWorkspace()
   const t = useTranslations('settings')
+  const router = useRouter()
+  const params = useParams()
+  const locale = params?.locale || 'es'
+
+  const handleStartTour = () => {
+    router.push(`/${locale}/dashboard`)
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("open-onboarding-tour"))
+    }, 800)
+  }
+
   const [isSaving, setIsSaving] = useState(false)
   const [fullName, setFullName] = useState('')
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+
+  // Contact Form State
+  const [isContactOpen, setIsContactOpen] = useState(false)
+  const [contactCategory, setContactCategory] = useState<'ayuda' | 'mejoras y correccion'>('ayuda')
+  const [contactSubject, setContactSubject] = useState('')
+  const [contactMessage, setContactMessage] = useState('')
+  const [contactHoneypot, setContactHoneypot] = useState('')
+  const [isContactSubmitting, setIsContactSubmitting] = useState(false)
+  const [cooldownSeconds, setCooldownSeconds] = useState(0)
+
+  // Manage client-side submission cooldown
+  useEffect(() => {
+    const checkCooldown = () => {
+      const lastSubmit = localStorage.getItem('mkt-notes-last-support-submit')
+      if (lastSubmit) {
+        const diff = Date.now() - parseInt(lastSubmit, 10)
+        const remaining = Math.ceil((60000 - diff) / 1000)
+        if (remaining > 0) {
+          setCooldownSeconds(remaining)
+          return
+        }
+      }
+      setCooldownSeconds(0)
+    }
+
+    checkCooldown()
+    const interval = setInterval(checkCooldown, 1000)
+    return () => clearInterval(interval)
+  }, [isContactOpen])
+
+  const handleContactSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    // Honeypot check (immediate silent check)
+    if (contactHoneypot.trim() !== '') {
+      setIsContactOpen(false)
+      toast.success(
+        locale === 'es'
+          ? 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.'
+          : 'Message sent successfully. We will contact you soon.'
+      )
+      return
+    }
+
+    // Client-side cooldown check
+    if (cooldownSeconds > 0) {
+      toast.error(
+        locale === 'es'
+          ? `Por favor, espera ${cooldownSeconds} segundos antes de enviar otro mensaje.`
+          : `Please wait ${cooldownSeconds} seconds before sending another message.`
+      )
+      return
+    }
+
+    if (contactSubject.trim().length < 3 || contactSubject.length > 100) {
+      toast.error(
+        locale === 'es'
+          ? 'El asunto debe tener entre 3 y 100 caracteres.'
+          : 'Subject must be between 3 and 100 characters.'
+      )
+      return
+    }
+
+    if (contactMessage.trim().length < 10 || contactMessage.length > 1000) {
+      toast.error(
+        locale === 'es'
+          ? 'El mensaje debe tener entre 10 y 1000 caracteres.'
+          : 'Message must be between 10 and 1000 characters.'
+      )
+      return
+    }
+
+    try {
+      setIsContactSubmitting(true)
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          category: contactCategory,
+          subject: contactSubject,
+          message: contactMessage,
+          honeypot: contactHoneypot,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Error sending message')
+      }
+
+      // Success! Set cooldown in localStorage and state
+      localStorage.setItem('mkt-notes-last-support-submit', Date.now().toString())
+      setCooldownSeconds(60)
+
+      toast.success(
+        locale === 'es'
+          ? 'Mensaje enviado correctamente. Nos pondremos en contacto pronto.'
+          : 'Message sent successfully. We will contact you soon.'
+      )
+
+      // Reset form and close modal
+      setContactSubject('')
+      setContactMessage('')
+      setContactHoneypot('')
+      setIsContactOpen(false)
+    } catch (err: any) {
+      toast.error(err.message || 'Error sending message')
+    } finally {
+      setIsContactSubmitting(false)
+    }
+  }
   const supabase = createClient()
   const queryClient = useQueryClient()
 
@@ -248,11 +380,234 @@ export default function PerfilPage() {
                     <Fingerprint size={160} />
                   </div>
                 </div>
+
+                {/* Help & Support Hub */}
+                <div className="border border-border p-4 sm:p-6 rounded-xl bg-card space-y-4 sm:space-y-6 relative overflow-hidden shadow-sm">
+                  <div className="space-y-1">
+                    <span className="text-[10px] uppercase tracking-widest text-brand font-bold block">
+                      {t('help_hub.title')}
+                    </span>
+                    <p className="text-xs text-muted-foreground/70 leading-normal">
+                      {t('help_hub.desc')}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    {/* Interactive Tour Button */}
+                    <div className="border border-border/60 rounded-xl p-3 bg-accent/5 hover:border-brand/30 hover:bg-brand/[0.02] transition-all group duration-300">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                          <HelpCircle size={13} className="text-brand" />
+                          {t('help_hub.system_guide')}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground/80 leading-normal">
+                          {t('help_hub.system_guide_desc')}
+                        </span>
+                        <Button
+                          onClick={handleStartTour}
+                          size="sm"
+                          variant="outline"
+                          className="w-fit h-8 rounded-full border-brand/20 hover:border-brand hover:bg-brand/10 text-brand text-[10px] uppercase font-bold tracking-wider mt-1 px-4"
+                        >
+                          {t('help_hub.start_tour_btn')}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Direct Support via Email */}
+                    <div className="border border-border/60 rounded-xl p-3 bg-accent/5 hover:border-brand/30 hover:bg-brand/[0.02] transition-all group duration-300">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                          <Mail size={13} className="text-brand" />
+                          {t('help_hub.direct_support')}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground/80 leading-normal">
+                          {t('help_hub.direct_support_desc')}
+                        </span>
+                        <Button
+                          onClick={() => {
+                            setContactCategory('ayuda')
+                            setContactSubject('')
+                            setContactMessage('')
+                            setContactHoneypot('')
+                            setIsContactOpen(true)
+                          }}
+                          size="sm"
+                          variant="outline"
+                          className="w-fit h-8 rounded-full border-brand/20 hover:border-brand hover:bg-brand/10 text-brand text-[10px] uppercase font-bold tracking-wider mt-1 px-4"
+                        >
+                          {t('help_hub.request_help_btn')}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Feedback and Listening Box */}
+                    <div className="border border-border/60 rounded-xl p-3 bg-accent/5 hover:border-brand/30 hover:bg-brand/[0.02] transition-all group duration-300">
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                          <Send size={13} className="text-brand" />
+                          {t('help_hub.feedback_listen')}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground/80 leading-normal">
+                          {t('help_hub.feedback_listen_desc')}
+                        </span>
+                        <Button
+                          onClick={() => {
+                            setContactCategory('mejoras y correccion')
+                            setContactSubject('')
+                            setContactMessage('')
+                            setContactHoneypot('')
+                            setIsContactOpen(true)
+                          }}
+                          size="sm"
+                          variant="outline"
+                          className="w-fit h-8 rounded-full border-brand/20 hover:border-brand hover:bg-brand/10 text-brand text-[10px] uppercase font-bold tracking-wider mt-1 px-4"
+                        >
+                          {t('help_hub.send_feedback_btn')}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Dynamic Support & Feedback Dialog */}
+      <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+        <DialogContent className="sm:max-w-[480px] border border-border bg-card shadow-2xl p-6 rounded-2xl">
+          <DialogHeader className="space-y-2">
+            <DialogTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+              {contactCategory === 'ayuda' ? (
+                <>
+                  <Mail size={18} className="text-brand" />
+                  {t('help_hub.direct_support')}
+                </>
+              ) : (
+                <>
+                  <Send size={18} className="text-brand" />
+                  {t('help_hub.feedback_listen')}
+                </>
+              )}
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground leading-normal">
+              {contactCategory === 'ayuda'
+                ? t('help_hub.direct_support_desc')
+                : t('help_hub.feedback_listen_desc')}
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleContactSubmit} className="space-y-4 mt-2">
+            {/* Honeypot Anti-spam (Hidden from users) */}
+            <div className="absolute opacity-0 pointer-events-none -z-10 h-0 w-0 overflow-hidden">
+              <label htmlFor="user_middle_name_verify">Ignore this field</label>
+              <input
+                id="user_middle_name_verify"
+                type="text"
+                value={contactHoneypot}
+                onChange={(e) => setContactHoneypot(e.target.value)}
+                autoComplete="off"
+                tabIndex={-1}
+              />
+            </div>
+
+            {/* Email Field (Disabled, showing they are verified) */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider ml-0.5">
+                {locale === 'es' ? 'Email de Contacto' : 'Contact Email'}
+              </label>
+              <Input
+                type="email"
+                value={user?.email || ''}
+                disabled
+                className="h-10 border-border bg-accent/5 rounded-lg text-sm opacity-60 cursor-not-allowed"
+              />
+            </div>
+
+            {/* Subject Input */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider ml-0.5">
+                {locale === 'es' ? 'Asunto' : 'Subject'}
+              </label>
+              <Input
+                type="text"
+                placeholder={
+                  contactCategory === 'ayuda'
+                    ? (locale === 'es' ? 'Ej. Problemas para sincronizar campañas' : 'e.g., Campaign sync issues')
+                    : (locale === 'es' ? 'Ej. Sugerencia sobre el planificador' : 'e.g., Planner improvements')
+                }
+                value={contactSubject}
+                onChange={(e) => setContactSubject(e.target.value)}
+                maxLength={100}
+                required
+                className="h-10 border-border bg-card rounded-lg text-sm"
+              />
+            </div>
+
+            {/* Message Textarea */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center">
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider ml-0.5">
+                  {locale === 'es' ? 'Mensaje' : 'Message'}
+                </label>
+                <span className="text-[10px] text-muted-foreground/60">
+                  {contactMessage.length}/1000
+                </span>
+              </div>
+              <Textarea
+                placeholder={
+                  contactCategory === 'ayuda'
+                    ? (locale === 'es' ? 'Describe detalladamente el problema...' : 'Describe your technical issue in detail...')
+                    : (locale === 'es' ? 'Describe tu sugerencia o error detectado...' : 'Describe your suggestion or spotted issue...')
+                }
+                value={contactMessage}
+                onChange={(e) => setContactMessage(e.target.value)}
+                maxLength={1000}
+                required
+                rows={5}
+                className="border-border bg-card rounded-lg text-sm resize-none custom-scrollbar"
+              />
+            </div>
+
+            {/* Cooldown Timer Alert */}
+            {cooldownSeconds > 0 && (
+              <div className="rounded-lg bg-brand/5 border border-brand/10 p-3 text-xs text-brand/80">
+                {locale === 'es'
+                  ? `Filtro anti-spam activo. Podrás enviar otro mensaje en ${cooldownSeconds}s.`
+                  : `Anti-spam filter active. You can send another message in ${cooldownSeconds}s.`}
+              </div>
+            )}
+
+            {/* Form Actions */}
+            <div className="flex justify-end gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsContactOpen(false)}
+                className="h-10 rounded-full border-border hover:bg-accent/10 text-xs font-semibold px-6"
+              >
+                {locale === 'es' ? 'Cancelar' : 'Cancel'}
+              </Button>
+              <Button
+                type="submit"
+                disabled={isContactSubmitting || cooldownSeconds > 0}
+                className="h-10 rounded-full bg-brand text-white text-xs font-semibold px-6 hover:opacity-90 disabled:opacity-50"
+              >
+                {isContactSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {locale === 'es' ? 'Enviando...' : 'Sending...'}
+                  </>
+                ) : (
+                  locale === 'es' ? 'Enviar' : 'Send'
+                )}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   )
 }

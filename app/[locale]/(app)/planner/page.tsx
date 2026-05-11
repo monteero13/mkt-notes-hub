@@ -32,6 +32,13 @@ import { useCategories } from "@/hooks/use-categories";
 import { ManageCategoriesDialog } from "@/components/ManageCategoriesDialog";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function PlanificadorPage() {
   const t = useTranslations("planner");
@@ -54,9 +61,8 @@ export default function PlanificadorPage() {
   // Custom states
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | null>(new Date());
-  const [isAddingTask, setIsAddingTask] = useState(false);
   const [plannerFilter, setPlannerFilter] = useState<'all' | 'tasks' | 'publications'>('all');
-  const [fastTaskTitle, setFastTaskTitle] = useState('');
+  const [isManageCategoriesOpen, setIsManageCategoriesOpen] = useState(false);
 
   // Fetching unified data
   const { data: tasks = [], createTask, updateTask, deleteTask } = useTasks();
@@ -139,33 +145,17 @@ export default function PlanificadorPage() {
         due_date: dateStr,
         status: 'todo',
         priority: selectedCategory?.color === '#ef4444' ? 'high' : 'medium',
-        assignee_id: selectedAssignees[0] ?? null
+        assignee_id: selectedAssignees[0] ?? null,
+        category_name: selectedCategory?.name || null,
+        category_color: selectedCategory?.color || null
       });
 
       toast.success(t("toast.success") || "Tarea añadida con éxito");
       setNewTaskTitle('');
+      setSelectedCategory(null);
       setSelectedAssignees([]);
-      setIsAddingTask(false);
     } catch (e: any) {
       toast.error(tc("error") + ": " + e.message);
-    }
-  };
-
-  const handleFastTaskSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!fastTaskTitle.trim() || !selectedDay || !activeWorkspace) return;
-    try {
-      const dateStr = selectedDay.toISOString().split('T')[0];
-      await createTask({
-        title: fastTaskTitle.trim(),
-        due_date: dateStr,
-        status: 'todo',
-        priority: 'medium',
-      });
-      toast.success("Tarea creada");
-      setFastTaskTitle('');
-    } catch (err: any) {
-      toast.error(tc("error") + ": " + err.message);
     }
   };
 
@@ -258,7 +248,6 @@ export default function PlanificadorPage() {
                 <ChevronRight size={14} />
               </button>
             </div>
-            {isLeader && <ManageCategoriesDialog />}
           </div>
         </div>
 
@@ -351,77 +340,90 @@ export default function PlanificadorPage() {
           <div className="flex flex-col min-h-0 bg-card/30">
             {selectedDay && (
               <>
-                <div className="p-4 sm:p-6 border-b border-border bg-accent/5 flex items-center justify-between">
+                <div className="p-4 sm:p-6 border-b border-border bg-accent/5">
                   <div className="flex flex-col gap-1">
                     <div className="technical-label text-brand text-[9px] uppercase tracking-widest">{t("side_panel.title") || "Planificación"}</div>
                     <h2 className="text-xl font-black tracking-tighter uppercase leading-none">
                       {selectedDay.getDate()} {selectedDay.toLocaleString(locale === 'es' ? 'es-ES' : 'en-US', { month: 'short' }).toUpperCase()}
                     </h2>
                   </div>
-                  <Button
-                    onClick={() => setIsAddingTask(!isAddingTask)}
-                    size="icon"
-                    className={cn("h-8 w-8 rounded-lg transition-all", isAddingTask ? "bg-accent/10 text-foreground" : "bg-brand text-white shadow-md shadow-brand/10 hover:shadow-brand/20")}
-                  >
-                    {isAddingTask ? <X size={14} /> : <Plus size={14} />}
-                  </Button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 space-y-4 sm:space-y-6">
                   
-                  {/* Inline Fast Task Creator (Only when not in full creator form) */}
-                  {!isAddingTask && (
-                    <form onSubmit={handleFastTaskSubmit} className="mb-2">
-                      <div className="relative flex items-center">
-                        <Plus size={12} className="absolute left-3 text-muted-foreground/40" />
-                        <Input
-                          type="text"
-                          placeholder="Crear tarea... (Enter)"
-                          value={fastTaskTitle}
-                          onChange={(e) => setFastTaskTitle(e.target.value)}
-                          className="pl-8 pr-3 h-10 rounded-lg border border-border/80 bg-background text-[11px] font-bold tracking-tight uppercase placeholder:opacity-50 focus:border-brand transition-all shadow-sm"
-                        />
-                      </div>
-                    </form>
-                  )}
-
-                  {isAddingTask ? (
-                    <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
-                      <div className="space-y-1.5">
-                        <label className="technical-label text-[8px] opacity-60 ml-1 uppercase tracking-wider">{t("side_panel.add.objective_label")}</label>
-                        <Input
-                          placeholder={t("side_panel.add.objective_placeholder")}
-                          value={newTaskTitle}
-                          onChange={(e) => setNewTaskTitle(e.target.value)}
-                          className="h-10 rounded-lg border-border bg-card text-[11px] font-bold uppercase tracking-tight"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="technical-label text-[8px] opacity-60 ml-1 uppercase tracking-wider">{t("side_panel.add.category_label")}</label>
-                        <div className="flex flex-wrap gap-2">
-                          {categories.map((cat: any) => (
-                            <button
-                              key={cat.id}
-                              type="button"
-                              className={cn(
-                                "px-3 py-1.5 rounded-lg technical-label text-[8px] border transition-all uppercase tracking-wider font-bold",
-                                selectedCategory?.id === cat.id ? "border-brand bg-brand/5 text-brand" : "border-border opacity-60 hover:opacity-100"
-                              )}
-                              onClick={() => setSelectedCategory(cat)}
-                            >
-                              {cat.name}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <Button onClick={handleAddTask} className="w-full h-10 rounded-lg bg-brand text-white technical-label text-[10px] font-black uppercase tracking-widest shadow-md shadow-brand/10 hover:shadow-brand/20">
-                        {t("side_panel.add.submit")}
-                      </Button>
+                  {/* Unified Direct Task Creator Form */}
+                  <div className="space-y-4 border-b border-border/40 pb-6 mb-2">
+                    <div className="technical-label text-[8.5px] uppercase tracking-widest font-black text-brand">
+                      {locale === "es" ? "Nueva Tarea" : "New Task"}
                     </div>
-                  ) : (
-                    <div className="space-y-4">
+                    
+                    <div className="space-y-1.5">
+                      <label className="technical-label text-[8px] opacity-60 ml-1 uppercase tracking-wider">{t("side_panel.add.objective_label")}</label>
+                      <Input
+                        placeholder={t("side_panel.add.objective_placeholder")}
+                        value={newTaskTitle}
+                        onChange={(e) => setNewTaskTitle(e.target.value)}
+                        className="h-10 rounded-lg border-border bg-card text-[11px] font-bold uppercase tracking-tight"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleAddTask();
+                          }
+                        }}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="technical-label text-[8px] opacity-60 ml-1 uppercase tracking-wider">{t("side_panel.add.category_label")}</label>
+                      <Select
+                        value={selectedCategory?.id || "no_category"}
+                        onValueChange={(val) => {
+                          if (val === "create_new") {
+                            setIsManageCategoriesOpen(true);
+                          } else if (val === "no_category") {
+                            setSelectedCategory(null);
+                          } else {
+                            const found = categories.find((c: any) => c.id === val);
+                            setSelectedCategory(found || null);
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="h-10 w-full rounded-lg border-border bg-card text-[11px] font-bold uppercase tracking-tight px-3">
+                          <SelectValue placeholder="Seleccionar tipo de tarea..." />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-lg border-border bg-card max-h-[250px] overflow-y-auto">
+                          <SelectItem value="no_category" className="technical-label text-[10px] uppercase">
+                            {locale === "es" ? "Sin Tipo" : "No Type"}
+                          </SelectItem>
+                          {categories.map((cat: any) => (
+                            <SelectItem key={cat.id} value={cat.id} className="technical-label text-[10px] uppercase">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: cat.color }} />
+                                <span>{cat.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                          {isLeader && (
+                            <SelectItem value="create_new" className="technical-label text-[10px] uppercase text-brand font-black border-t border-border mt-1 pt-2 cursor-pointer">
+                              <span className="flex items-center gap-1.5 text-brand">
+                                <Plus size={12} className="shrink-0" />
+                                {locale === "es" ? "Crear nuevo tipo..." : "Create new type..."}
+                              </span>
+                            </SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <Button onClick={handleAddTask} className="w-full h-10 rounded-lg bg-brand text-white technical-label text-[10px] font-black uppercase tracking-widest shadow-md shadow-brand/10 hover:shadow-brand/20">
+                      {t("side_panel.add.submit")}
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="technical-label text-[8.5px] uppercase tracking-widest font-black text-muted-foreground/60">
+                      {locale === "es" ? "Actividades del Día" : "Day Activities"}
+                    </div>
                       {dayEvents.length > 0 ? (
                         dayEvents.map((e_item: any) => {
                           if (e_item.type === 'task') {
@@ -447,8 +449,7 @@ export default function PlanificadorPage() {
                                       const isChecked = chkEvt.target.checked;
                                       await updateTask({
                                         id: e_item.id,
-                                        status: isChecked ? 'done' : 'todo',
-                                        completed_at: isChecked ? new Date().toISOString() : null
+                                        status: isChecked ? 'done' : 'todo'
                                       });
                                       toast.success(isChecked ? "Tarea completada" : "Tarea reactivada");
                                     }}
@@ -546,13 +547,17 @@ export default function PlanificadorPage() {
                         </div>
                       )}
                     </div>
-                  )}
-                </div>
+                  </div>
               </>
             )}
           </div>
         </div>
       </div>
+      <ManageCategoriesDialog
+        open={isManageCategoriesOpen}
+        onOpenChange={setIsManageCategoriesOpen}
+        trigger={null}
+      />
     </DashboardLayout>
   );
 }

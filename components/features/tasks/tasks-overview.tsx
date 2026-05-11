@@ -30,7 +30,7 @@ export function TasksOverview({ tasks }: Props) {
       <CardHeader className="flex-row items-center justify-between h-14 border-b border-border px-6 py-0 space-y-0 bg-accent/5">
         <div className="text-sm font-semibold tracking-tight text-foreground">{t("pending_actions")}</div>
         <Button variant="ghost" size="sm" asChild className="h-8 rounded-md text-xs font-medium hover:bg-accent/10">
-          <Link href="/tasks" className="flex items-center gap-2">
+          <Link href="/planner" className="flex items-center gap-2">
             {t("audit_all")} <ArrowRight size={10} />
           </Link>
         </Button>
@@ -53,7 +53,7 @@ export function TasksOverview({ tasks }: Props) {
               return (
                 <Link
                   key={task.id}
-                  href={`/tasks?task=${task.id}`}
+                  href={`/planner?task=${task.id}`}
                   className="flex items-center gap-4 rounded-sm border border-transparent p-3 transition-all hover:bg-accent/5 hover:border-border group"
                 >
                   <Circle size={12} className={cn(

@@ -254,7 +254,7 @@ export default function EquipoPage() {
                 ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/onboarding" className="text-xs text-brand">
+                  <Link href="/onboarding?force=true" className="text-xs text-brand">
                     + {t('create_new')}
                   </Link>
                 </DropdownMenuItem>

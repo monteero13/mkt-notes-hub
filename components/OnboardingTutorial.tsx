@@ -44,7 +44,7 @@ export const OnboardingTutorial = memo(function OnboardingTutorial() {
     if (pathname === '/dashboard' && user && !isLoading) {
       // Prioritize explicit markers
       const hasSeenTutorialLocal = localStorage.getItem('mkt_notes_tutorial_completed');
-      const hasSeenTutorialProfile = profile && (profile as any).has_seen_tutorial;
+      const hasSeenTutorialProfile = profile?.onboarding_done;
       
       // Heuristic Checks: Does the user have data?
       const hasData = (tasks && tasks.length > 0) || (campaigns && campaigns.length > 0);
@@ -79,7 +79,7 @@ export const OnboardingTutorial = memo(function OnboardingTutorial() {
       if (user) {
         await supabase
           .from('profiles')
-          .update({ has_seen_tutorial: true } as any)
+          .update({ onboarding_done: true } as any)
           .eq('id', user.id);
       }
     }

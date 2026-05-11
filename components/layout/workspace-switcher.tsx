@@ -41,6 +41,7 @@ const ROLE_LABELS: Record<string, { es: string; en: string }> = {
 };
 
 export function WorkspaceSwitcher({ collapsed }: WorkspaceSwitcherProps) {
+  if (collapsed) return null;
   const { activeWorkspace, workspaces, setActiveWorkspace } = useWorkspace();
   const router = useRouter();
   const params = useParams();

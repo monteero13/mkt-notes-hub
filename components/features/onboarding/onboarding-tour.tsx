@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
 import {
   LayoutDashboard,
   Users,
@@ -65,8 +67,8 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     id: 2,
-    titleEs: "Centro de Mando (Dashboard)",
-    titleEn: "Command Center (Dashboard)",
+    titleEs: "¡Empieza aquí! (Dashboard)",
+    titleEn: "Start here! (Dashboard)",
     descriptionEs: "La pantalla principal del sistema. Monitorea de un vistazo el progreso de tus objetivos, tareas pendientes y el estado general del espacio de trabajo.",
     descriptionEn: "The main core of the platform. Monitor your annual objectives, pending tasks, and overall workspace health at a glance.",
     icon: LayoutDashboard,
@@ -327,17 +329,54 @@ export function OnboardingTour() {
   const router = useRouter();
   const params = useParams();
   const locale = (params?.locale as string) || "es";
+  const { user, profile } = useAuth();
+  const supabase = createClient();
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
-    const completed = localStorage.getItem("mkt-notes-tour-completed");
-    if (!completed) {
-      const timer = setTimeout(() => setIsOpen(true), 1500);
-      return () => clearTimeout(timer);
-    }
-    return () => {};
+    const handleOpenTour = () => {
+      setCurrentStep(0);
+      setIsOpen(true);
+      localStorage.setItem("mkt-notes-tour-active", "true");
+      localStorage.setItem("mkt-notes-tour-current-step", "0");
+    };
+    window.addEventListener("open-onboarding-tour", handleOpenTour);
+    return () => {
+      window.removeEventListener("open-onboarding-tour", handleOpenTour);
+    };
   }, []);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+
+    // 1. Check if we have an active tour running (across page transitions or refreshes)
+    const active = localStorage.getItem("mkt-notes-tour-active") === "true";
+    if (active) {
+      const savedStep = localStorage.getItem("mkt-notes-tour-current-step");
+      if (savedStep) {
+        setCurrentStep(parseInt(savedStep, 10));
+      }
+      setIsOpen(true);
+    } else if (profile?.onboarding_done) {
+      // 2. Otherwise handle default new-user auto-start
+      localStorage.setItem("mkt-notes-tour-completed", "true");
+    } else {
+      const completed = localStorage.getItem("mkt-notes-tour-completed");
+      if (!completed) {
+        timer = setTimeout(() => {
+          localStorage.setItem("mkt-notes-tour-active", "true");
+          localStorage.setItem("mkt-notes-tour-current-step", "0");
+          setCurrentStep(0);
+          setIsOpen(true);
+        }, 1500);
+      }
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [profile]);
 
   const step = (TOUR_STEPS[currentStep] || TOUR_STEPS[0]) as TourStep;
   const pos = useElementPosition(step.targetId, isOpen);
@@ -345,7 +384,12 @@ export function OnboardingTour() {
   if (!isOpen) {
     return (
       <button
-        onClick={() => { setCurrentStep(0); setIsOpen(true); }}
+        onClick={() => {
+          localStorage.setItem("mkt-notes-tour-active", "true");
+          localStorage.setItem("mkt-notes-tour-current-step", "0");
+          setCurrentStep(0);
+          setIsOpen(true);
+        }}
         className="fixed bottom-6 right-6 z-[40] flex h-11 items-center gap-2 rounded-full border border-brand/20 bg-card px-4 text-xs font-bold text-foreground shadow-lg shadow-brand/5 backdrop-blur-md transition-all duration-300 hover:border-brand/40 hover:scale-[1.05] active:scale-[0.98] group"
         title={locale === "es" ? "Ayuda y Guía de Inicio" : "Help & System Guide"}
       >
@@ -375,6 +419,7 @@ export function OnboardingTour() {
     const nextIdx = currentStep + 1;
     const nextStep = TOUR_STEPS[nextIdx];
     if (nextStep) {
+      localStorage.setItem("mkt-notes-tour-current-step", String(nextIdx));
       setCurrentStep(nextIdx);
       router.push(`/${locale}${nextStep.path}`);
     }
@@ -385,14 +430,29 @@ export function OnboardingTour() {
     const prevIdx = currentStep - 1;
     const prevStep = TOUR_STEPS[prevIdx];
     if (prevStep) {
+      localStorage.setItem("mkt-notes-tour-current-step", String(prevIdx));
       setCurrentStep(prevIdx);
       router.push(`/${locale}${prevStep.path}`);
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    localStorage.removeItem("mkt-notes-tour-active");
+    localStorage.removeItem("mkt-notes-tour-current-step");
     localStorage.setItem("mkt-notes-tour-completed", "true");
     setIsOpen(false);
+
+    try {
+      if (user) {
+        await supabase
+          .from("profiles")
+          .update({ onboarding_done: true })
+          .eq("id", user.id);
+      }
+    } catch (error) {
+      console.error("Error updating onboarding_done in tour:", error);
+    }
+
     toast.success(
       locale === "es"
         ? "¡Excelente! Has completado el recorrido. Ya estás listo para despegar."
@@ -466,7 +526,11 @@ export function OnboardingTour() {
             {TOUR_STEPS.map((stepItem, i) => (
               <button
                 key={i}
-                onClick={() => { setCurrentStep(i); router.push(`/${locale}${stepItem.path}`); }}
+                onClick={() => {
+                  localStorage.setItem("mkt-notes-tour-current-step", String(i));
+                  setCurrentStep(i);
+                  router.push(`/${locale}${stepItem.path}`);
+                }}
                 className={cn("h-1.5 rounded-full transition-all duration-300", currentStep === i ? "bg-brand w-4" : "bg-muted-foreground/30 w-1.5 hover:bg-muted-foreground/50")}
               />
             ))}
@@ -528,7 +592,11 @@ export function OnboardingTour() {
               {TOUR_STEPS.map((stepItem, i) => (
                 <button
                   key={i}
-                  onClick={() => { setCurrentStep(i); router.push(`/${locale}${stepItem.path}`); }}
+                  onClick={() => {
+                    localStorage.setItem("mkt-notes-tour-current-step", String(i));
+                    setCurrentStep(i);
+                    router.push(`/${locale}${stepItem.path}`);
+                  }}
                   className={cn("h-1.5 w-1.5 rounded-full transition-all duration-300", currentStep === i ? "bg-brand w-4" : "bg-muted-foreground/30 hover:bg-muted-foreground/50")}
                 />
               ))}

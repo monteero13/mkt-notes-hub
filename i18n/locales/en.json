@@ -21,6 +21,7 @@
         "search_placeholder": "Search system index...",
         "active_members": "ACTIVE DEPLOYMENT",
         "session_encrypted": "SECURE SESSION",
+        "online": "ONLINE",
         "user_menu": {
           "profile": "Profile & Account",
           "billing": "Billing & Plan",
@@ -53,8 +54,8 @@
       }
     },
     "sidebar": {
-      "dashboard": "Dashboard",
-      "planificador": "Planner",
+      "dashboard": "My Dashboard",
+      "planificador": "Calendar",
       "contenido": "Content",
       "campanas": "Campaigns",
       "analisis": "Analytics",
@@ -83,7 +84,8 @@
       "nav_admin": "Administration",
       "scale_op": "Authority Access",
       "scale_desc": "Activate advanced analytics and Authority Pro synchronization.",
-      "get_pro": "Elevate to Pro"
+      "get_pro": "Elevate to Pro",
+      "theme": "Theme"
     },
     "tutorial": {
       "next": "Next",
@@ -185,17 +187,17 @@
         "more_units": "+{count} SYSTEM UNITS"
       },
       "side_panel": {
-        "title": "Target Deployment",
-        "empty": "No Strategic Events",
+        "title": "Planner",
+        "empty": "No activities scheduled for this day",
         "add": {
-          "objective_label": "Operational Objective",
-          "objective_placeholder": "Mission title...",
-          "category_label": "Strategic Category",
-          "submit": "Deploy Unit"
+          "objective_label": "Name",
+          "objective_placeholder": "Enter task name...",
+          "category_label": "Task Type",
+          "submit": "Add Task"
         },
         "task": {
           "default_category": "GENERAL",
-          "time": "T-09:00 Deployment"
+          "time": "09:00 Planning"
         }
       },
       "toast": {
@@ -312,7 +314,7 @@
         "title": "Content Schedule",
         "calendar_view": "Calendar View",
         "no_assets": "No assets queued.",
-        "init_node": "Initialize Content Node",
+        "init_node": "Plan Content",
         "outlook": "7-Day Outlook",
         "channels": {
           "instagram": "Instagram",
@@ -429,7 +431,7 @@
       "neural_photo_desc": "System-wide representation for all authority nodes.",
       "full_legal_name": "Full Legal Name",
       "verified_email": "Verified Email Address",
-      "update_protocol": "Update Protocol",
+      "update_protocol": "Update Profile",
       "security_credentials": "Security Credentials",
       "rotation_keys": "Rotation of authentication keys",
       "reset_access_keys": "Reset Access Keys",
@@ -450,6 +452,19 @@
         "placeholder": "Type workspace name to confirm",
         "terminating": "Terminating...",
         "execute": "Execute Termination"
+      },
+      "help_hub": {
+        "title": "Support & Help Hub",
+        "desc": "Have questions or suggestions? Access our resources or contact us immediately.",
+        "system_guide": "Interactive Guide",
+        "system_guide_desc": "Rerun the interactive step-by-step guide to master the platform.",
+        "start_tour_btn": "Start Tour",
+        "direct_support": "Help & Support",
+        "direct_support_desc": "Need technical assistance? Write us and our team will support you.",
+        "request_help_btn": "Request Help",
+        "feedback_listen": "Feedback & Listening",
+        "feedback_listen_desc": "Notice any bugs or improvements? Share your thoughts to help us improve.",
+        "send_feedback_btn": "Send Suggestion/Bug"
       }
     },
     "equipo": {
