@@ -15,7 +15,7 @@ import { PremiumLimitModal } from './PremiumLimitModal'
 import { useResources } from '@/hooks/use-features-data'
 import { useTranslations } from 'next-intl'
 
-export function CreateResourceDialog({ children }: { children?: React.ReactNode }) {
+export function CreateResourceDialog({ children, campaignId }: { children?: React.ReactNode; campaignId?: string }) {
   const t = useTranslations('dialogs.resource')
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -85,6 +85,7 @@ export function CreateResourceDialog({ children }: { children?: React.ReactNode 
           mime_type: file?.type || null,
           size_bytes: file?.size || null,
           uploaded_by: user.id,
+          campaign_id: campaignId || null,
         })
 
       if (insertError) throw insertError

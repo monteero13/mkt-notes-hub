@@ -1,7 +1,7 @@
 "use client";
 import { Switch } from "@/components/ui/switch"
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useWorkspace } from "./workspace-provider";
 import { Logo } from "./logo";
@@ -22,6 +22,7 @@ import {
   Zap,
   Sun,
   Moon,
+  CheckSquare,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -76,16 +77,42 @@ export function AppSidebar({
     staleTime: 1000 * 30,
   });
 
-  const NAV_ITEMS = [
-    { href: "/dashboard", icon: LayoutDashboard, label: t("sidebar.dashboard") },
-    { href: "/clients", icon: Users, label: t("sidebar.clientes") },
-    { href: "/campaigns", icon: Zap, label: t("sidebar.campanas") },
-    { href: "/planner", icon: Calendar, label: t("sidebar.planificador") },
-    { href: "/ideas", icon: Brain, label: t("sidebar.ideas") },
-    { href: "/content", icon: FileText, label: t("sidebar.contenido") },
-    { href: "/library", icon: FolderOpen, label: t("sidebar.biblioteca") },
-    { href: "/analytics", icon: BarChart3, label: t("sidebar.analisis"), proOnly: true },
-  ];
+  const searchParams = useSearchParams();
+  const currentTab = searchParams.get("tab") || "overview";
+
+  // Find if we are in a campaign view
+  const campaignMatch = pathname.match(/\/campaigns\/([a-zA-Z0-9-]+)/);
+  const activeCampaignId = campaignMatch ? campaignMatch[1] : null;
+
+  // Fetch active campaign details
+  const { data: activeCampaign } = useQuery({
+    queryKey: ["sidebar-active-campaign", activeCampaignId],
+    enabled: !!activeCampaignId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("campaigns")
+        .select("id, name, status, client:clients(id, company_name)")
+        .eq("id", activeCampaignId!)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // Fetch campaigns for listing in the sidebar
+  const { data: sidebarCampaigns = [] } = useQuery({
+    queryKey: ["sidebar-workspace-campaigns", activeWorkspace?.id],
+    enabled: !!activeWorkspace?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("campaigns")
+        .select("id, name, status")
+        .eq("workspace_id", activeWorkspace!.id)
+        .order("created_at", { ascending: false });
+      if (error) return [];
+      return data || [];
+    },
+  });
 
   const BOTTOM_ITEMS = [
     { href: "/notifications", icon: Bell, label: t("sidebar.notifications") },
@@ -131,42 +158,96 @@ export function AppSidebar({
         </div>
 
         {/* Main Navigation */}
-        <nav className="flex-1 p-3">
+        <nav className="flex-1 p-3 overflow-y-auto custom-scrollbar space-y-4">
+          {/* CAMPAÑAS SECTION (CORE FOCUS OBJECT) */}
           <div className="space-y-0.5">
-            {NAV_ITEMS.map((item) => {
-              const active = pathname.startsWith(item.href);
-              const Icon = item.icon;
-              const locked = item.proOnly && !isPro;
-
+            <div className={cn("text-[9px] font-black tracking-wider text-muted-foreground/40 px-3 mb-1.5 uppercase", isCollapsed && "sr-only")}>
+              Operaciones
+            </div>
+            {(() => {
+              const isCampaignsActive = pathname.startsWith("/campaigns") || pathname.includes("/campaigns");
+              const campaignPath = "/campaigns";
               return (
-                <Link
-                  key={item.href}
-                  id={`sidebar-${item.href.replace("/", "")}`}
-                  href={locked ? "/billing" : item.href}
-                  title={isCollapsed ? item.label : undefined}
-                  className={cn(
-                    "relative flex items-center gap-3 rounded-md py-2.5 px-3 transition-all duration-150",
-                    active
-                      ? "bg-brand/10 text-brand"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                    isCollapsed && "justify-center px-0 py-3"
-                  )}
-                >
-                  <Icon size={active ? 18 : 16} strokeWidth={active ? 2.5 : 2} className="shrink-0" />
-                  {!isCollapsed && (
-                    <span className="flex-1 truncate text-sm font-medium tracking-tight">
-                      {item.label}
-                    </span>
-                  )}
-                  {locked && !isCollapsed && (
-                    <span className="text-[9px] font-bold bg-brand/10 text-brand px-1.5 py-0.5 rounded-md">
-                      PRO
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
+                <div className="space-y-0.5">
+                  <Link
+                    id="sidebar-campaigns"
+                    href={campaignPath}
+                    title={isCollapsed ? "Mis Campañas" : undefined}
+                    className={cn(
+                      "relative flex items-center gap-3 rounded-md py-2 px-3 transition-all duration-150",
+                      isCampaignsActive && !activeCampaignId
+                        ? "bg-brand/10 text-brand"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                      isCollapsed && "justify-center px-0 py-2.5"
+                    )}
+                  >
+                    <Zap size={14} strokeWidth={2.5} className="shrink-0 text-brand animate-pulse" />
+                    {!isCollapsed && (
+                      <span className="flex-1 truncate text-xs font-semibold tracking-tight">
+                        Mis Campañas
+                      </span>
+                    )}
+                  </Link>
 
+                  {/* If we have an active campaign, show tree layout of campaign tabs */}
+                  {!isCollapsed && activeCampaignId && activeCampaign && (
+                    <div className="ml-6 pl-4 border-l-2 border-brand/20 my-1.5 space-y-1 relative animate-in fade-in slide-in-from-left-1 duration-250">
+                      <div className="text-[10px] font-black text-brand tracking-widest uppercase py-1.5 truncate flex items-center gap-1.5 pl-1">
+                        <span className="h-1.5 w-1.5 rounded-full bg-brand shrink-0" />
+                        {activeCampaign.name}
+                      </div>
+                      
+                      {[
+                        { tabId: "overview", label: "Vista General", href: `/${locale}/campaigns/${activeCampaignId}?tab=overview`, icon: LayoutDashboard },
+                        { tabId: "tasks", label: "Tareas y Hitos", href: `/${locale}/campaigns/${activeCampaignId}?tab=tasks`, icon: CheckSquare },
+                        { tabId: "content", label: "Plan de Contenido", href: `/${locale}/campaigns/${activeCampaignId}?tab=content`, icon: FileText },
+                        { tabId: "assets", label: "Recursos y Assets", href: `/${locale}/campaigns/${activeCampaignId}?tab=assets`, icon: FolderOpen },
+                        { tabId: "brainstorm", label: "Brainstorm Lab", href: `/${locale}/campaigns/${activeCampaignId}?tab=brainstorm`, icon: Brain },
+                      ].map((tab) => {
+                        const isTabActive = currentTab === tab.tabId;
+                        const TabIcon = tab.icon;
+                        return (
+                          <Link
+                            key={tab.tabId}
+                            href={tab.href}
+                            className={cn(
+                              "flex items-center gap-2.5 py-1.5 px-2.5 rounded-sm text-[11px] font-semibold transition-all relative",
+                              isTabActive
+                                ? "text-brand bg-brand/5 font-black"
+                                : "text-muted-foreground/70 hover:text-foreground hover:bg-accent/40"
+                            )}
+                          >
+                            <span className={cn("absolute left-[-18px] top-1/2 -translate-y-1/2 w-4.5 h-[1.5px] transition-all", isTabActive ? "bg-brand" : "bg-brand/20")} />
+                            <TabIcon size={11} className={cn("shrink-0", isTabActive ? "text-brand" : "text-muted-foreground/50")} />
+                            <span className="truncate">{tab.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* If we do not have an active campaign, show last active campaigns */}
+                  {!isCollapsed && !activeCampaignId && sidebarCampaigns.length > 0 && (
+                    <div className="ml-6 pl-4 border-l-2 border-border/20 my-1.5 space-y-1 relative animate-in fade-in duration-200">
+                      {sidebarCampaigns.filter((c: any) => c.status === "active").slice(0, 5).map((c: any) => (
+                        <Link
+                          key={c.id}
+                          href={`/${locale}/campaigns/${c.id}`}
+                          className="block text-[11px] text-muted-foreground/60 hover:text-brand truncate py-1.5 font-semibold transition-all relative pl-1 group/subcamp"
+                        >
+                          <span className="absolute left-[-18px] top-1/2 -translate-y-1/2 w-4.5 h-[1.5px] bg-border group-hover/subcamp:bg-brand/30 transition-all" />
+                          {c.name}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* SECTION: BOTTOM SYSTEM ACTIONS */}
+          <div className="space-y-0.5 pt-3 mt-1">
             {BOTTOM_ITEMS.map((item) => {
               const active = pathname.startsWith(item.href);
               const Icon = item.icon;
@@ -180,15 +261,15 @@ export function AppSidebar({
                   href={item.href}
                   title={isCollapsed ? item.label : undefined}
                   className={cn(
-                    "relative flex items-center gap-3 rounded-md py-2.5 px-3 transition-all duration-150",
+                    "relative flex items-center gap-3 rounded-md py-2 px-3 transition-all duration-150",
                     active
                       ? "bg-brand/10 text-brand"
                       : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                    isCollapsed && "justify-center px-0 py-3"
+                    isCollapsed && "justify-center px-0 py-2.5"
                   )}
                 >
                   <div className="relative shrink-0">
-                    <Icon size={16} strokeWidth={active ? 2.5 : 2} />
+                    <Icon size={14} strokeWidth={active ? 2.5 : 2} />
                     {badge > 0 && (
                       <span className={cn(
                         "absolute flex h-3.5 w-3.5 items-center justify-center rounded-full bg-brand text-[8px] font-bold text-white leading-none",
@@ -199,7 +280,7 @@ export function AppSidebar({
                     )}
                   </div>
                   {!isCollapsed && (
-                    <span className="flex-1 text-sm font-medium tracking-tight">
+                    <span className="flex-1 text-xs font-semibold tracking-tight">
                       {item.label}
                     </span>
                   )}

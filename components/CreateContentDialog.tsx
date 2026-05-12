@@ -19,7 +19,7 @@ const CHANNELS: ContentChannel[] = [
   'facebook', 'twitter', 'email', 'blog', 'other',
 ]
 
-export function CreateContentDialog({ children }: { children?: React.ReactNode }) {
+export function CreateContentDialog({ children, campaignId }: { children?: React.ReactNode; campaignId?: string }) {
   const t = useTranslations('dialogs.content')
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -50,6 +50,7 @@ export function CreateContentDialog({ children }: { children?: React.ReactNode }
             title,
             channel,
             status: 'drafting',
+            campaign_id: campaignId || null,
           },
         }),
       })

@@ -35,17 +35,36 @@ interface Props {
   clients: { id: string; company_name: string }[];
   campaigns: { id: string; name: string }[];
   defaultStatus?: TaskStatus;
+  defaultCampaignId?: string;
+  defaultClientId?: string;
   defaultOpen?: boolean;
   onClose?: () => void;
+  children?: React.ReactNode;
 }
 
-export function NewTaskDialog({ workspaceId, members, clients, campaigns, defaultStatus = "todo", defaultOpen = false, onClose }: Props) {
+export function NewTaskDialog({
+  workspaceId,
+  members,
+  clients,
+  campaigns,
+  defaultStatus = "todo",
+  defaultCampaignId,
+  defaultClientId,
+  defaultOpen = false,
+  onClose,
+  children,
+}: Props) {
   const [open, setOpen] = useState(defaultOpen);
   const router = useRouter();
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { priority: "medium", status: defaultStatus },
+    defaultValues: {
+      priority: "medium",
+      status: defaultStatus,
+      campaign_id: defaultCampaignId,
+      client_id: defaultClientId,
+    },
   });
 
   function handleClose() {
@@ -72,7 +91,11 @@ export function NewTaskDialog({ workspaceId, members, clients, campaigns, defaul
     }
   }
 
-  const trigger = !onClose ? (
+  const trigger = children ? (
+    <DialogTrigger asChild>
+      {children}
+    </DialogTrigger>
+  ) : !onClose ? (
     <DialogTrigger asChild>
       <Button size="sm" className="h-8 rounded-sm bg-brand px-4 technical-label text-[10px] text-white hover:opacity-90 gap-2">
         <Plus size={14} /> Initialize Task
