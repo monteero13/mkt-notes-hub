@@ -73,8 +73,10 @@ export async function GET(request: Request) {
       }
 
       console.error("[Auth Callback] Error de intercambio de código:", error)
-    } catch (err) {
+      return NextResponse.redirect(`${origin}/${locale}/login?error=auth-code-error&message=${encodeURIComponent(error.message)}`)
+    } catch (err: any) {
       console.error("[Auth Callback] Error inesperado en callback:", err)
+      return NextResponse.redirect(`${origin}/${locale}/login?error=auth-code-error&message=${encodeURIComponent(err?.message || 'Error inesperado')}`)
     }
   }
 

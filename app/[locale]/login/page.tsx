@@ -42,11 +42,12 @@ function LoginContent() {
 
   useEffect(() => {
     const errorParam = searchParams?.get('error')
+    const errorDesc = searchParams?.get('message') || searchParams?.get('error_description')
     if (errorParam === 'auth-code-error') {
-      toast.error(locale === 'es' 
+      const defaultMsg = locale === 'es' 
         ? 'Error de autenticación. El código ha caducado o ya ha sido utilizado.' 
         : 'Authentication error. The code has expired or has already been used.'
-      )
+      toast.error(errorDesc ? `${locale === 'es' ? 'Error de autenticación' : 'Authentication error'}: ${errorDesc}` : defaultMsg)
     }
   }, [searchParams, locale])
 
