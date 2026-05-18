@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -30,6 +30,7 @@ export function NewCampaignDialog({ workspaceId, clients, defaultOpen = false }:
   const td = useTranslations("campanas.dialog");
   const [open, setOpen] = useState(defaultOpen);
   const router = useRouter();
+  const [, startTransition] = useTransition();
 
   const schema = z.object({
     name: z.string().min(1, td("error_name_required")).max(150),
@@ -65,7 +66,7 @@ export function NewCampaignDialog({ workspaceId, clients, defaultOpen = false }:
       toast.success(td("success_msg"));
       reset();
       setOpen(false);
-      router.refresh();
+      startTransition(() => { router.refresh(); });
     }
   }
 

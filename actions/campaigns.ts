@@ -51,7 +51,8 @@ export async function createCampaign(input: unknown) {
     metadata: { title: parsed.data.name },
   });
 
-  revalidatePath("/campaigns");
+  revalidatePath('/[locale]/campaigns', 'page');
+  revalidatePath('/[locale]/dashboard', 'page');
   return { data };
 }
 
@@ -73,7 +74,8 @@ export async function updateCampaign(id: string, workspaceId: string, input: unk
     .single();
 
   if (error) return { error: error.message };
-  revalidatePath("/campaigns");
+  revalidatePath('/[locale]/campaigns', 'page');
+  revalidatePath('/[locale]/dashboard', 'page');
   return { data };
 }
 
@@ -86,6 +88,7 @@ export async function deleteCampaign(id: string, workspaceId: string) {
     .eq("workspace_id", workspaceId);
 
   if (error) return { error: error.message };
-  revalidatePath("/campaigns");
+  revalidatePath('/[locale]/campaigns', 'page');
+  revalidatePath('/[locale]/dashboard', 'page');
   return { success: true };
 }

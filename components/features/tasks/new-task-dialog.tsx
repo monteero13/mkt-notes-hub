@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -42,6 +42,7 @@ interface Props {
 export function NewTaskDialog({ workspaceId, members, clients, campaigns, defaultStatus = "todo", defaultOpen = false, onClose }: Props) {
   const [open, setOpen] = useState(defaultOpen);
   const router = useRouter();
+  const [, startTransition] = useTransition();
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -68,7 +69,7 @@ export function NewTaskDialog({ workspaceId, members, clients, campaigns, defaul
       toast.success("Tactical deployment successful");
       reset();
       handleClose();
-      router.refresh();
+      startTransition(() => { router.refresh(); });
     }
   }
 

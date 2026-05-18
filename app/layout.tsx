@@ -93,6 +93,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      translate="no"
       className={`${GeistSans.variable} ${GeistMono.variable} ${clashGrotesk.variable} ${satoshi.variable} ${switzer.variable}`}
       suppressHydrationWarning
     >

@@ -34,7 +34,8 @@ export function useDashboardData() {
         .from('tasks')
         .select('*', { count: 'exact', head: true })
         .eq('workspace_id', workspaceId)
-        .neq('status', 'done');
+        .neq('status', 'done')
+        .neq('status', 'canceled');
 
       const [list, total, pending] = await Promise.all([
         listPromise,

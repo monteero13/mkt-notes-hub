@@ -66,7 +66,8 @@ export async function createTask(input: unknown) {
     metadata: { title: parsed.data.title },
   });
 
-  revalidatePath("/tasks");
+  revalidatePath('/[locale]/planner', 'page');
+  revalidatePath('/[locale]/dashboard', 'page');
   return { data };
 }
 
@@ -93,7 +94,8 @@ export async function updateTask(id: string, workspaceId: string, input: unknown
     .single();
 
   if (error) return { error: error.message };
-  revalidatePath("/tasks");
+  revalidatePath('/[locale]/planner', 'page');
+  revalidatePath('/[locale]/dashboard', 'page');
   return { data };
 }
 
@@ -106,7 +108,8 @@ export async function deleteTask(id: string, workspaceId: string) {
     .eq("workspace_id", workspaceId);
 
   if (error) return { error: error.message };
-  revalidatePath("/tasks");
+  revalidatePath('/[locale]/planner', 'page');
+  revalidatePath('/[locale]/dashboard', 'page');
   return { success: true };
 }
 
@@ -124,7 +127,8 @@ export async function addTaskComment(taskId: string, content: string, workspaceI
     .single();
 
   if (error) return { error: error.message };
-  revalidatePath("/tasks");
+  revalidatePath('/[locale]/planner', 'page');
+  revalidatePath('/[locale]/dashboard', 'page');
   return { data };
 }
 
@@ -143,6 +147,7 @@ export async function updateTaskStatus(id: string, status: string, workspaceId: 
     .eq("workspace_id", workspaceId);
 
   if (error) return { error: error.message };
-  revalidatePath("/tasks");
+  revalidatePath('/[locale]/planner', 'page');
+  revalidatePath('/[locale]/dashboard', 'page');
   return { success: true };
 }

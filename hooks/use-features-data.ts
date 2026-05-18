@@ -131,6 +131,7 @@ export function useTasks() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', activeWorkspace?.id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-tasks', activeWorkspace?.id] });
     },
   });
 
@@ -148,6 +149,7 @@ export function useTasks() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', activeWorkspace?.id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-tasks', activeWorkspace?.id] });
     },
   });
 
@@ -163,6 +165,7 @@ export function useTasks() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks', activeWorkspace?.id] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-tasks', activeWorkspace?.id] });
     },
   });
 
